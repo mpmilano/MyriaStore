@@ -1,6 +1,5 @@
 package remote;
 
-import handles.Handle;
 import handles.access.ReadWrite;
 
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public class ObjectManager {
 			//unless I screw something up very badly, this type is correct.
 			@SuppressWarnings("unchecked")
 			BackingStore<Model> bs = (BackingStore<Model>) tbs;
-			return new Handle<T,ReadWrite,Model,Model>(bs);
+			return new Handle<T,ReadWrite,Model,Model>(m,bs);
 		}
 		throw new RuntimeException("No matching Store found! This is clearly a bug!");
 	}
