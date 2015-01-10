@@ -1,7 +1,6 @@
 package operations;
 
 import consistency.BaseModel;
-import remote.BackingStore;
 import remote.Handle;
 import remote.RemoteObject;
 

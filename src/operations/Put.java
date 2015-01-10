@@ -21,6 +21,6 @@ public class Put<T, Model extends BaseModel> extends BaseNativeOperation<Void, M
 
 	@Override
 	public Void noop() {
-		return null;
+		throw new RuntimeException("You MUST SUPPORT Put and Get on your store.");
 	}
 }
