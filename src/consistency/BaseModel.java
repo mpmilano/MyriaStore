@@ -4,13 +4,20 @@ package consistency;
 //Language extensions ho!
 
 //must be singleton!
-public abstract class BaseModel {
+public abstract class BaseModel implements Comparable<BaseModel>{
 
 	private static boolean fls = false;
 	
-	abstract boolean equals(BaseModel bm);
-	public BaseModel(){
+	protected BaseModel(){
 		if (fls) throw new RuntimeException("Must be singleton!");
 		fls = true;
 	}
+	
+	//TODO: use lattice 'n stuff to make this correct
+	@Override
+	public int compareTo(BaseModel o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
 }

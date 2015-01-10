@@ -6,5 +6,4 @@ import consistency.BaseModel;
 
 public interface BaseOperation<T, M extends BaseModel> extends Callable<T>{
 	public T execute();
-	public T noop();
 }

@@ -19,7 +19,7 @@ public class Get<T, Model extends BaseModel> extends BaseNativeOperation<T, Mode
 	@Override
 	public T noop() {
 		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("You MUST SUPPORT Put and Get on your store.");
 	}
 
 }

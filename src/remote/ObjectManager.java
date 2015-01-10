@@ -3,9 +3,10 @@ package remote;
 import handles.access.ReadWrite;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+
 
 import consistency.BaseModel;
 
@@ -15,15 +16,15 @@ import consistency.BaseModel;
 
 public class ObjectManager {
 	
-	private Map<BaseModel,Set<BackingStore<?>> > bsl = new HashMap<BaseModel,Set<BackingStore<?>>>();
+	private Map<BaseModel,List<BackingStore<?>> > bsl = new HashMap<>();
 	
 	public <Model extends BaseModel> boolean registerStore(BackingStore<Model> e){
-		if (!bsl.containsKey(e.getModel())) bsl.put(e.getModel(),new TreeSet<BackingStore<?>>());
+		if (!bsl.containsKey(e.getModel())) bsl.put(e.getModel(),new LinkedList<BackingStore<?>>());
 		bsl.get(e.getModel()).add(e);
 		return true;
 	}
 	public <Model extends BaseModel> void deactivateStore(BackingStore<Model> e){
-		bsl.remove(e.getModel());
+		bsl.get(e.getModel()).remove(e);
 	}
 	
 	public <Model extends BaseModel, T> Handle<T,ReadWrite,Model,Model> newObject(Model m, T t){
@@ -32,7 +33,7 @@ public class ObjectManager {
 			//unless I screw something up very badly, this type is correct.
 			@SuppressWarnings("unchecked")
 			BackingStore<Model> bs = (BackingStore<Model>) tbs;
-			return new Handle<T,ReadWrite,Model,Model>(m,bs);
+			return new Handle<T,ReadWrite,Model,Model>(m,bs,t);
 		}
 		throw new RuntimeException("No matching Store found! This is clearly a bug!");
 	}

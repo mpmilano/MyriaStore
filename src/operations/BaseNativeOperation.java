@@ -25,4 +25,6 @@ public abstract class BaseNativeOperation<T, M extends BaseModel> implements Bas
 		return executeOn(h.ro.store);
 	}
 	
+	public abstract T noop();
+	
 }

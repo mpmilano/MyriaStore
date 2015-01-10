@@ -9,8 +9,8 @@ public final class Handle <T, Access extends Unspecified,
 	public final RemoteObject<T,Original,?> ro;
 	public final Consistency c;
 	
-	public Handle(Consistency m, BackingStore<Original> bs){
-		ro = bs.newObject();
+	public Handle(Consistency m, BackingStore<Original> bs, T t){
+		ro = bs.newObject(t);
 		c = m;
 	}
 	
