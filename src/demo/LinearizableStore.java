@@ -1,5 +1,6 @@
 package demo;
 
+import consistency.BaseModel;
 import consistency.Linearizable;
 import operations.Get;
 import operations.Put;
@@ -20,24 +21,22 @@ public class LinearizableStore extends BackingStore<Linearizable> {
 			super(LinearizableStore.this);
 			this.t = t;
 		}
+
+		@Override
+		public <M extends BaseModel> T runOp(Get<T, M> op) {
+			return t;
+		}
+
+		@Override
+		public <M extends BaseModel> void runOp(Put<T, M> op) {
+			t = op.t;
+		}
+
 	}
 	
 	@Override
 	public <T> RemoteObject<T, Linearizable, BackingStore<Linearizable>> newObject(T t) {
 		return new RObject<T>(t);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T, M /*compat*/ extends consistency.BaseModel> T runOp(Get<T,M> op) {
-		return ((RObject<T>) op.h.ro).t;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T, M /*compat*/ extends consistency.BaseModel> Void runOp(Put<T, M> op) {
-		((RObject<T>) op.h.ro).t = op.t;
-		return null;
 	}
 
 }

@@ -2,8 +2,8 @@ package operations;
 
 import consistency.BaseModel;
 import handles.access.ReadOnly;
-import remote.BackingStore;
 import remote.Handle;
+import remote.RemoteObject;
 
 public class Put<T, Model extends BaseModel> extends BaseNativeOperation<Void, Model> {
 
@@ -15,7 +15,7 @@ public class Put<T, Model extends BaseModel> extends BaseNativeOperation<Void, M
 	}
 	
 	@Override
-	public <OtherModel /*compat*/ extends BaseModel> Void executeOn(BackingStore<OtherModel> bs) {
+	public <OtherModel /*compat*/ extends BaseModel> Void executeOn(RemoteObject<?, OtherModel, ?> bs) {
 		return bs.runOp(this);
 	}
 

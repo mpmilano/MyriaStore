@@ -3,6 +3,7 @@ package operations;
 import consistency.BaseModel;
 import remote.BackingStore;
 import remote.Handle;
+import remote.RemoteObject;
 
 public abstract class BaseNativeOperation<T, M extends BaseModel> implements BaseOperation<T,M>{
 
@@ -12,7 +13,7 @@ public abstract class BaseNativeOperation<T, M extends BaseModel> implements Bas
 		this.h = h;
 	}
 	
-	public abstract <OtherModel /*compat*/ extends BaseModel> T executeOn(BackingStore<OtherModel> bs);
+	public abstract <OtherModel /*compat*/ extends BaseModel> T executeOn(RemoteObject<?,OtherModel,?> bs);
 		
 	@Override
 	public T call() throws Exception {
@@ -22,7 +23,7 @@ public abstract class BaseNativeOperation<T, M extends BaseModel> implements Bas
 	
 	@Override
 	public T execute(){
-		return executeOn(h.ro.store);
+		return executeOn(h.ro);
 	}
 	
 	public abstract T noop();
