@@ -5,7 +5,7 @@ import handles.access.ReadOnly;
 import remote.Handle;
 import remote.RemoteObject;
 
-public class Put<T, Model extends BaseModel> extends BaseNativeOperation<Void, Model> {
+public class Put<T, Model extends BaseModel> extends BaseNativeOperation1<Void, T, Model> {
 
 	public final T t;
 	
@@ -15,8 +15,9 @@ public class Put<T, Model extends BaseModel> extends BaseNativeOperation<Void, M
 	}
 	
 	@Override
-	public <OtherModel /*compat*/ extends BaseModel> Void executeOn(RemoteObject<?, OtherModel, ?> bs) {
-		return bs.runOp(this);
+	public <OtherModel /*compat*/ extends BaseModel> Void executeOn(RemoteObject<T, OtherModel, ?> bs) {
+		bs.runOp(this);
+		return null;
 	}
 
 	@Override

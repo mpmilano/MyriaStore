@@ -8,18 +8,25 @@ public final class Handle <T, Access extends Unspecified,
 						Original extends consistency.BaseModel> {
 	public final RemoteObject<T,Original,?> ro;
 	public final Consistency c;
+	public final Original oc;
 	
+	//TODO: constrain that this constructor variant only works
+	//when original consistency and thishandle Consistency are the 
+	//same.
 	public Handle(Consistency m, BackingStore<Original> bs, T t){
 		ro = bs.newObject(t);
 		c = m;
+		oc = bs.getModel();
 	}
 	
 	//TODO - need a "compatible" construct here
-	public <OldConsistency /* compatible */extends Original, OldAccess extends Access>
+	public <OldConsistency /* compatible */extends Original, 
+			OldAccess extends Access, OldT extends T>
 	//actually, I think an allow_when or enable_if construct would do just as well.
-	Handle(Handle<T,OldAccess,OldConsistency,Original> h, Consistency c){
-		this.ro = h.ro;
+	Handle(Handle<OldT,OldAccess,OldConsistency,Original> h, Consistency c){
+		this.ro = h.ro.generalize();
 		this.c = c;
+		this.oc = h.oc;
 	}
 	
 }
