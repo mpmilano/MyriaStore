@@ -5,12 +5,12 @@ import consistency.Linearizable;
 import demo.CustomOp;
 import demo.LinearizableStore;
 import remote.Handle;
-import remote.ObjectManager;
+import remote.ObjectManager_impl;
 
 
 public class Main {
 	public static void main(String[] args){
-		ObjectManager om = new ObjectManager();
+		ObjectManager_impl om = new ObjectManager_impl();
 		LinearizableStore ln = new LinearizableStore();
 		om.registerStore(ln);
 		

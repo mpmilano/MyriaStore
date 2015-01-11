@@ -20,9 +20,12 @@ S extends BackingStore<Model> > {
 
 	public abstract <M /*compat*/ extends consistency.BaseModel> T runOp(Get<T,M> op);
 	public abstract <M /*compat*/ extends consistency.BaseModel> void runOp(Put<T, M> op);
-
-	//ideally, "T2 super T" should go here.
-	public abstract <T2> RemoteObject<T2,Model, S> generalize();
+	
+	///arrrghh
+	static <T, T2 extends T, Model extends BaseModel, S extends BackingStore<Model>> 
+	RemoteObject<T,Model,S> generalize(RemoteObject<T2,Model,S> ro){
+		return (RemoteObject<T, Model, S>) ro;
+	}
 
 	@SuppressWarnings("unchecked")
 	public <T1, M extends BaseModel> T1 runOp(
