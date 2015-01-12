@@ -15,12 +15,12 @@ import consistency.BaseModel;
 //we'll have to have mutually-dependent constructors or something (for model and store).
 
 public class ObjectManager_impl implements ObjectManager {
-	
+
 	//I want dependent types here, so that I can say the "?" will be
 	//substituted with whatever more specific type BaseModel has.
 	private Map<BaseModel,List<BackingStore<?,?>> > bsl = new HashMap<>();
 
-	
+
 	@Override
 	public <Model extends BaseModel, S extends BackingStore<Model, S>> boolean registerStore(
 			S e) {
@@ -37,13 +37,9 @@ public class ObjectManager_impl implements ObjectManager {
 
 	@Override
 	public <Model extends BaseModel, T, Location extends BackingStore<Model, Location>> Handle<T, ReadWrite, Model, Model, Location> newObject(
-			Model m, T t) {
-		
-		for (BackingStore<?,?> tbs : bsl.get(m)){
-			//TODO: this is definitely wrong.
-			Location bs = (Location) tbs;
-			return new Handle<T,ReadWrite,Model,Model,Location>(m,bs,t);
-		}
-		throw new RuntimeException("No matching Store found! This is clearly a bug!");
+			Model m, T t, Location bs) {
+
+		//TODO: this is definitely wrong.
+		return new Handle<T,ReadWrite,Model,Model,Location>(m,bs,t);
 	}
 }

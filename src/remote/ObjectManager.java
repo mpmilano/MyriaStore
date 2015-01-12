@@ -13,6 +13,6 @@ public interface ObjectManager {
 
 	public abstract <Model extends BaseModel, T, Location extends BackingStore<Model, Location>> 
 	Handle<T, ReadWrite, Model, Model,Location> newObject(
-			Model m, T t);
+			Model m, T t, Location l);
 
 }
