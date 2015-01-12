@@ -24,7 +24,6 @@ S extends BackingStore<O, S>> implements BaseOperation<ReturnType,M>{
 
 	@Override
 	public ReturnType call() throws Exception {
-		// TODO Auto-generated method stub
 		return execute();
 	}
 

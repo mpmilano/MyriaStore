@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import consistency.BaseModel;
 import operations.BaseNativeOperation1;
+import operations.BaseNativeOperation2;
 import operations.Get;
 import operations.Put;
 
@@ -21,12 +22,13 @@ S extends BackingStore<Model,S> > {
 	public abstract <M /*compat*/ extends consistency.BaseModel> T runOp(Get<T,M> op);
 	public abstract <M /*compat*/ extends consistency.BaseModel> void runOp(Put<T, M> op);
 	
-	///arrrghh
+	///arrrghh if only "super" existed in the context I want!
 	static <T, T2 extends T, Model extends BaseModel, S extends BackingStore<Model,S>> 
 	RemoteObject<T,Model,S> generalize(RemoteObject<T2,Model,S> ro){
 		return (RemoteObject<T, Model, S>) ro;
 	}
 
+	//HOLY BALLS IS THIS SKETCHY.
 	@SuppressWarnings("unchecked")
 	public <T1, M extends BaseModel> T1 runOp(
 			BaseNativeOperation1<T1, T, M> op) {
@@ -44,6 +46,13 @@ S extends BackingStore<Model,S> > {
 				// TODO Auto-generated catch block
 				throw new RuntimeException(e);
 			}
+	}
+	
+
+	public <Ret, T2> Ret runOp(
+			BaseNativeOperation2<Ret, T, T2, Model, Model, S> op, RemoteObject<T2,Model,S> ro2) {
+		//TODO: aaaaah where do the arguments go.
+		return null;
 	}
 	//public abstract <T1, M /*compat*/ extends consistency.BaseModel> T1 runOp(BaseNativeOperation1<T1,T,M> op);
 	//*/
