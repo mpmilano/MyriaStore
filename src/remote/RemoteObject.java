@@ -8,7 +8,7 @@ import operations.Get;
 import operations.Put;
 
 public abstract class RemoteObject<T, Model extends consistency.BaseModel, 
-S extends BackingStore<Model> > {
+S extends BackingStore<Model,S> > {
 	public final S store;
 	protected RemoteObject(S store){
 		this.store = store;
@@ -22,7 +22,7 @@ S extends BackingStore<Model> > {
 	public abstract <M /*compat*/ extends consistency.BaseModel> void runOp(Put<T, M> op);
 	
 	///arrrghh
-	static <T, T2 extends T, Model extends BaseModel, S extends BackingStore<Model>> 
+	static <T, T2 extends T, Model extends BaseModel, S extends BackingStore<Model,S>> 
 	RemoteObject<T,Model,S> generalize(RemoteObject<T2,Model,S> ro){
 		return (RemoteObject<T, Model, S>) ro;
 	}

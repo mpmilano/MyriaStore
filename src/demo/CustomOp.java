@@ -9,8 +9,8 @@ import consistency.Linearizable;
 
 public class CustomOp extends BaseNativeOperation1<Void, Object, Linearizable> {
 
-	public <T, a extends Unspecified> CustomOp(Handle<T, a, Linearizable, Linearizable> h) {
-		super(new Handle<Object, a, Linearizable, Linearizable>(h, h.c));
+	public <T, a extends Unspecified> CustomOp(Handle<T, a, Linearizable, Linearizable, LinearizableStore> h) {
+		super(new Handle<Object, a, Linearizable, Linearizable, LinearizableStore>(h, h.c));
 		// TODO Auto-generated constructor stub
 	}
 

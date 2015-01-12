@@ -9,7 +9,7 @@ public class Put<T, Model extends BaseModel> extends BaseNativeOperation1<Void, 
 
 	public final T t;
 	
-	public <A extends ReadOnly> Put(Handle<T,A,Model,?> h, T t){
+	public <A extends ReadOnly> Put(Handle<T,A,Model,?,?> h, T t){
 		super(h);
 		this.t = t;
 	}

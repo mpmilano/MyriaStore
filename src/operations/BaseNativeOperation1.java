@@ -8,9 +8,9 @@ public abstract class BaseNativeOperation1<ReturnType,
 	ObjectType, 
 	M extends BaseModel> implements BaseOperation<ReturnType,M>{
 
-	public final Handle<ObjectType,?,M,?> h;
+	public final Handle<ObjectType,?,M,?,?> h;
 	
-	public BaseNativeOperation1 (Handle<ObjectType,?,M,?> h){
+	public BaseNativeOperation1 (Handle<ObjectType,?,M,?,?> h){
 		this.h = h;
 	}
 	

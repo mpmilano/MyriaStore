@@ -7,7 +7,7 @@ import remote.RemoteObject;
 
 public class Get<T, Model extends BaseModel> extends BaseNativeOperation1<T, T, Model> {
 
-	public <A extends ReadOnly> Get(Handle<T,A,Model,?> h){
+	public <A extends ReadOnly> Get(Handle<T,A,Model,?,?> h){
 		super(h);
 	}
 	@Override

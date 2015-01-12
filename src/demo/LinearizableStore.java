@@ -7,14 +7,14 @@ import consistency.Linearizable;
 import remote.BackingStore;
 import remote.RemoteObject;
 
-public class LinearizableStore extends BackingStore<Linearizable> {
+public class LinearizableStore extends BackingStore<Linearizable, LinearizableStore> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());
 	}
 
 	public class LinearizableStoreObject<T> extends
-			RemoteObject<T, Linearizable, BackingStore<Linearizable>> {
+			RemoteObject<T, Linearizable, LinearizableStore> {
 		
 		public T t;
 		
@@ -40,7 +40,7 @@ public class LinearizableStore extends BackingStore<Linearizable> {
 	}
 	
 	@Override
-	public <T> RemoteObject<T, Linearizable, BackingStore<Linearizable>> newObject(T t) {
+	public <T> RemoteObject<T, Linearizable, LinearizableStore> newObject(T t) {
 		return new LinearizableStoreObject<T>(t,this);
 	}
 
