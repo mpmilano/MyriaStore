@@ -2,8 +2,8 @@ package demo;
 
 import consistency.Linearizable;
 import operations.BaseNativeOperation2;
+import remote.BackingStore;
 import remote.Handle;
-import remote.RemoteObject;
 
 public class CutomOp2<T1, T2>
 		extends
@@ -17,8 +17,8 @@ public class CutomOp2<T1, T2>
 
 	@Override
 	public Void executeOn(
-			RemoteObject<T1, Linearizable, LinearizableStore> bs1,
-			RemoteObject<T2, Linearizable, LinearizableStore> bs2) {
+			BackingStore<Linearizable,LinearizableStore>.RemoteObject<T1> bs1,
+			BackingStore<Linearizable,LinearizableStore>.RemoteObject<T2> bs2) {
 		return bs1.runOp(this,bs2);
 	}
 

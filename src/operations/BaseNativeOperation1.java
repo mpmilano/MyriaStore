@@ -1,20 +1,22 @@
 package operations;
 
 import consistency.BaseModel;
+import remote.BackingStore;
 import remote.Handle;
-import remote.RemoteObject;
 
 public abstract class BaseNativeOperation1<ReturnType, 
-	ObjectType, 
-	M extends BaseModel> implements BaseOperation<ReturnType,M>{
+	ObjectType,
+	StoreAt extends BaseModel,
+	ExecuteAt /*compat */ extends StoreAt> implements BaseOperation<ReturnType,ExecuteAt>{
 
-	public final Handle<ObjectType,?,M,?,?> h;
+	public final Handle<ObjectType,?,ExecuteAt,StoreAt,?> h;
 	
-	public BaseNativeOperation1 (Handle<ObjectType,?,M,?,?> h){
+	public BaseNativeOperation1 (Handle<ObjectType,?,ExecuteAt,StoreAt,?> h){
 		this.h = h;
 	}
 	
-	public abstract <OtherModel /*compat*/ extends BaseModel> ReturnType executeOn(RemoteObject<ObjectType,OtherModel,?> bs);
+	public abstract  
+	ReturnType executeOn(BackingStore<StoreAt, ?>.RemoteObject<ObjectType> bs);
 		
 	@Override
 	public ReturnType call() throws Exception {

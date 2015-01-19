@@ -7,7 +7,7 @@ public final class Handle <T, Access extends Unspecified,
 						Consistency extends consistency.BaseModel,
 						Original extends consistency.BaseModel,
 						Location extends BackingStore<Original, Location>> {
-	public final RemoteObject<T,Original,Location> ro;
+	public final remote.BackingStore<Original,Location>.RemoteObject<T> ro;
 	public final Consistency c;
 	public final Original oc;
 	
@@ -25,10 +25,8 @@ public final class Handle <T, Access extends Unspecified,
 			OldAccess extends Access, OldT extends T>
 	//actually, I think an allow_when or enable_if construct would do just as well.
 	Handle(Handle<OldT,OldAccess,OldConsistency,Original, Location> h, Consistency c){
-		this.ro = RemoteObject.generalize(h.ro);
+		this.ro = Location.generalize(h.ro);
 		this.c = c;
 		this.oc = h.oc;
 	}
-	
-	
 }

@@ -3,7 +3,6 @@ package operations;
 import consistency.BaseModel;
 import remote.BackingStore;
 import remote.Handle;
-import remote.RemoteObject;
 
 public abstract class BaseNativeOperation2<ReturnType, 
 ObjectType1,ObjectType2,  
@@ -20,7 +19,7 @@ S extends BackingStore<O, S>> implements BaseOperation<ReturnType,M>{
 	}
 
 	public abstract ReturnType 
-	executeOn(RemoteObject<ObjectType1,O,S> bs1, RemoteObject<ObjectType2, O, S> bs2);
+	executeOn(BackingStore<O,S>.RemoteObject<ObjectType1> bs1, BackingStore<O,S>.RemoteObject<ObjectType2> bs2);
 
 	@Override
 	public ReturnType call() throws Exception {

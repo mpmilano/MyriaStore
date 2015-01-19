@@ -2,17 +2,16 @@ package operations;
 
 import consistency.BaseModel;
 import handles.access.ReadOnly;
+import remote.BackingStore;
 import remote.Handle;
-import remote.RemoteObject;
 
-public class Get<T, Model extends BaseModel> extends BaseNativeOperation1<T, T, Model> {
+public class Get<T, StoreModel extends BaseModel, Model extends StoreModel> extends BaseNativeOperation1<T, T, StoreModel, Model> {
 
-	public <A extends ReadOnly> Get(Handle<T,A,Model,?,?> h){
+	public <A extends ReadOnly> Get(Handle<T,A,Model,StoreModel,?> h){
 		super(h);
 	}
 	@Override
-	public <OtherModel extends BaseModel> T executeOn(
-			RemoteObject<T, OtherModel, ?> bs) {
+	public T executeOn(BackingStore<StoreModel,?>.RemoteObject<T> bs) {
 		return bs.runOp(this);
 	}
 
@@ -23,8 +22,6 @@ public class Get<T, Model extends BaseModel> extends BaseNativeOperation1<T, T, 
 		// TODO Auto-generated method stub
 		throw new RuntimeException("You MUST SUPPORT Put and Get on your store.");
 	}
-
-
 
 
 }
