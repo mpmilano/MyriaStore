@@ -1,16 +1,20 @@
 package consistency;
 
-public class Linearizable extends BaseModel {
+import handles.access.ReadWrite;
+import handles.access.Unspecified;
+
+public class Linearizable<T extends Unspecified> extends BaseModel<T> {
 	
-	private static Linearizable el;
+	private static Linearizable<ReadWrite> el;
 	
+	@SuppressWarnings("unchecked")
 	private Linearizable(){
 		super();
-		el = this;
+		el = (Linearizable<ReadWrite>) this;
 	}
 	
-	public static Linearizable model(){
-		if (el == null) el = new Linearizable();
+	public static Linearizable<ReadWrite> model(){
+		if (el == null) el = new Linearizable<ReadWrite>();
 		return el;
 	}
 	

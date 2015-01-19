@@ -1,5 +1,7 @@
 package consistency;
 
-public class Causal extends BaseModel {
+import handles.access.Unspecified;
+
+public class Causal<T extends Unspecified> extends BaseModel<T> {
 
 }

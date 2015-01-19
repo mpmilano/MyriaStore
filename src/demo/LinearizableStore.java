@@ -1,11 +1,12 @@
 package demo;
 
+import handles.access.ReadWrite;
 import operations.Get;
 import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
 
-public class LinearizableStore extends BackingStore<Linearizable, LinearizableStore> {
+public class LinearizableStore extends BackingStore<Linearizable<ReadWrite>, LinearizableStore> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());
