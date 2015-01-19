@@ -1,17 +1,16 @@
 package remote;
 
-import handles.access.Unspecified;
-
 import java.lang.reflect.InvocationTargetException;
 
 import operations.BaseNativeOperation1;
 import operations.BaseNativeOperation2;
 import operations.Get;
 import operations.Put;
+import consistency.BaseModel;
 
 
-public abstract class BackingStore<Access extends Unspecified, Model extends consistency.BaseModel<Access>, 
-	BS extends BackingStore<Access, Model, BS>> {
+public abstract class BackingStore<Model extends consistency.BaseModel, 
+	BS extends BackingStore<Model, BS>> {
 	
 	public abstract class RemoteObject<T>{
 		public final BS store;
@@ -59,9 +58,9 @@ public abstract class BackingStore<Access extends Unspecified, Model extends con
 		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
 	}
 	
-	public static <Access extends Unspecified, Model extends consistency.BaseModel<Access>, 
-	BS extends BackingStore<Access, Model, BS>, T2, T extends T2>
-	BackingStore<Access, Model, BS>.RemoteObject<T2> generalize(BackingStore<Access, Model, BS>.RemoteObject<T> r){
+	public static <Model extends consistency.BaseModel, 
+		BS extends BackingStore<Model, BS>, T2, T extends T2> 
+	BackingStore<Model, BS>.RemoteObject<T2> generalize(BackingStore<Model, BS>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}

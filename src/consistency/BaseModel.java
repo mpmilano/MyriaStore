@@ -1,13 +1,10 @@
 package consistency;
 
-import handles.access.AccessLevel;
-import handles.access.Unspecified;
-
 //this will pretty much have to available at compile-time, somehow.  
 //Language extensions ho!
 
 //must be singleton!
-public abstract class BaseModel<T extends Unspecified> implements AccessLevel<T>, Comparable<BaseModel<T>>{
+public abstract class BaseModel implements Comparable<BaseModel>{
 
 	private static boolean fls = false;
 	
@@ -18,7 +15,7 @@ public abstract class BaseModel<T extends Unspecified> implements AccessLevel<T>
 	
 	//TODO: use lattice 'n stuff to make this correct
 	@Override
-	public int compareTo(BaseModel<T> o) {
+	public int compareTo(BaseModel o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
