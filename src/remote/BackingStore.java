@@ -8,7 +8,7 @@ import operations.Get;
 import operations.Put;
 
 
-public abstract class BackingStore<Model extends consistency.BaseModel> {
+public abstract class BackingStore<Model extends consistency.BaseModel<handles.access.Any>> {
 	
 	public abstract class RemoteObject<T>{
 		public final BackingStore<Model> store;
@@ -56,7 +56,7 @@ public abstract class BackingStore<Model extends consistency.BaseModel> {
 		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
 	}
 	
-	public static <Model extends consistency.BaseModel, 
+	public static <Model extends consistency.BaseModel<handles.access.Any>, 
 		BS extends BackingStore<Model>, T2, T extends T2> 
 	BackingStore<Model>.RemoteObject<T2> generalize(BackingStore<Model>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();

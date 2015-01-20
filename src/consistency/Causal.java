@@ -1,5 +1,5 @@
 package consistency;
 
-public class Causal extends BaseModel {
+public class Causal extends BaseModel<handles.access.Any> {
 
 }

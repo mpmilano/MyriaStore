@@ -1,16 +1,21 @@
 package consistency;
 
-public class Linearizable extends BaseModel {
+public class Linearizable<A extends handles.access.Any> extends BaseModel<handles.access.Any> {
 	
-	private static Linearizable el;
+	private static Linearizable<handles.access.Any> el;
 	
 	private Linearizable(){
 		super();
-		el = this;
+		el = generalize(this);
 	}
 	
-	public static Linearizable model(){
-		if (el == null) el = new Linearizable();
+	@SuppressWarnings("unchecked")
+	public static <A extends handles.access.Any, Aold extends A> Linearizable<A> generalize(Linearizable<Aold> b){
+		return (Linearizable<A>) b;
+	}
+	
+	public static Linearizable<handles.access.Any> model(){
+		if (el == null) el = new Linearizable<handles.access.Any>();
 		return el;
 	}
 	
