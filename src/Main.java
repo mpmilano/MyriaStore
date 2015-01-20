@@ -15,9 +15,13 @@ public class Main {
 		LinearizableStore ln = new LinearizableStore();
 		om.registerStore(ln);
 		
-		Handle<Integer, ReadWrite, Linearizable, Linearizable,LinearizableStore> o = 
-				om.newObject(ln.getModel(), new Integer(3), ln);
+		Handle<Integer, ReadWrite, Linearizable/**/, Linearizable,LinearizableStore> o = 
+				om.newObject(new Integer(3), ln);
+		
+		//o += 4;
 		new Put<>(o,new Get<>(o).execute() + 4).execute();
+		
+		//print o
 		System.out.println(new Get<>(o).execute());
 		new CustomOp(o).execute();
 	}

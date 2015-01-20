@@ -7,7 +7,7 @@ import remote.Handle;
 public abstract class BaseNativeOperation1<ReturnType, 
 	ObjectType,
 	StoreAt extends BaseModel,
-	ExecuteAt /*compat */ extends StoreAt> implements BaseOperation<ReturnType,ExecuteAt>{
+	ExecuteAt /*compat */ extends StoreAt> implements Operation<ReturnType,ExecuteAt>{
 
 	public final Handle<ObjectType,?,ExecuteAt,StoreAt,?> h;
 	
@@ -20,7 +20,6 @@ public abstract class BaseNativeOperation1<ReturnType,
 		
 	@Override
 	public ReturnType call() throws Exception {
-		// TODO Auto-generated method stub
 		return execute();
 	}
 	

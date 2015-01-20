@@ -37,9 +37,9 @@ public class ObjectManager_impl implements ObjectManager {
 
 	@Override
 	public <Model extends BaseModel, T, Location extends BackingStore<Model>> Handle<T, ReadWrite, Model, Model, Location> newObject(
-			Model m, T t, Location bs) {
+			T t, Location bs) {
 
 		//TODO: this is definitely wrong.
-		return new Handle<T,ReadWrite,Model,Model,Location>(m,bs,t);
+		return new Handle<T,ReadWrite,Model,Model,Location>(bs,t);
 	}
 }
