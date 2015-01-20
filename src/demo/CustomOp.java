@@ -1,20 +1,20 @@
 package demo;
 
-import handles.access.Unspecified;
+import handles.access.Any;
 import operations.BaseNativeOperation1;
 import remote.BackingStore;
 import remote.Handle;
 import consistency.Linearizable;
 
-public class CustomOp extends BaseNativeOperation1<Void, Object, Linearizable, Linearizable> {
+public class CustomOp extends BaseNativeOperation1<Void, Object, Linearizable<handles.access.Any>, Linearizable<handles.access.Any>> {
 
-	public <T, a extends Unspecified> CustomOp(Handle<T, a, Linearizable, Linearizable, LinearizableStore> h) {
-		super(new Handle<Object, a, Linearizable, Linearizable, LinearizableStore>(h, h.c));
+	public <T, a extends Any> CustomOp(Handle<T, a, Linearizable<handles.access.Any>, Linearizable<handles.access.Any>, LinearizableStore> h) {
+		super(new Handle<Object, a, Linearizable<handles.access.Any>, Linearizable<handles.access.Any>, LinearizableStore>(h, h.c));
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public Void executeOn(BackingStore<Linearizable,?>.RemoteObject<Object> bs) {
+	public Void executeOn(BackingStore<?,Linearizable<handles.access.Any>>.RemoteObject<Object> bs) {
 		// TODO Auto-generated method stub
 		return bs.runOp(this);
 		

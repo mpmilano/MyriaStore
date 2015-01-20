@@ -3,11 +3,11 @@ package remote;
 
 import handles.access.*;
 
-public final class Handle <T, Access extends Unspecified, 
-						Consistency extends consistency.BaseModel,
-						Original extends consistency.BaseModel,
-						Location extends BackingStore<Original, Location>> {
-	public final remote.BackingStore<Original,Location>.RemoteObject<T> ro;
+public final class Handle <T, Access extends Any, 
+						Consistency extends consistency.BaseModel<handles.access.Any>,
+						Original extends consistency.BaseModel<handles.access.Any>,
+						Location extends BackingStore<?, Original>> {
+	public final remote.BackingStore<?, Original>.RemoteObject<T> ro;
 	public final Consistency c;
 	public final Original oc;
 	

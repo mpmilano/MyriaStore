@@ -18,11 +18,11 @@ public class ObjectManager_impl implements ObjectManager {
 
 	//I want dependent types here, so that I can say the "?" will be
 	//substituted with whatever more specific type BaseModel has.
-	private Map<BaseModel,List<BackingStore<?,?>> > bsl = new HashMap<>();
+	private Map<BaseModel<handles.access.Any>,List<BackingStore<?,?>> > bsl = new HashMap<>();
 
 
 	@Override
-	public <Model extends BaseModel, S extends BackingStore<Model, S>> boolean registerStore(
+	public <Model extends BaseModel<handles.access.Any>, S extends BackingStore<?, Model>> boolean registerStore(
 			S e) {
 		if (!bsl.containsKey(e.getModel())) bsl.put(e.getModel(),new LinkedList<BackingStore<?,?>>());
 		bsl.get(e.getModel()).add(e);
@@ -30,13 +30,13 @@ public class ObjectManager_impl implements ObjectManager {
 
 	}
 	@Override
-	public <Model extends BaseModel, S extends BackingStore<Model, S>> void deactivateStore(
+	public <Model extends BaseModel<handles.access.Any>, S extends BackingStore<?, Model>> void deactivateStore(
 			S e) {
 		bsl.get(e.getModel()).remove(e);		
 	}
 
 	@Override
-	public <Model extends BaseModel, T, Location extends BackingStore<Model, Location>> Handle<T, ReadWrite, Model, Model, Location> newObject(
+	public <Model extends BaseModel<handles.access.Any>, T, Location extends BackingStore<?, Model>> Handle<T, ReadWrite, Model, Model, Location> newObject(
 			Model m, T t, Location bs) {
 
 		//TODO: this is definitely wrong.
