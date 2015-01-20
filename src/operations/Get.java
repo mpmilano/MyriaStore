@@ -16,10 +16,8 @@ public class Get<T, StoreModel extends BaseModel, Model extends StoreModel> exte
 	}
 
     	
-
 	@Override
 	public T noop() {
-		// TODO Auto-generated method stub
 		throw new RuntimeException("You MUST SUPPORT Put and Get on your store.");
 	}
 

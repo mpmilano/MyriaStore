@@ -10,7 +10,7 @@ import operations.Put;
 
 public abstract class BackingStore<Model extends consistency.BaseModel> {
 	
-	public abstract class RemoteObject<T>{
+	public abstract class RemoteObject<T> {
 		public final BackingStore<Model> store;
 		protected RemoteObject(BackingStore<Model> store){
 			this.store = store;
@@ -20,6 +20,7 @@ public abstract class BackingStore<Model extends consistency.BaseModel> {
 			this.store = o.store;
 		}
 
+		//The "expression" problem
 		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Model,M> op);
 		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Model,M> op);
 
