@@ -8,11 +8,11 @@ import operations.Get;
 import operations.Put;
 
 
-public abstract class BackingStore<Access extends handles.access.ReadWrite, Model extends consistency.BaseModel<Access>> {
+public abstract class BackingStore<Model extends consistency.BaseModel<handles.access.Any>> {
 	
 	public abstract class RemoteObject<T>{
-		public final BackingStore<Access, Model> store;
-		protected RemoteObject(BackingStore<Access, Model> store){
+		public final BackingStore<Model> store;
+		protected RemoteObject(BackingStore<Model> store){
 			this.store = store;
 		}
 
@@ -20,8 +20,8 @@ public abstract class BackingStore<Access extends handles.access.ReadWrite, Mode
 			this.store = o.store;
 		}
 
-		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Access,Model,M> op);
-		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Access,Model,M> op);
+		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Model,M> op);
+		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Model,M> op);
 
 		//HOLY BALLS IS THIS SKETCHY.
 		@SuppressWarnings("unchecked")
@@ -44,7 +44,7 @@ public abstract class BackingStore<Access extends handles.access.ReadWrite, Mode
 		}
 		
 
-		public <Ret, T2, A extends BackingStore<Access, Model> > Ret runOp(
+		public <Ret, T2, A extends BackingStore<Model> > Ret runOp(
 				BaseNativeOperation2<Ret, T, T2, Model, Model, A> op, RemoteObject<T2> ro2) {
 			//TODO: aaaaah where do the arguments go.
 			return null;
@@ -56,8 +56,9 @@ public abstract class BackingStore<Access extends handles.access.ReadWrite, Mode
 		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
 	}
 	
-	public static <Model extends consistency.BaseModel<handles.access.Any>, T2, T extends T2> 
-	BackingStore<?, Model>.RemoteObject<T2> generalize(BackingStore<?, Model>.RemoteObject<T> r){
+	public static <Model extends consistency.BaseModel<handles.access.Any>, 
+		BS extends BackingStore<Model>, T2, T extends T2> 
+	BackingStore<Model>.RemoteObject<T2> generalize(BackingStore<Model>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}
