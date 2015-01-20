@@ -14,7 +14,7 @@ public class CustomOp extends BaseNativeOperation1<Void, Object, Linearizable, L
 	}
 
 	@Override
-	public Void executeOn(BackingStore<Linearizable,?>.RemoteObject<Object> bs) {
+	public Void executeOn(BackingStore<Linearizable>.RemoteObject<Object> bs) {
 		// TODO Auto-generated method stub
 		return bs.runOp(this);
 		

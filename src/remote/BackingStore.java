@@ -6,15 +6,13 @@ import operations.BaseNativeOperation1;
 import operations.BaseNativeOperation2;
 import operations.Get;
 import operations.Put;
-import consistency.BaseModel;
 
 
-public abstract class BackingStore<Model extends consistency.BaseModel, 
-	BS extends BackingStore<Model, BS>> {
+public abstract class BackingStore<Model extends consistency.BaseModel> {
 	
 	public abstract class RemoteObject<T>{
-		public final BS store;
-		protected RemoteObject(BS store){
+		public final BackingStore<Model> store;
+		protected RemoteObject(BackingStore<Model> store){
 			this.store = store;
 		}
 
@@ -46,8 +44,8 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		}
 		
 
-		public <Ret, T2> Ret runOp(
-				BaseNativeOperation2<Ret, T, T2, Model, Model, BS> op, RemoteObject<T2> ro2) {
+		public <Ret, T2, A extends BackingStore<Model> > Ret runOp(
+				BaseNativeOperation2<Ret, T, T2, Model, Model, A> op, RemoteObject<T2> ro2) {
 			//TODO: aaaaah where do the arguments go.
 			return null;
 		}
@@ -59,8 +57,8 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 	}
 	
 	public static <Model extends consistency.BaseModel, 
-		BS extends BackingStore<Model, BS>, T2, T extends T2> 
-	BackingStore<Model, BS>.RemoteObject<T2> generalize(BackingStore<Model, BS>.RemoteObject<T> r){
+		BS extends BackingStore<Model>, T2, T extends T2> 
+	BackingStore<Model>.RemoteObject<T2> generalize(BackingStore<Model>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}

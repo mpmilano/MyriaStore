@@ -5,7 +5,7 @@ import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
 
-public class LinearizableStore extends BackingStore<Linearizable, LinearizableStore> {
+public class LinearizableStore extends BackingStore<Linearizable> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());

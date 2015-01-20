@@ -11,7 +11,7 @@ public class Get<T, StoreModel extends BaseModel, Model extends StoreModel> exte
 		super(h);
 	}
 	@Override
-	public T executeOn(BackingStore<StoreModel,?>.RemoteObject<T> bs) {
+	public T executeOn(BackingStore<StoreModel>.RemoteObject<T> bs) {
 		return bs.runOp(this);
 	}
 

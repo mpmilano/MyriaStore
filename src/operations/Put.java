@@ -15,7 +15,7 @@ public class Put<T, StoreModel extends BaseModel, Model extends StoreModel> exte
 	}
 	
 	@Override
-	public Void executeOn(BackingStore<StoreModel,?>.RemoteObject<T> bs) {
+	public Void executeOn(BackingStore<StoreModel>.RemoteObject<T> bs) {
 		bs.runOp(this);
 		return null;
 	}
