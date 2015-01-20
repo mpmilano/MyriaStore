@@ -6,7 +6,6 @@ import operations.BaseNativeOperation1;
 import operations.BaseNativeOperation2;
 import operations.Get;
 import operations.Put;
-import consistency.BaseModel;
 
 
 public abstract class BackingStore<Model extends consistency.BaseModel, 

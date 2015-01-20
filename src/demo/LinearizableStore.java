@@ -42,6 +42,7 @@ public class LinearizableStore extends BackingStore<Linearizable, LinearizableSt
 
 		@Override
 		protected <T2> RemoteObject<T2> newRef(T2 t) {
+			//used in a (very) safe way.
 			@SuppressWarnings("unchecked")
 			RemoteObject<T2> thisp = (RemoteObject<T2>)(this);
 			if (this.t == t) return thisp;
