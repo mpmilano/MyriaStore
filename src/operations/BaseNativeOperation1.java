@@ -16,7 +16,7 @@ public abstract class BaseNativeOperation1<ReturnType,
 	}
 	
 	public abstract  
-	ReturnType executeOn(BackingStore<StoreAt>.RemoteObject<ObjectType> bs);
+	ReturnType executeOn(BackingStore<?,StoreAt>.RemoteObject<ObjectType> bs);
 		
 	@Override
 	public ReturnType call() throws Exception {

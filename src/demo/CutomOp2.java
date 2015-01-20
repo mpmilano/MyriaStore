@@ -17,8 +17,8 @@ public class CutomOp2<T1, T2>
 
 	@Override
 	public Void executeOn(
-			BackingStore<Linearizable<handles.access.Any>>.RemoteObject<T1> bs1,
-			BackingStore<Linearizable<handles.access.Any>>.RemoteObject<T2> bs2) {
+			BackingStore<?,Linearizable<handles.access.Any>>.RemoteObject<T1> bs1,
+			BackingStore<?,Linearizable<handles.access.Any>>.RemoteObject<T2> bs2) {
 		return bs1.runOp(this,bs2);
 	}
 
