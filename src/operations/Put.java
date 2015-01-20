@@ -5,7 +5,7 @@ import handles.access.ReadOnly;
 import remote.BackingStore;
 import remote.Handle;
 
-public class Put<T, StoreModel extends BaseModel<handles.access.Any>, Model extends StoreModel> extends BaseNativeOperation1<Void, T, StoreModel, Model> {
+public class Put<T, StoreModel extends BaseModel, Model extends StoreModel> extends BaseNativeOperation1<Void, T, StoreModel, Model> {
 
 	public final T t;
 	

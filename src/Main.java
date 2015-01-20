@@ -15,7 +15,7 @@ public class Main {
 		LinearizableStore ln = new LinearizableStore();
 		om.registerStore(ln);
 		
-		Handle<Integer, ReadWrite, Linearizable<handles.access.Any>, Linearizable<handles.access.Any>,LinearizableStore> o = 
+		Handle<Integer, ReadWrite, Linearizable, Linearizable,LinearizableStore> o = 
 				om.newObject(ln.getModel(), new Integer(3), ln);
 		new Put<>(o,new Get<>(o).execute() + 4).execute();
 		System.out.println(new Get<>(o).execute());

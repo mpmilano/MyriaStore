@@ -5,7 +5,7 @@ import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
 
-public class LinearizableStore extends BackingStore<Linearizable<handles.access.Any>> {
+public class LinearizableStore extends BackingStore<Linearizable> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());
@@ -22,12 +22,12 @@ public class LinearizableStore extends BackingStore<Linearizable<handles.access.
 		}
 
 		@Override
-		public <M extends Linearizable<handles.access.Any>> T runOp(Get<T, Linearizable<handles.access.Any>, M> op) {
+		public <M extends Linearizable> T runOp(Get<T, Linearizable, M> op) {
 			return t;
 		}
 
 		@Override
-		public <M extends Linearizable<handles.access.Any>> void runOp(Put<T, Linearizable<handles.access.Any>, M> op) {
+		public <M extends Linearizable> void runOp(Put<T, Linearizable, M> op) {
 			t = op.t;
 		}
 		

@@ -1,5 +1,5 @@
 package handles.access;
 
-public interface ReadOnly extends Any{
+public interface ReadOnly extends Unspecified{
 
 }

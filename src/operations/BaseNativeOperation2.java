@@ -6,7 +6,7 @@ import remote.Handle;
 
 public abstract class BaseNativeOperation2<ReturnType, 
 ObjectType1,ObjectType2,  
-M extends BaseModel<handles.access.Any>, O extends BaseModel<handles.access.Any>,
+M extends BaseModel, O extends BaseModel,
 S extends BackingStore<O>> implements BaseOperation<ReturnType,M>{
 
 	public final Handle<ObjectType1,?,M,O,S> h1;
