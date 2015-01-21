@@ -7,16 +7,17 @@ import remote.Handle;
 public abstract class BaseNativeOperation1<ReturnType, 
 	ObjectType,
 	StoreAt extends BaseModel,
+	StoreWhere extends BackingStore<StoreAt, StoreWhere>,
 	ExecuteAt /*compat */ extends StoreAt> implements Operation<ReturnType,ExecuteAt>{
 
-	public final Handle<ObjectType,?,ExecuteAt,StoreAt,?> h;
+	public final Handle<ObjectType,?,ExecuteAt,StoreAt,StoreWhere> h;
 	
-	public BaseNativeOperation1 (Handle<ObjectType,?,ExecuteAt,StoreAt,?> h){
+	public BaseNativeOperation1 (Handle<ObjectType,?,ExecuteAt,StoreAt,StoreWhere> h){
 		this.h = h;
 	}
 	
 	public abstract  
-	ReturnType executeOn(BackingStore<StoreAt>.RemoteObject<ObjectType> bs);
+	ReturnType executeOn(BackingStore<StoreAt,StoreWhere>.RemoteObject<ObjectType> bs);
 		
 	@Override
 	public ReturnType call() throws Exception {

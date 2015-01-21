@@ -1,17 +1,18 @@
 package demo;
 
+import operations.Compare;
 import operations.Get;
 import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
 
-public class LinearizableStore extends BackingStore<Linearizable> {
+public class LinearizableStore extends BackingStore<Linearizable, Comparable<?>, LinearizableStore> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());
 	}
 
-	public class LinearizableStoreObject<T> extends
+	public class LinearizableStoreObject<T extends Comparable<T>> extends
 			RemoteObject<T> {
 		
 		public T t;
@@ -22,12 +23,12 @@ public class LinearizableStore extends BackingStore<Linearizable> {
 		}
 
 		@Override
-		public <M extends Linearizable> T runOp(Get<T, Linearizable, M> op) {
+		public <M extends Linearizable> T runOp(Get<T, Linearizable, LinearizableStore, M> op) {
 			return t;
 		}
 
 		@Override
-		public <M extends Linearizable> void runOp(Put<T, Linearizable, M> op) {
+		public <M extends Linearizable> void runOp(Put<T, Linearizable, LinearizableStore, M> op) {
 			t = op.t;
 		}
 		
@@ -41,17 +42,27 @@ public class LinearizableStore extends BackingStore<Linearizable> {
 		}
 
 		@Override
-		protected <T2> RemoteObject<T2> newRef(T2 t) {
+		protected <T2 extends Comparable<?>> RemoteObject<T2> newRef(T2 t) {
 			//used in a (very) safe way.
 			@SuppressWarnings("unchecked")
-			RemoteObject<T2> thisp = (RemoteObject<T2>)(this);
+			RemoteObject<T2> thisp = 
+			(RemoteObject<T2>)(this);
 			if (this.t == t) return thisp;
 			else throw new RuntimeException("called from invalid context");
+		}
+
+		public Integer runOp(
+				Compare<T, Linearizable, Linearizable, LinearizableStore> op,
+				remote.BackingStore<Linearizable, Comparable<?>, LinearizableStore>.RemoteObject<T> ro2q) {
+			//this is safe, because LinearizableStore has only one RemoteObject.  
+			//Yay type-level This pointers!
+			LinearizableStoreObject<T> ro2 = (LinearizableStoreObject<T>) ro2q;
+			return null;
 		}
 	}
 	
 	@Override
-	public <T> RemoteObject<T> newObject(T t) {
+	public <T extends Comparable<T>> LinearizableStoreObject<T> newObject(T t) {
 		return new LinearizableStoreObject<T>(t,this);
 	}
 

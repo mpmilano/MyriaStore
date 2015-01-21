@@ -2,17 +2,15 @@ package remote;
 
 import java.lang.reflect.InvocationTargetException;
 
-import operations.BaseNativeOperation1;
-import operations.BaseNativeOperation2;
-import operations.Get;
-import operations.Put;
+import operations.*;
 
 
-public abstract class BackingStore<Model extends consistency.BaseModel> {
+public abstract class BackingStore<Model extends consistency.BaseModel, Constraint,
+									This_t extends BackingStore<Model, Constraint, This_t> > {
 	
-	public abstract class RemoteObject<T> {
-		public final BackingStore<Model> store;
-		protected RemoteObject(BackingStore<Model> store){
+	public abstract class RemoteObject<T extends Constraint> {
+		public final BackingStore<Model, Constraint, This_t> store;
+		protected RemoteObject(BackingStore<Model, Constraint, This_t> store){
 			this.store = store;
 		}
 
@@ -21,14 +19,16 @@ public abstract class BackingStore<Model extends consistency.BaseModel> {
 		}
 
 		//The "expression" problem
-		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Model,M> op);
-		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Model,M> op);
+		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Model,This_t,M> op);
+		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Model,This_t,M> op);
 
 		//HOLY BALLS IS THIS SKETCHY.
 		@SuppressWarnings("unchecked")
 		public <T1, M extends Model> T1 runOp(
-				BaseNativeOperation1<T1, T, Model, M> op) {
+				BaseNativeOperation1<T1, T, Model, This_t, M> op) {
 				try {
+					assert(! (op instanceof Get ));
+					assert(! (op instanceof Put));
 					return (T1) this.getClass().getMethod("runOp", op.getClass()).invoke(this, op);
 				} catch (NoSuchMethodException e){
 					//TODO - other option is make this a no-op.  Pretty sure I need to do that for soundness.
@@ -45,26 +45,29 @@ public abstract class BackingStore<Model extends consistency.BaseModel> {
 		}
 		
 
-		public <Ret, T2, A extends BackingStore<Model> > Ret runOp(
-				BaseNativeOperation2<Ret, T, T2, Model, Model, A> op, RemoteObject<T2> ro2) {
+		public <Ret, T2 extends Constraint> Ret runOp(
+				BaseNativeOperation2<Ret, T, T2, Model, Model, This_t> op, 
+				BackingStore<Model, Constraint, This_t>.RemoteObject<T2> ro2) {
 			//TODO: aaaaah where do the arguments go.
 			return null;
 		}
-		//public abstract <T1, M /*compat*/ extends consistency.BaseModel> T1 runOp(BaseNativeOperation1<T1,T,M> op);
-		//*/
+		
 
 		protected abstract T exposeRef();
-		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
+		protected abstract <T2 extends Constraint> RemoteObject<T2> newRef(T2 t);
 	}
 	
-	public static <Model extends consistency.BaseModel, 
-		BS extends BackingStore<Model>, T2, T extends T2> 
-	BackingStore<Model>.RemoteObject<T2> generalize(BackingStore<Model>.RemoteObject<T> r){
+	public static <Model extends consistency.BaseModel, Constraint,
+		BS extends BackingStore<Model, Constraint, BS>, T2 extends Constraint, T extends T2> 
+	BackingStore<Model,Constraint,BS>.RemoteObject<T2> 
+		generalize(BackingStore<Model,Constraint, BS>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}
 	
-	public abstract <T> RemoteObject<T> newObject(T t);
+	public abstract <T extends Constraint> RemoteObject<T> newObject(T t);
+	
+	
 	private final Model m;
 	public Model getModel() {return m;}
 	protected BackingStore(Model m){this.m = m;}

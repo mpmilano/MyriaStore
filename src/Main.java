@@ -13,7 +13,6 @@ public class Main {
 	public static void main(String[] args){
 		ObjectManager om = new ObjectManager_impl();
 		LinearizableStore ln = new LinearizableStore();
-		om.registerStore(ln);
 		
 		Handle<Integer, ReadWrite, Linearizable/**/, Linearizable,LinearizableStore> o = 
 				om.newObject(new Integer(3), ln);

@@ -5,17 +5,18 @@ import handles.access.ReadOnly;
 import remote.BackingStore;
 import remote.Handle;
 
-public class Put<T, StoreModel extends BaseModel, Model extends StoreModel> extends BaseNativeOperation1<Void, T, StoreModel, Model> {
+public class Put<T, StoreModel extends BaseModel, StoreWhere extends BackingStore<StoreModel, StoreWhere>, Model extends StoreModel> 
+extends BaseNativeOperation1<Void, T, StoreModel, StoreWhere, Model> {
 
 	public final T t;
 	
-	public <A extends ReadOnly> Put(Handle<T,A,Model,StoreModel,?> h, T t){
+	public <A extends ReadOnly> Put(Handle<T,A,Model,StoreModel,StoreWhere> h, T t){
 		super(h);
 		this.t = t;
 	}
 	
 	@Override
-	public Void executeOn(BackingStore<StoreModel>.RemoteObject<T> bs) {
+	public Void executeOn(BackingStore<StoreModel, StoreWhere>.RemoteObject<T> bs) {
 		bs.runOp(this);
 		return null;
 	}

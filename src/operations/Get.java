@@ -5,13 +5,15 @@ import handles.access.ReadOnly;
 import remote.BackingStore;
 import remote.Handle;
 
-public class Get<T, StoreModel extends BaseModel, Model extends StoreModel> extends BaseNativeOperation1<T, T, StoreModel, Model> {
+public class Get<T, StoreModel extends BaseModel, 
+StoreWhere extends BackingStore<StoreModel,StoreWhere>,Model extends StoreModel> 
+extends BaseNativeOperation1<T, T, StoreModel, StoreWhere, Model> {
 
-	public <A extends ReadOnly> Get(Handle<T,A,Model,StoreModel,?> h){
+	public <A extends ReadOnly> Get(Handle<T,A,Model,StoreModel,StoreWhere> h){
 		super(h);
 	}
 	@Override
-	public T executeOn(BackingStore<StoreModel>.RemoteObject<T> bs) {
+	public T executeOn(BackingStore<StoreModel, StoreWhere>.RemoteObject<T> bs) {
 		return bs.runOp(this);
 	}
 
