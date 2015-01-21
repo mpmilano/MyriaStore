@@ -5,12 +5,12 @@ import java.lang.reflect.InvocationTargetException;
 import operations.*;
 
 
-public abstract class BackingStore<Model extends consistency.BaseModel, Constraint,
-									This_t extends BackingStore<Model, Constraint, This_t> > {
+public abstract class BackingStore<Model extends consistency.BaseModel,
+									This_t extends BackingStore<Model, This_t> > {
 	
-	public abstract class RemoteObject<T extends Constraint> {
-		public final BackingStore<Model, Constraint, This_t> store;
-		protected RemoteObject(BackingStore<Model, Constraint, This_t> store){
+	public abstract class RemoteObject<T> {
+		public final BackingStore<Model, This_t> store;
+		protected RemoteObject(BackingStore<Model, This_t> store){
 			this.store = store;
 		}
 
@@ -45,27 +45,27 @@ public abstract class BackingStore<Model extends consistency.BaseModel, Constrai
 		}
 		
 
-		public <Ret, T2 extends Constraint> Ret runOp(
+		public <Ret, T2> Ret runOp(
 				BaseNativeOperation2<Ret, T, T2, Model, Model, This_t> op, 
-				BackingStore<Model, Constraint, This_t>.RemoteObject<T2> ro2) {
+				BackingStore<Model, This_t>.RemoteObject<T2> ro2) {
 			//TODO: aaaaah where do the arguments go.
 			return null;
 		}
 		
 
 		protected abstract T exposeRef();
-		protected abstract <T2 extends Constraint> RemoteObject<T2> newRef(T2 t);
+		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
 	}
 	
-	public static <Model extends consistency.BaseModel, Constraint,
-		BS extends BackingStore<Model, Constraint, BS>, T2 extends Constraint, T extends T2> 
-	BackingStore<Model,Constraint,BS>.RemoteObject<T2> 
-		generalize(BackingStore<Model,Constraint, BS>.RemoteObject<T> r){
+	public static <Model extends consistency.BaseModel,
+		BS extends BackingStore<Model, BS>, T2, T extends T2> 
+	BackingStore<Model,BS>.RemoteObject<T2> 
+		generalize(BackingStore<Model,BS>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}
 	
-	public abstract <T extends Constraint> RemoteObject<T> newObject(T t);
+	public abstract <T> RemoteObject<T> newObject(T t);
 	
 	
 	private final Model m;

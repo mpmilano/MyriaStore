@@ -6,7 +6,7 @@ import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
 
-public class LinearizableStore extends BackingStore<Linearizable, Comparable<?>, LinearizableStore> {
+public class LinearizableStore extends BackingStore<Linearizable, LinearizableStore> {
 
 	public LinearizableStore(){
 		super(Linearizable.model());
@@ -42,7 +42,7 @@ public class LinearizableStore extends BackingStore<Linearizable, Comparable<?>,
 		}
 
 		@Override
-		protected <T2 extends Comparable<?>> RemoteObject<T2> newRef(T2 t) {
+		protected <T2> RemoteObject<T2> newRef(T2 t) {
 			//used in a (very) safe way.
 			@SuppressWarnings("unchecked")
 			RemoteObject<T2> thisp = 
@@ -53,7 +53,7 @@ public class LinearizableStore extends BackingStore<Linearizable, Comparable<?>,
 
 		public Integer runOp(
 				Compare<T, Linearizable, Linearizable, LinearizableStore> op,
-				remote.BackingStore<Linearizable, Comparable<?>, LinearizableStore>.RemoteObject<T> ro2q) {
+				remote.BackingStore<Linearizable, LinearizableStore>.RemoteObject<T> ro2q) {
 			//this is safe, because LinearizableStore has only one RemoteObject.  
 			//Yay type-level This pointers!
 			LinearizableStoreObject<T> ro2 = (LinearizableStoreObject<T>) ro2q;
@@ -62,7 +62,7 @@ public class LinearizableStore extends BackingStore<Linearizable, Comparable<?>,
 	}
 	
 	@Override
-	public <T extends Comparable<T>> LinearizableStoreObject<T> newObject(T t) {
+	public <T> LinearizableStoreObject<T> newObject(T t) {
 		return new LinearizableStoreObject<T>(t,this);
 	}
 
