@@ -1,10 +1,14 @@
 package demo;
 
+import java.io.Serializable;
+
+import operations.BotherSomeSyntax;
 import operations.Compare;
 import operations.Get;
 import operations.Put;
 import consistency.Linearizable;
 import remote.BackingStore;
+import remote.Handle;
 
 public class LinearizableStore extends BackingStore<Linearizable, LinearizableStore> {
 
@@ -12,7 +16,7 @@ public class LinearizableStore extends BackingStore<Linearizable, LinearizableSt
 		super(Linearizable.model());
 	}
 
-	public class LinearizableStoreObject<T extends Comparable<T>> extends
+	public class LinearizableStoreObject<T extends Serializable> extends
 			RemoteObject<T> {
 		
 		public T t;
@@ -42,13 +46,20 @@ public class LinearizableStore extends BackingStore<Linearizable, LinearizableSt
 		}
 
 		@Override
-		protected <T2> RemoteObject<T2> newRef(T2 t) {
+		protected <T2 extends Serializable> RemoteObject<T2> newRef(T2 t) {
 			//used in a (very) safe way.
 			@SuppressWarnings("unchecked")
 			RemoteObject<T2> thisp = 
 			(RemoteObject<T2>)(this);
 			if (this.t == t) return thisp;
 			else throw new RuntimeException("called from invalid context");
+		}
+	}
+	public class ComparableLinStoreObject<T extends BotherSomeSyntax<T> > 
+		extends LinearizableStoreObject<T> {
+		
+		public ComparableLinStoreObject(T t, LinearizableStore ls){
+			super(t,ls);
 		}
 
 		public Integer runOp(
@@ -62,8 +73,13 @@ public class LinearizableStore extends BackingStore<Linearizable, LinearizableSt
 	}
 	
 	@Override
-	public <T> LinearizableStoreObject<T> newObject(T t) {
+	public <T extends Serializable> LinearizableStoreObject<T> newDumbObject(T t) {
 		return new LinearizableStoreObject<T>(t,this);
+	}
+	
+	public <T extends BotherSomeSyntax<T>> Handle<T,handles.access.ReadWrite,Linearizable,Linearizable,LinearizableStore> 
+	newObject(T t) {
+		return new Handle<T,handles.access.ReadWrite,Linearizable,Linearizable,LinearizableStore>(new ComparableLinStoreObject<>(t,this));
 	}
 
 }

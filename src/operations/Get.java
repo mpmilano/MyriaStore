@@ -1,11 +1,13 @@
 package operations;
 
+import java.io.Serializable;
+
 import consistency.BaseModel;
 import handles.access.ReadOnly;
 import remote.BackingStore;
 import remote.Handle;
 
-public class Get<T, StoreModel extends BaseModel, 
+public class Get<T extends Serializable, StoreModel extends BaseModel, 
 StoreWhere extends BackingStore<StoreModel,StoreWhere>,Model extends StoreModel> 
 extends BaseNativeOperation1<T, T, StoreModel, StoreWhere, Model> {
 

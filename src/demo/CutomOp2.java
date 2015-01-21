@@ -1,11 +1,13 @@
 package demo;
 
+import java.io.Serializable;
+
 import consistency.Linearizable;
 import operations.BaseNativeOperation2;
 import remote.BackingStore;
 import remote.Handle;
 
-public class CutomOp2<T1, T2>
+public class CutomOp2<T1 extends Serializable, T2 extends Serializable>
 		extends
 		BaseNativeOperation2<Void, T1, T2, consistency.Linearizable, consistency.Linearizable, demo.LinearizableStore> {
 

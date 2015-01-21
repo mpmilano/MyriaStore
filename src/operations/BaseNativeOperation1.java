@@ -1,11 +1,13 @@
 package operations;
 
+import java.io.Serializable;
+
 import consistency.BaseModel;
 import remote.BackingStore;
 import remote.Handle;
 
 public abstract class BaseNativeOperation1<ReturnType, 
-	ObjectType,
+	ObjectType extends Serializable,
 	StoreAt extends BaseModel,
 	StoreWhere extends BackingStore<StoreAt, StoreWhere>,
 	ExecuteAt /*compat */ extends StoreAt> implements Operation<ReturnType,ExecuteAt>{

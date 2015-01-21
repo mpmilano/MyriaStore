@@ -1,5 +1,6 @@
 package remote;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 import operations.*;
@@ -8,7 +9,7 @@ import operations.*;
 public abstract class BackingStore<Model extends consistency.BaseModel,
 									This_t extends BackingStore<Model, This_t> > {
 	
-	public abstract class RemoteObject<T> {
+	public abstract class RemoteObject<T extends Serializable> {
 		public final BackingStore<Model, This_t> store;
 		protected RemoteObject(BackingStore<Model, This_t> store){
 			this.store = store;
@@ -45,7 +46,7 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		}
 		
 
-		public <Ret, T2> Ret runOp(
+		public <Ret, T2 extends Serializable> Ret runOp(
 				BaseNativeOperation2<Ret, T, T2, Model, Model, This_t> op, 
 				BackingStore<Model, This_t>.RemoteObject<T2> ro2) {
 			//TODO: aaaaah where do the arguments go.
@@ -54,18 +55,18 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		
 
 		protected abstract T exposeRef();
-		protected abstract <T2> RemoteObject<T2> newRef(T2 t);
+		protected abstract <T2 extends Serializable> RemoteObject<T2> newRef(T2 t);
 	}
 	
 	public static <Model extends consistency.BaseModel,
-		BS extends BackingStore<Model, BS>, T2, T extends T2> 
+		BS extends BackingStore<Model, BS>, T2 extends Serializable, T extends T2> 
 	BackingStore<Model,BS>.RemoteObject<T2> 
 		generalize(BackingStore<Model,BS>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
 		return r.newRef(ref);
 	}
 	
-	public abstract <T> RemoteObject<T> newObject(T t);
+	public abstract <T extends Serializable> RemoteObject<T> newDumbObject(T t);
 	
 	
 	private final Model m;
