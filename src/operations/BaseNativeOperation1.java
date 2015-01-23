@@ -18,8 +18,9 @@ public abstract class BaseNativeOperation1<ReturnType,
 		this.h = h;
 	}
 	
-	public abstract  
-	ReturnType executeOn(BackingStore<StoreAt,StoreWhere>.RemoteObject<ObjectType> bs);
+	public ReturnType executeOn(BackingStore<StoreAt,StoreWhere>.RemoteObject<ObjectType> bs){
+		return bs.runOp(this);
+	}
 		
 	@Override
 	public ReturnType call() throws Exception {
@@ -31,6 +32,8 @@ public abstract class BaseNativeOperation1<ReturnType,
 		return executeOn(h.ro);
 	}
 	
-	public abstract ReturnType noop();
+	public ReturnType noop(){
+		return null;
+	}
 	
 }

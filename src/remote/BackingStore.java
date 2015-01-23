@@ -9,6 +9,8 @@ import operations.*;
 public abstract class BackingStore<Model extends consistency.BaseModel,
 									This_t extends BackingStore<Model, This_t> > {
 	
+	protected interface ExtraInfo {};
+	
 	public abstract class RemoteObject<T extends Serializable> {
 		public final BackingStore<Model, This_t> store;
 		protected RemoteObject(BackingStore<Model, This_t> store){
@@ -45,17 +47,30 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 				}
 		}
 		
-
-		public <Ret, T2 extends Serializable> Ret runOp(
-				BaseNativeOperation2<Ret, T, T2, Model, Model, This_t> op, 
+		@SuppressWarnings("unchecked")
+		public <Ret, T2 extends Serializable, M extends Model> Ret runOp(
+				BaseNativeOperation2<Ret, T, T2, Model, This_t, M> op, 
 				BackingStore<Model, This_t>.RemoteObject<T2> ro2) {
-			//TODO: aaaaah where do the arguments go.
-			return null;
+			try {
+				return (Ret) this.getClass().getMethod("runOp", op.getClass(),ro2.getClass()).invoke(this, op, ro2);
+			} catch (NoSuchMethodException e){
+				//TODO - other option is make this a no-op.  Pretty sure I need to do that for soundness.
+				System.err.println("Native operation unspported on this store");	
+				System.err.println(this.getClass().getName());
+				System.err.println(op.getClass().getName());
+				System.err.println(ro2.getClass().getName());
+				return op.noop();
+			}
+			catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
 		}
 		
 
+		protected abstract ExtraInfo exposeInfo();
 		protected abstract T exposeRef();
-		protected abstract <T2 extends Serializable> RemoteObject<T2> newRef(T2 t);
+		protected abstract <T2 extends Serializable> RemoteObject<T2> newRef(T2 t, ExtraInfo ei);
 	}
 	
 	public static <Model extends consistency.BaseModel,
@@ -63,7 +78,7 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 	BackingStore<Model,BS>.RemoteObject<T2> 
 		generalize(BackingStore<Model,BS>.RemoteObject<T> r){
 		T2 ref = r.exposeRef();
-		return r.newRef(ref);
+		return r.newRef(ref, r.exposeInfo());
 	}
 	
 	public abstract <T extends Serializable> RemoteObject<T> newDumbObject(T t);

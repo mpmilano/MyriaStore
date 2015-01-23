@@ -9,7 +9,7 @@ import remote.Handle;
 
 public class CutomOp2<T1 extends Serializable, T2 extends Serializable>
 		extends
-		BaseNativeOperation2<Void, T1, T2, consistency.Linearizable, consistency.Linearizable, demo.LinearizableStore> {
+		BaseNativeOperation2<Void, T1, T2, consistency.Linearizable, demo.LinearizableStore, consistency.Linearizable> {
 
 	public CutomOp2(
 			Handle<T1, ?, Linearizable, Linearizable, LinearizableStore> h1,
