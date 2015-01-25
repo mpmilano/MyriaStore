@@ -1,9 +1,9 @@
 
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import javax.management.ImmutableDescriptor;
 
-import operations.Compare;
-import operations.Get;
-import operations.Put;
+import operations.*;
 import handles.access.ReadWrite;
 import consistency.Linearizable;
 import demo.CustomOp;
@@ -26,9 +26,19 @@ public class Main {
 		
 		//print o
 		System.out.println(new Get<>(o).execute());
-		new CustomOp(o).execute();
+		new CustomOp<>(o).execute();
 		System.out.println(new GetFieldValue<>(o, "a4").execute());
 		System.out.println(new Compare<>(ln.newCObject("a"), ln.newCObject("b")).execute());
+		
+		Handle<CopyOnWriteArraySet<String>,ReadWrite,Linearizable,Linearizable,LinearizableStore> h2 = 
+				ln.newDumbObject(new CopyOnWriteArraySet<String>());
+		
+		Handle<String,ReadWrite,Linearizable,Linearizable,LinearizableStore> s2 = 
+				ln.newDumbObject(new String("foo!"));		
+		new Insert<>(h2, s2).execute();
+		new Print<>(s2).execute();
+		
 	}
+	
 
 }

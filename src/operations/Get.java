@@ -8,10 +8,10 @@ import remote.BackingStore;
 import remote.Handle;
 
 public class Get<T extends Serializable, StoreModel extends BaseModel, 
-StoreWhere extends BackingStore<StoreModel,StoreWhere>,Model extends StoreModel> 
-extends BaseNativeOperation1<T, T, StoreModel, StoreWhere, Model> {
+StoreWhere extends BackingStore<StoreModel,StoreWhere>,Model extends StoreModel, A extends ReadOnly> 
+extends BaseNativeOperation1<T, T, StoreModel, StoreWhere, Model, A> {
 
-	public <A extends ReadOnly> Get(Handle<T,A,Model,StoreModel,StoreWhere> h){
+	public  Get(Handle<T,A,Model,StoreModel,StoreWhere> h){
 		super(h);
 	}
 

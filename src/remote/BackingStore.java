@@ -1,5 +1,10 @@
 package remote;
 
+import handles.access.ReadOnly;
+import handles.access.ReadWrite;
+import handles.access.Unspecified;
+import handles.access.WriteOnly;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
@@ -22,13 +27,14 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		}
 
 		//The "expression" problem
-		public abstract <M /*compat*/ extends Model> T runOp(Get<T,Model,This_t,M> op);
-		public abstract <M /*compat*/ extends Model> void runOp(Put<T, Model,This_t,M> op);
+		public abstract <M /*compat*/ extends Model, A extends ReadOnly> T runOp(Get<T,Model,This_t,M,A> op);
+		public abstract <M /*compat*/ extends Model, A extends WriteOnly> void runOp(Put<T, Model,This_t,M,A> op);
+		public abstract <M /*compat*/ extends Model, A extends ReadOnly> Handle<?,?,?,?,?> runOp(Print<T, Model,This_t,M,A> op);
 
 		//HOLY BALLS IS THIS SKETCHY.
 		@SuppressWarnings("unchecked")
-		public <T1, M extends Model> T1 runOp(
-				BaseNativeOperation1<T1, T, Model, This_t, M> op) {
+		public <T1, M extends Model, A extends Unspecified> T1 runOp(
+				BaseNativeOperation1<T1, T, Model, This_t, M, A> op) {
 				try {
 					assert(! (op instanceof Get ));
 					assert(! (op instanceof Put));
@@ -48,8 +54,8 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		}
 		
 		@SuppressWarnings("unchecked")
-		public <Ret, T2 extends Serializable, M extends Model> Ret runOp(
-				BaseNativeOperation2<Ret, T, T2, Model, This_t, M> op, 
+		public <Ret, T2 extends Serializable, M extends Model, A extends Unspecified> Ret runOp(
+				BaseNativeOperation2<Ret, T, T2, Model, This_t, M, A> op, 
 				BackingStore<Model, This_t>.RemoteObject<T2> ro2) {
 			try {
 				return (Ret) this.getClass().getMethod("runOp", op.getClass(),ro2.getClass()).invoke(this, op, ro2);
@@ -81,7 +87,7 @@ public abstract class BackingStore<Model extends consistency.BaseModel,
 		return r.newRef(ref, r.exposeInfo());
 	}
 	
-	public abstract <T extends Serializable> RemoteObject<T> newDumbObject(T t);
+	public abstract <T extends Serializable> Handle<T,ReadWrite,Model,Model,This_t> newDumbObject(T t);
 	
 	
 	private final Model m;

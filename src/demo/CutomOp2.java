@@ -1,5 +1,7 @@
 package demo;
 
+import handles.access.ReadWrite;
+
 import java.io.Serializable;
 
 import consistency.Linearizable;
@@ -9,10 +11,10 @@ import remote.Handle;
 
 public class CutomOp2<T1 extends Serializable, T2 extends Serializable>
 		extends
-		BaseNativeOperation2<Void, T1, T2, consistency.Linearizable, demo.LinearizableStore, consistency.Linearizable> {
+		BaseNativeOperation2<Void, T1, T2, consistency.Linearizable, demo.LinearizableStore, consistency.Linearizable, ReadWrite> {
 
 	public CutomOp2(
-			Handle<T1, ?, Linearizable, Linearizable, LinearizableStore> h1,
+			Handle<T1, ReadWrite, Linearizable, Linearizable, LinearizableStore> h1,
 			Handle<T2, ?, Linearizable, Linearizable, LinearizableStore> h2) {
 		super(h1, h2);
 	}

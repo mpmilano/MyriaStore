@@ -1,5 +1,7 @@
 package operations;
 
+import handles.access.Unspecified;
+
 import java.io.Serializable;
 
 import consistency.BaseModel;
@@ -8,13 +10,13 @@ import remote.Handle;
 
 public abstract class BaseNativeOperation2<ReturnType, 
 ObjectType1 extends Serializable, ObjectType2 extends Serializable,  
-O extends BaseModel, S extends BackingStore<O,S>, M extends O> 
-implements Operation<ReturnType,M>{
+O extends BaseModel, S extends BackingStore<O,S>, M extends O, A extends Unspecified> 
+implements Operation<ReturnType,A,ObjectType1,O,S,M,BaseNativeOperation2<ReturnType,ObjectType1,ObjectType2,O,S,M,A>>{
 
-	public final Handle<ObjectType1,?,M,O,S> h1;
+	public final Handle<ObjectType1,A,M,O,S> h1;
 	public final Handle<ObjectType2,?,M,O,S> h2;
 
-	public BaseNativeOperation2 (Handle<ObjectType1,?,M,O,S> h1, 
+	public BaseNativeOperation2 (Handle<ObjectType1,A,M,O,S> h1, 
 			Handle<ObjectType2,?,M,O,S> h2){
 		this.h1 = h1;
 		this.h2 = h2;
@@ -36,6 +38,13 @@ implements Operation<ReturnType,M>{
 		return executeOn(h1.ro,h2.ro);
 	}
 
-	public abstract ReturnType noop();
+	public ReturnType noop(){
+		return null;
+	}
+	
+	@Override
+	public BaseNativeOperation2<ReturnType,ObjectType1,ObjectType2,O,S,M,A> build(Handle<ObjectType1,A,M,O,S> h1, BaseNativeOperation2<ReturnType,ObjectType1,ObjectType2,O,S,M,A> bs){
+		return bs;
+	}
 
 }

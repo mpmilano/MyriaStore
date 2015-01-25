@@ -1,5 +1,7 @@
 package demo;
 
+import handles.access.ReadOnly;
+
 import javax.management.Descriptor;
 
 import operations.BaseNativeOperation1;
@@ -10,14 +12,14 @@ import remote.Handle;
 
 public class GetFieldValue<T extends Descriptor,
 O extends BaseModel, M extends O,
-S extends BackingStore<O,S>> extends
-BaseNativeOperation1<String, T, O, S, M>
+S extends BackingStore<O,S>, A extends ReadOnly> extends
+BaseNativeOperation1<String, T, O, S, M,A>
 
 {
 	
 	final String arg;
 	
-	public GetFieldValue (Handle<T,?,M,O,S> h1, 
+	public GetFieldValue (Handle<T,A,M,O,S> h1, 
 			final String arg){
 		super(h1);
 		this.arg = arg;
