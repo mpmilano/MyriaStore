@@ -1,5 +1,5 @@
 package consistency;
 
-public final class Top {
+public interface Top {
 
 }

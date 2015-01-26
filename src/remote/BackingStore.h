@@ -1,3 +1,11 @@
 #pragma once
 
-#define BackingStore_(name) BSCons extends consistency.Top, name extends BackingStore<BSCons, name> 
+#include "../access/Access.h"
+#include "../consistency/Consistency.h"
+
+#define BackingStore_(name) name ## Cons extends consistency.Top, Access_(name ## Access), name ## Atype, name extends BackingStore<name ## Cons, name ## Access, name ## Atype, name> 
+#define BSref_(name) name ## Cons, name ## Access, name ## Atype, name
+#define BS_t_(name) BackingStore<name ## Cons, name ## Access, name ## Atype, name>
+
+#define R_(t) t extends java.io.Serializable
+#define R_g(t) t
