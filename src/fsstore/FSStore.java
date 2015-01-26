@@ -1,13 +1,10 @@
-#include "../remote/BackingStore.h"
+#include "FSStore.h"
 package fsstore;
 import remote.*;
 import access.*;
 import java.io.*;
-
-#define FSS_ consistency.Lin, ReadWrite, String, FSStore
-#define FSS_t BackingStore<FSS_>
 	
-public class FSStore extends FSS_t {
+public class FSStore extends FSS_t implements Get<FSS_>, Put<FSS_>, Print<FSS_>{
 	public class FSObject<R_(T)> extends FSS_t.RemoteObject<R_g(T)> {
 
 		private final File location;
@@ -27,6 +24,9 @@ public class FSStore extends FSS_t {
 		catch (IOException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Operation getObj(GetFactory<FSS_> gf, Handle<> h){
 	}
 	
 }
