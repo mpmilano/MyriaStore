@@ -4,7 +4,7 @@ import remote.*;
 import access.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t implements Get<FSS_>, Put<FSS_>, Print<FSS_>{
+public class FSStore extends FSS_t /* implements Get<FSS_>, Put<FSS_>, Print<FSS_> */{
 	public class FSObject<R_(T)> extends FSS_t.RemoteObject<R_g(T)> {
 
 		private final File location;
@@ -26,7 +26,18 @@ public class FSStore extends FSS_t implements Get<FSS_>, Put<FSS_>, Print<FSS_>{
 		}
 	}
 
-	public Operation getObj(GetFactory<FSS_> gf, Handle<> h){
+	@Override
+	public FSStore getStore(){
+		return FSStore.this;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public <R_(T)> R_g(T) getObj(FSObject<R_g(T)> o){
+		try {
+			return (R_g(T)) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
+		}
+		catch (IOException e){
+			throw new RuntimeException(e);
+		}
+	}
 }

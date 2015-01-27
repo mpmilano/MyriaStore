@@ -1,12 +1,14 @@
 #include "BackingStore.h"
-
+#include "Handle.h"
 
 package remote;
 
-public abstract class BackingStore<BackingStore_(BS)> {
+public abstract class BackingStore<BackingStore_(HBS)> {
 
-public abstract class RemoteObject<R_(T)> {}
+public abstract class RemoteObject<R_(T)> {
+	public abstract HBS getStore();
+}
 
-public abstract  <R_(T)> Handle<R_g(T), BSref_(BS), BSAccess, BSCons > newObject(R_g(T) init, BSAtype arg);
+	public abstract  <R_(HT)> Handle<Handle_fromBS(H)> newObject(R_g(HT) init, HBSAtype arg);
 
 }
