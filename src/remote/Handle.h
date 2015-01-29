@@ -7,4 +7,4 @@
 #define Handle_P_g(x) R_g(x ## T), BSref_(x ## BS), x ## BSObj, x ## A, x ## C
 #define Handle_P_Q ?, BSref_Q, ?, ?, ?
 
-#define Handle_fromBS(x) R_g(x ## T), BSref_(x ## BS), ?, x ## BSAccess, x ## BSCons
+#define CMA ,

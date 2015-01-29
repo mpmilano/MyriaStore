@@ -5,7 +5,14 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t implements Get<FSStore.FSObject<?>> {
+public class FSStore extends FSS_t
+
+	//need to enumerate for all types supported.... templates-time!
+	implements Get<String, FSStore.FSObject<String>>,		   
+			   Get<Integer, FSStore.FSObject<Integer>>
+
+{
+	
 	public class FSObject<R_(T)> extends FSS_t.RemoteObject<R_g(T)> {
 
 		private final File location;
@@ -42,7 +49,8 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject<?>> {
 
 		
 	}
-	
+
+	/*
 	@Override
 	public <R_(T)> Handle<T, FSS_, FSObject<T>, ReadWrite, consistency.Lin> newObject(R_g(T) init, String name){
 		try {
@@ -52,13 +60,14 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject<?>> {
 			throw new RuntimeException(e);
 		}
 	}
+	*/
 	
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R_(T)> R_g(T) getObj(Class<T> c, FSObject<?> o){
+	public String getObj(FSObject<String> o){
 		try {
-			return (R_g(T)) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
+			return (String) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
