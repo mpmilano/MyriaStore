@@ -1,17 +1,25 @@
 #include "../remote/BackingStore.h"
+#include "../remote/Handle.h"	
 package operations;
 
-public class GetOp<Handle_PAC_(H,access.Read)> extends Operation<R_g(HT), BSRef_(HBS), HC> {
+import remote.*;
 
-	private Handle<Handle_P_g(H)> h;
+//public class GetOp<Handle_PAC_(H,access.Read, Get<BackingStore<BSref_(HBS)>.RemoteObject<R_g(HT)> >)> extends Operation<R_g(HT), BSref_(HBS), HC> {
+
+public class GetOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
+
+	private Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?> h;
 	
-	public GetOp(Handle<Handle_P_g(H)> h){
+	public GetOp(Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?> h){
 		this.h = h;
 	}
 
 	@Override
-	public T call(){
-		return h.obj.getStore().getObj(h.obj);
+	@SuppressWarnings("unchecked")
+	public HT execute(){
+		BackingStore<?,?,?,?>.RemoteObject<?> tmp0 = h.obj;
+		GT tmp = (GT) tmp0;
+		return h.obj.getStore().getObj((Class<HT>) tmp.getUnderlyingClass(), tmp);
 	}
 
 }

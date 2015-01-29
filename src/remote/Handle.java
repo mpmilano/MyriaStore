@@ -10,7 +10,7 @@ package remote;
 //of these, only access level and consistency are really "user-facing" "public" things.
 
 public final class Handle<Handle_P_(H)> {
-	final BS_t_(HBS).RemoteObject<R_g(HT)> obj;
+	public final BS_t_(HBS).RemoteObject<R_g(HT)> obj;
 
 	public Handle(BS_t_(HBS).RemoteObject<R_g(HT)> obj){
 		this.obj = obj;
