@@ -8,9 +8,9 @@ import remote.*;
 
 public class GetOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
 
-	private Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?> h;
+	private Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?,?> h;
 	
-	public GetOp(Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?> h){
+	public GetOp(Handle<R_g(HT),?,?,?,? extends Get<GT>,?,?,?> h){
 		this.h = h;
 	}
 

@@ -44,7 +44,7 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject<?>> {
 	}
 	
 	@Override
-	public <R_(T)> Handle<T, FSS_, ReadWrite, consistency.Lin> newObject(R_g(T) init, String name){
+	public <R_(T)> Handle<T, FSS_, FSObject<T>, ReadWrite, consistency.Lin> newObject(R_g(T) init, String name){
 		try {
 			return new Handle<>(new FSObject<R_g(T)>(name, init));
 		}
