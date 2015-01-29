@@ -2,5 +2,5 @@
 
 #include "../remote/BackingStore.h"
 
-#define FSS_ consistency.Lin, access.ReadWrite, String, FSStore
-#define FSS_t BackingStore<FSS_>
+#define FSS_(T) consistency.Lin, access.ReadWrite, String, FSStore<T>
+#define FSS_t(T) BackingStore<FSS_(T)>

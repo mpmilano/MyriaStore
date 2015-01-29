@@ -5,15 +5,14 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t
+public class FSStore<R_(T2)> extends FSS_t(T2)
 
 	//need to enumerate for all types supported.... templates-time!
-	implements Get<String, FSStore.FSObject<String>>,		   
-			   Get<Integer, FSStore.FSObject<Integer>>
+	implements Get<T2, FSStore<T2>.FSObject<T2>>
 
 {
 	
-	public class FSObject<R_(T)> extends FSS_t.RemoteObject<R_g(T)> {
+	public class FSObject<R_(T)> extends FSS_t(T2).RemoteObject<R_g(T)> {
 
 		private final File location;
 		private final Class<T> storedclass;
@@ -38,7 +37,7 @@ public class FSStore extends FSS_t
 		}
 
 		@Override
-		public FSStore getStore(){
+		public FSStore<T2> getStore(){
 			return FSStore.this;
 		}
 
@@ -65,9 +64,9 @@ public class FSStore extends FSS_t
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public String getObj(FSObject<String> o){
+	public T2 getObj(FSObject<T2> o){
 		try {
-			return (String) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
+			return (T2) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
