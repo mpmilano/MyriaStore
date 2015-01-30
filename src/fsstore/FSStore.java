@@ -5,21 +5,21 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore<R_(T2)> extends FSS_t(T2)
+public class FSStore extends FSS_t
 
 	//need to enumerate for all types supported.... templates-time!
-	implements Get<T2, FSStore<T2>.FSObject<T2>>
+	implements Get<FSStore.FSObject>
 
 {
 	
-	public class FSObject<R_(T)> extends FSS_t(T2).RemoteObject<R_g(T)> {
+	public class FSObject extends FSS_t.RemoteObject {
 
 		private final File location;
-		private final Class<T> storedclass;
+		private final Class<?> storedclass;
 		
-		public FSObject(String location, R_g(T) initialValue) throws IOException {
+		public FSObject(String location, Object initialValue) throws IOException {
 			@SuppressWarnings("unchecked")
-				Class<T> class1 = (Class<T>) initialValue.getClass();
+				Class<?> class1 = (Class<?>) initialValue.getClass();
 			this.storedclass = class1;
 			this.location = new File(location);
 			FileOutputStream fos = null;
@@ -37,12 +37,12 @@ public class FSStore<R_(T2)> extends FSS_t(T2)
 		}
 
 		@Override
-		public FSStore<T2> getStore(){
+		public FSStore getStore(){
 			return FSStore.this;
 		}
 
 		@Override
-		public Class<T> getUnderlyingClass(){
+		public Class<?> getUnderlyingClass(){
 			return storedclass;
 		}
 
@@ -64,9 +64,9 @@ public class FSStore<R_(T2)> extends FSS_t(T2)
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public T2 getObj(FSObject<T2> o){
+	public Object getObj(FSObject o){
 		try {
-			return (T2) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
+			return (new ObjectInputStream(new FileInputStream(o.location))).readObject();
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);

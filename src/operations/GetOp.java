@@ -4,7 +4,7 @@ package operations;
 
 import remote.*;
 
-public class GetOp<Handle_PAC_(H,access.Read, Get<HT CMA HBSObj>)> extends Operation<R_g(HT)> {
+public class GetOp<Handle_PAC_(H,access.Read, Get<HBSObj>)> extends Operation<R_g(HT)> {
 
 //public class GetOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
 
@@ -18,7 +18,7 @@ public class GetOp<Handle_PAC_(H,access.Read, Get<HT CMA HBSObj>)> extends Opera
 	@SuppressWarnings("unchecked")
 	public HT execute(){
 		HBSObj tmp = h.obj;
-		return h.obj.getStore().getObj(tmp);
+		return (HT) h.obj.getStore().getObj(tmp);
 	}
 
 }

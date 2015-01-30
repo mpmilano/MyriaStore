@@ -2,9 +2,9 @@
 package operations;
 
 
-public interface Get<R_(T), FSO> {
+public interface Get<FSO> {
 
 	
-	public R_g(T) getObj(FSO o);
+	public Object getObj(FSO o);
 
 }

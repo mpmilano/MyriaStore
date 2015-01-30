@@ -12,7 +12,8 @@ package remote;
 public final class Handle<Handle_P_(H)> {
 	public final HBSObj obj;
 
-	public Handle(HBSObj obj){
+	public Handle(Class<HT> c, HBSObj obj){
 		this.obj = obj;
 	}
+
 }
