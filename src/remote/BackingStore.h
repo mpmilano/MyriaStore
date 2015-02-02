@@ -11,5 +11,8 @@
 
 #define BS_t_(name) remote.BackingStore<name ## Cons, name ## Access, name ## Atype, name, name ## Obj>
 
+#define someBackingStore_(name) name extends remote.BackingStore<?,? ,? , HBS, ?>
+#define someStoreObj_(name) HBSObj extends BackingStore<?, ?, ?, HBS, HBSObj>.RemoteObject
+
 #define R_(t) t extends java.io.Serializable
 #define R_g(t) t
