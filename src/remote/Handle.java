@@ -1,28 +1,29 @@
+#include "BackingStore.h"
+#include "Handle.h"	
 package remote;
 
 
-import java.io.Serializable;
+//Things we can track statically:
+// Origin, Origin's consistency, Handle's consistency, 
+// handle's access level, 
 
-import handles.access.*;
+//of these, only access level and consistency are really "user-facing" "public" things.
 
-public final class Handle <T extends Serializable, Access extends Unspecified, 
-						Consistency extends consistency.BaseModel,
-						Original extends consistency.BaseModel,
-						Location extends BackingStore<Original, Location>> {
-	public final remote.BackingStore<Original, Location>.RemoteObject<T> ro;
-	
-	//TODO: constrain that this constructor variant only works
-	//when original consistency and thishandle Consistency are the 
-	//same.
-	public Handle(BackingStore<Original,Location>.RemoteObject<T> ro){
-		this.ro = ro;
+public final class Handle<Handle_P_(H)> implements GetStore<HBS>, GetUnderlyingObj<HBSObj>, access.HasAccess<HA>, consistency.HasConsistency<HC>, PointsTo<HT> {
+	public final HBSObj obj;
+
+	public Handle(Class<HT> c, HBSObj obj){
+		this.obj = obj;
 	}
-	
-	//TODO - need a "compatible" construct here
-	public <OldConsistency /* compatible */extends Original, 
-			OldAccess extends Access, OldT extends T>
-	//actually, I think an allow_when or enable_if construct would do just as well.
-	Handle(Handle<OldT,OldAccess,OldConsistency,Original, Location> h){
-		this.ro = Location.generalize(h.ro);
+
+	@Override
+	public HBS getStore(){
+		return this.obj.getStore();
 	}
+
+	@Override
+	public HBSObj getUnderlyingObj(){
+		return this.obj;
+	}
+
 }
