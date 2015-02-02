@@ -5,12 +5,7 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t
-
-	//need to enumerate for all types supported.... templates-time!
-	implements Get<FSStore.FSObject>
-
-{
+public class FSStore extends FSS_t implements Get<FSStore.FSObject> {
 	
 	public class FSObject extends FSS_t.RemoteObject {
 
@@ -18,8 +13,7 @@ public class FSStore extends FSS_t
 		private final Class<?> storedclass;
 		
 		public FSObject(String location, Object initialValue) throws IOException {
-			@SuppressWarnings("unchecked")
-				Class<?> class1 = (Class<?>) initialValue.getClass();
+			Class<?> class1 = initialValue.getClass();
 			this.storedclass = class1;
 			this.location = new File(location);
 			FileOutputStream fos = null;
@@ -48,19 +42,6 @@ public class FSStore extends FSS_t
 
 		
 	}
-
-	/*
-	@Override
-	public <R_(T)> Handle<T, FSS_, FSObject<T>, ReadWrite, consistency.Lin> newObject(R_g(T) init, String name){
-		try {
-			return new Handle<>(new FSObject<R_g(T)>(name, init));
-		}
-		catch (IOException e){
-			throw new RuntimeException(e);
-		}
-	}
-	*/
-	
 
 	@Override
 	@SuppressWarnings("unchecked")
