@@ -5,13 +5,16 @@
 
 #define BSref_(name) name ## Cons, name ## Atype, name, name ##Obj
 
-#define BackingStore_PAC(name, cc, bsc) name ## Cons extends consistency.Top, name ## Atype, name, name ## Obj extends BackingStore<BSref_(name)>.RemoteObject
+#define BackingStore_PAC(name, cc, bsc) Consistency_(name ## Cons), name ## Atype, name, name ## Obj extends BackingStore<BSref_(name)>.RemoteObject
 
 #define BackingStore_PC(name, cc) BackingStore_PAC(name, cc, util.Dummy)
 
 #define BackingStore_(name) BackingStore_PAC(name, access.Unknown, util.Dummy)
 
 #define BS_t_(name) remote.BackingStore<name ## Cons, name ## Atype, name, name ## Obj>
+
+#define BSref_min(name) name ## Cons, ?, name, name ## Obj
+#define BackingStore_min(name) Consistency_(name ## Cons), name, name ## Obj extends BackingStore<BSref_min(name)>.RemoteObject
 
 
 #define R_(t) t extends java.io.Serializable

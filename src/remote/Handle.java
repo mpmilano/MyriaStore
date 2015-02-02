@@ -30,10 +30,10 @@ public final class Handle<Handle_P_(H)> implements GetStore<HBS>, GetUnderlyingO
 		//TODO - signal the store that this is weaker somehow? 
 	}
 
-	public static <R_(HT), BackingStore_PC(HBS,access.Write), Consistency_C(HC, HBSCons)>
-		Handle<Handle_Pre_g(H), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {
+	public static <R_(HT), BackingStore_(HBS), Consistency_(HC)>
+		Handle<HT, BSref_(HBS), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {
 		
-		return new Handle<Handle_Pre_g(H), access.Write, HC>(null, h.obj);
+		return new Handle<>(null, h.obj);
 		//TODO - signal the store that this is weaker somehow? 
 	}
 
