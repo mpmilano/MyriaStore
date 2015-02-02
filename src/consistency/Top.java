@@ -1,5 +1,5 @@
 package consistency;
 
-public interface Top {
+public interface Top extends Consistency{
 
 }

@@ -8,6 +8,8 @@ public abstract class BackingStore<BackingStore_(HBS)> implements util.Dummy {
 public abstract class RemoteObject {
 	public abstract HBS getStore();
 	public abstract Class<?> getUnderlyingClass();
+	public abstract consistency.Consistency getModel();
+	public abstract void setModel(consistency.Consistency c);
 }
 
 	protected abstract HBSObj newObj(HBSAtype arg, Object init) throws Exception;

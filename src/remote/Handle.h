@@ -2,10 +2,13 @@
 
 #include "../remote/BackingStore.h"
 
-#define Handle_P_(x) R_(x ## T), BackingStore_(x ## BS), Access_C(x ## A,x ## BSAccess), Consistency_C(x ## C,x ## BSCons)
-#define Handle_PAC_(x,CC,BSC) R_(x ## T), BackingStore_PAC(x ## BS, CC, BSC), Access_C(x ## A,x ## BSAccess), Consistency_C(x ## C,x ## BSCons)
-#define Handle_fromBS(x) R_g(x ## T), BSref_(x ## BS), x ## BSAccess, x ## BSCons
+#define Handle_Post_(x) BackingStore_(x ## BS), Access_(x ## A), Consistency_C(x ## C,x ## BSCons)
+#define Handle_P_(x) R_(x ## T), Handle_Post_(x)
+#define Handle_PAC_(x,CC,BSC) R_(x ## T), BackingStore_PAC(x ## BS, CC, BSC), Access_(x ## A), Consistency_C(x ## C,x ## BSCons)
+#define Handle_fromBS(x) R_g(x ## T), BSref_(x ## BS), access.ReadWrite, x ## BSCons
 
-#define Handle_P_g(x) R_g(x ## T), BSref_(x ## BS), x ## A, x ## C
+#define Handle_Pre_g(x) R_g(x ## T), BSref_(x ## BS)
+#define Handle_P_g(x) Handle_Pre_(x), x ## A, x ## C
+#define Handle_Post_g(x) BSref_(x ## BS), x ## A, x ## C
 
 #define CMA ,

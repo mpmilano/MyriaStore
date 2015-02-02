@@ -30,6 +30,15 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 			}
 		}
 
+		private class Lin implements consistency.Lin {}
+		@Override
+		public consistency.Consistency getModel(){
+			return new Lin();
+		}
+
+		@Override
+		public void setModel(consistency.Consistency c) {}
+
 		@Override
 		public FSStore getStore(){
 			return FSStore.this;

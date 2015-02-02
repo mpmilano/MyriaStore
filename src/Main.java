@@ -2,6 +2,7 @@
 import fsstore.*;
 import remote.*;
 import operations.*;
+import java.io.*;
 
 #define hargs String, FSS_, access.ReadWrite, consistency.Lin
 public class Main {
@@ -14,6 +15,10 @@ public class Main {
 		System.out.println((new LinGet<>(h)).execute());
 		System.out.println("finished");
 		(new ReplaceOp<>(h,h)).execute();
+		Handle<Serializable, FSS_, access.ReadWrite, consistency.Lin> rel = Handle.relaxT(h);
+		Handle<Serializable, FSS_, access.Write, consistency.Lin> op = Handle.changeDown(rel);
+		Handle<Serializable, FSS_, ?, ?> op2 = Handle.changeUp(rel);
+		Handle<Serializable, FSS_, access.ReadWrite, consistency.Lin> orig = op2.restore();
 		
 	}
 }
