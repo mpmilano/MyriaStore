@@ -5,7 +5,7 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t implements Get<FSStore.FSObject> {
+public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore.FSObject> {
 	
 	public class FSObject extends FSS_t.RemoteObject {
 
@@ -58,6 +58,16 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject> {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void putObj(FSObject o){
+		try {
+			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(o.location);
+		}
+		catch (IOException e){
 			throw new RuntimeException(e);
 		}
 	}
