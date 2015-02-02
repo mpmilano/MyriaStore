@@ -13,6 +13,7 @@ public class Main {
 		(new PutOp<>(h, "newFoo")).execute();
 		System.out.println((new LinGet<>(h)).execute());
 		System.out.println("finished");
+		(new ReplaceOp<>(h,h)).execute();
 		
 	}
 }
