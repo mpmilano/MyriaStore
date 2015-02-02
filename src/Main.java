@@ -11,6 +11,8 @@ public class Main {
 		System.out.println((new GetOp<>(h)).execute());
 		System.out.println((new LinGet<>(h)).execute());
 		(new PutOp<>(h, "newFoo")).execute();
+		System.out.println((new LinGet<>(h)).execute());
+		System.out.println("finished");
 		
 	}
 }

@@ -63,7 +63,7 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 	@Override
 	public <R_(T)> void putObj(FSObject o, T t){
 		try {
-			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(o.location);
+			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
