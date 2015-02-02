@@ -4,7 +4,7 @@ package operations;
 
 import java.util.concurrent.Callable;
 
-public abstract class Operation<R_(T) /*, BackingStore_(BS), Consistency_C(C,BSCons) */> implements Callable<R_g(T)> {
+public abstract class Operation<T /*, BackingStore_(BS), Consistency_C(C,BSCons) */> implements Callable<T> {
 
 	abstract public T execute();
 

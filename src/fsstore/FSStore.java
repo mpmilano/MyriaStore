@@ -12,7 +12,7 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 		private final File location;
 		private final Class<?> storedclass;
 		
-		public FSObject(String location, Object initialValue) throws IOException {
+		private FSObject(String location, Object initialValue) throws IOException {
 			Class<?> class1 = initialValue.getClass();
 			this.storedclass = class1;
 			this.location = new File(location);
@@ -39,8 +39,6 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 		public Class<?> getUnderlyingClass(){
 			return storedclass;
 		}
-
-		
 	}
 
 	@Override
@@ -63,7 +61,7 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 	}
 
 	@Override
-	public void putObj(FSObject o){
+	public <R_(T)> void putObj(FSObject o, T t){
 		try {
 			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(o.location);
 		}

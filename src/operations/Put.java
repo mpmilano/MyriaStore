@@ -1,9 +1,9 @@
+#include "../remote/BackingStore.h"
 package operations;
 
 
 public interface Put<FSO> {
 
-	
-	public void putObj(FSO o);
+	public <R_(T)> void putObj(FSO o, T t);
 
 }

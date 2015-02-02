@@ -10,6 +10,7 @@ public class Main {
 		Handle<hargs> h = fs.newObject("run away!","/tmp/foofoofoo");
 		System.out.println((new GetOp<>(h)).execute());
 		System.out.println((new LinGet<>(h)).execute());
+		(new PutOp<>(h, "newFoo")).execute();
 		
 	}
 }
