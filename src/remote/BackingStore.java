@@ -3,7 +3,7 @@
 
 package remote;
 
-public abstract class BackingStore<BackingStore_(HBS)> {
+public abstract class BackingStore<BackingStore_(HBS)> implements util.Dummy {
 
 public abstract class RemoteObject {
 	public abstract HBS getStore();
