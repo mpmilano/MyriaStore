@@ -44,7 +44,11 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	protected FSObject newObj(String name, Object init) throws IOException{
+		return new FSObject(name, init);
+	}
+
+	@Override
 	public Object getObj(FSObject o){
 		try {
 			return (new ObjectInputStream(new FileInputStream(o.location))).readObject();

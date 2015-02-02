@@ -10,15 +10,20 @@ public abstract class RemoteObject {
 	public abstract Class<?> getUnderlyingClass();
 }
 
-	/*
+	protected abstract HBSObj newObj(HBSAtype arg, Object init) throws Exception;
+
 	public <R_(HT)> Handle<Handle_fromBS(H)> newObject(R_g(HT) init, HBSAtype arg){
 		try {
-			return new Handle<Handle_fromBS(H)>(newObj(name, init));
+			HBSObj newobj = newObj(arg,init);
+			assert(init.getClass() == newobj.getUnderlyingClass());
+			@SuppressWarnings("unchecked")
+			Class<HT> cls = (Class<HT>) init.getClass();
+			return new Handle<Handle_fromBS(H)>(cls, newobj);
 		}
-		catch (IOException e){
+		catch (Exception e){
 			throw new RuntimeException(e);
 		}
 	}
-	*/
+
 
 }

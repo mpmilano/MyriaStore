@@ -4,13 +4,13 @@ package operations;
 
 import remote.*;
 
-public class GetOp<Handle_PAC_(H,access.Read, Get<HBSObj>)> extends Operation<R_g(HT)> {
+public class GetOp<HT extends java.io.Serializable,HBS extends remote.BackingStore<?,? ,? , HBS, ?> & Get<HBSObj>, HBSObj extends BackingStore<?, ?, ?, HBS, HBSObj>.RemoteObject> extends Operation<R_g(HT)> {
 
 //public class GetOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
 
-	private Handle<Handle_P_g(H)> h;
+	private Handle<HT, ?, ?, ?, HBS, HBSObj, ?, ?> h;
 	
-	public GetOp(Handle<Handle_P_g(H)> h){
+	public GetOp(Handle<HT, ?, ?, ?, HBS, HBSObj, ?, ?> h){
 		this.h = h;
 	}
 
