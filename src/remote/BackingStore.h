@@ -20,3 +20,6 @@
 
 #define R_(t) t extends java.io.Serializable
 #define R_g(t) t
+
+
+#define OpBasics S extends Get<HBSObj> & Put<HBSObj>, HBSObj, Consistency_(C), H extends StoreActions<S,HBSObj>
