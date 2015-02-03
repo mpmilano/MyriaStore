@@ -12,7 +12,7 @@ package remote;
 public final class Handle<Handle_P_(H)> implements GetStore<HBS>, GetUnderlyingObj<HBSObj>, access.HasAccess<HA>, consistency.HasConsistency<HC>, PointsTo<HT> {
 	public final HBSObj obj;
 
-	Handle(Class<HT> c, HBSObj obj){
+	Handle(HBSObj obj){
 		this.obj = obj;
 	}
 
@@ -25,15 +25,13 @@ public final class Handle<Handle_P_(H)> implements GetStore<HBS>, GetUnderlyingO
 
 	public static <R_(HT), BackingStore_PC(HBS,access.Read), Consistency_C(HC, HBSCons)>
 		Handle<Handle_Pre_g(H), access.Read, HC> changeUp(Handle<Handle_Pre_g(H), ? extends access.Read, ? super HC> h) {
-
-		return new Handle<Handle_Pre_g(H), access.Read, HC>(null, h.obj);
+		return new Handle<>(h.obj);
 		//TODO - signal the store that this is weaker somehow? 
 	}
 
 	public static <R_(HT), BackingStore_(HBS), Consistency_(HC)>
-		Handle<HT, BSref_(HBS), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {
-		
-		return new Handle<>(null, h.obj);
+		Handle<HT, BSref_(HBS), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {		
+		return new Handle<>(h.obj);
 		//TODO - signal the store that this is weaker somehow? 
 	}
 

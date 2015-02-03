@@ -18,9 +18,7 @@ public abstract class RemoteObject {
 		try {
 			HBSObj newobj = newObj(arg,init);
 			assert(init.getClass() == newobj.getUnderlyingClass());
-			@SuppressWarnings("unchecked")
-			Class<HT> cls = (Class<HT>) init.getClass();
-			return new Handle<Handle_fromBS(H)>(cls, newobj);
+			return new Handle<>(newobj);
 		}
 		catch (Exception e){
 			throw new RuntimeException(e);
