@@ -50,6 +50,24 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 		}
 	}
 
+	public class FSDir extends FSObject {
+		private FSDir(String location, Object initialValue) throws IOException {
+			super(location, initialValue);
+		}
+	}
+
+	public class AltObjFact<R_(T)> extends FSS_t.AltObjFact<T, FSDir> {
+
+		public Handle<T, FSSp_, FSDir, access.ReadWrite, consistency.Lin> newObj(String arg, T init){
+			try {
+				return buildHandle(new FSDir(arg, init));
+			}
+			catch (Exception e){
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 	@Override
 	protected FSObject newObj(String name, Object init) throws IOException{
 		return new FSObject(name, init);

@@ -25,5 +25,11 @@ public abstract class RemoteObject {
 		}
 	}
 
+	public abstract class AltObjFact<R_(HT), OHBSObj extends HBSObj> {
+		protected Handle<Handle_fromBS2(H,OH)> buildHandle(OHBSObj oh){
+			return new Handle<>(oh);
+		}
+	}
+
 
 }
