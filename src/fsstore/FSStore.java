@@ -5,7 +5,12 @@ import access.*;
 import operations.*;
 import java.io.*;
 	
-public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore.FSObject>, Replace<FSStore.FSObject>, List<FSStore.FSDir> {
+public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
+											  Put<FSStore.FSObject>,
+											  Replace<FSStore.FSObject>,
+											  List<FSStore.FSDir>,
+											  Swap<FSStore.FSObject>
+{
 	
 	public class FSObject extends FSS_t.RemoteObject {
 
@@ -109,6 +114,15 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>, Put<FSStore
 	@Override
 	public void replace(FSObject dest, FSObject src) throws java.io.IOException{
 		java.nio.file.Files.copy(src.location.toPath() , dest.location.toPath() );
+	}
+
+	@Override
+	public void swapObj(FSObject o1, FSObject o2) throws IOException{
+		File tmp = File.createTempFile("","");
+		o1.location.renameTo(tmp);
+		o1.location.renameTo(o2.location);
+		o2.location.renameTo(tmp);
+		
 	}
 }
 	

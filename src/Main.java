@@ -21,6 +21,7 @@ public class Main {
 		Handle<Serializable, FSS_, access.ReadWrite, consistency.Lin> orig = op2.restore();
 		Handle<Serializable, FSSp_, FSStore.FSDir, access.ReadWrite, consistency.Lin> dir = fs.df.newObj("/tmp/");
 		for (String s : (new ListOp<>(dir)).execute()) 	System.out.println(s);
+		(new SwapOp<>(h,h)).execute();
 		
 	}
 }

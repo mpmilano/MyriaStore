@@ -7,7 +7,7 @@ import access.*;
 import consistency.*;
 
 public class ListOp<S extends List<HBSObj>, HBSObj, Consistency_(C),
-							  H extends GetUnderlyingObj<HBSObj> & GetStore<S> & HasAccess<? extends Read> & HasConsistency<C> >
+							  H extends StoreActions<S,HBSObj> & HasAccess<? extends Read> & HasConsistency<C> >
 	extends Operation<String[],C> {
 
 //public class ListOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
@@ -22,5 +22,4 @@ public class ListOp<S extends List<HBSObj>, HBSObj, Consistency_(C),
 	public String[] execute(){
 		return h.getStore().list(h.getUnderlyingObj());
 	}
-
 }
