@@ -9,7 +9,7 @@ package remote;
 
 //of these, only access level and consistency are really "user-facing" "public" things.
 
-public final class Handle<Handle_P_(H)> implements GetStore<HBS>, GetUnderlyingObj<HBSObj>, access.HasAccess<HA>, consistency.HasConsistency<HC>, PointsTo<HT> {
+public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, access.HasAccess<HA>, consistency.HasConsistency<HC>, PointsTo<HT> {
 	public final HBSObj obj;
 
 	Handle(HBSObj obj){
