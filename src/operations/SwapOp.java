@@ -6,10 +6,8 @@ import remote.*;
 import access.*;
 import consistency.*;
 
-public class SwapOp<R_(T), OpBasics & HasAccess<? extends ReadWrite> & HasConsistency<C> & PointsTo<T>>
+public class SwapOp<R_(T), OpBasics(HasAccess<? extends ReadWrite> & HasConsistency<C> & PointsTo<T>)>
 	extends Operation<Void,C> {
-
-//public class SwapOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
 
 	private H h1;
 	private H h2;

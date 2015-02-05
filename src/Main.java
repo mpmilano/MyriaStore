@@ -8,8 +8,14 @@ import java.io.*;
 public class Main {
 	public static void main(String[] args) throws java.io.IOException{
 		FSStore fs = new FSStore();
+
+		
 		Handle<hargs> h = fs.newObject("run away!","/tmp/foofoofoo");
 		System.out.println((new GetOp<>(h)).execute());
+
+
+
+		
 		System.out.println((new LinGet<>(h)).execute());
 		(new PutOp<>(h, "newFoo")).execute();
 		System.out.println((new LinGet<>(h)).execute());
@@ -22,6 +28,9 @@ public class Main {
 		Handle<Serializable, FSSp_, FSStore.FSDir, access.ReadWrite, consistency.Lin> dir = fs.df.newObj("/tmp/");
 		for (String s : (new ListOp<>(dir)).execute()) 	System.out.println(s);
 		(new SwapOp<>(h,h)).execute();
+
+		OperationFactory of = null;
+		Repeat rp = null;
 		
 	}
 }

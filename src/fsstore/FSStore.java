@@ -118,7 +118,7 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
 
 	@Override
 	public void swapObj(FSObject o1, FSObject o2) throws IOException{
-		File tmp = File.createTempFile("","");
+		File tmp = File.createTempFile("aaaa","bbbb");
 		o1.location.renameTo(tmp);
 		o1.location.renameTo(o2.location);
 		o2.location.renameTo(tmp);
