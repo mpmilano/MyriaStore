@@ -23,13 +23,12 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 		return (Handle<NewT, Handle_Post_g(H)>) h;
 	}
 
-	//relaxing the type of the handle
+	//relaxing the store internals
 	@SuppressWarnings("unchecked")
-	public static <Handle_P_(H)>
-		Handle<Handle_P_g(H)> relaxStoreObj(Handle<Handle_P_g(H)> h){
+	public static <Handle_P_(H), HBSObjOld extends HBSObj>
+		Handle<Handle_P_g(H)> relaxStoreObj(Handle<HT, HBSCons, HBSAtype, HBS, HBSObjOld, HA, HC> h){
 		return (Handle<Handle_P_g(H)>) h;
 	}
-
 
 	public static <R_(HT), BackingStore_PC(HBS,access.Read), Consistency_C(HC, HBSCons)>
 		Handle<Handle_Pre_g(H), access.Read, HC> changeUp(Handle<Handle_Pre_g(H), ? extends access.Read, ? super HC> h) {
@@ -46,6 +45,11 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 	@SuppressWarnings("unchecked")
 	public Handle<R_g(HT), Handle_fromBS(H)> restore(){
 		return (Handle<R_g(HT), Handle_fromBS(H)>) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Handle<HT, HBSCons, ?, BackingStore<HBSCons,?,?,?>, BackingStore<HBSCons,?,BackingStore<HBSCons,?,?,?>,?>.RemoteObject, HA, HC> generic(){
+		return (Handle<HT, HBSCons, ?, BackingStore<HBSCons,?,?,?>, BackingStore<HBSCons,?,BackingStore<HBSCons,?,?,?>,?>.RemoteObject, HA, HC>) this;
 	}
 
 	@Override

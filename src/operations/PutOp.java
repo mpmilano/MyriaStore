@@ -6,8 +6,7 @@ import remote.*;
 import access.*;
 import consistency.*;
 
-public class PutOp<R_(T), OpBasics(HasAccess<? extends Write> & PointsTo<T> & HasConsistency<C>)>
-	extends Operation<R_g(Void),C> {
+public class PutOp<R_(T), Consistency_(C), HBSObj extends ObjPut, H extends GetUnderlyingObj<HBSObj> & HasAccess<? extends Write> & PointsTo<T> & HasConsistency<C>> extends Operation<R_g(Void),C> {
 
 	private H h;
 	private T t;
@@ -20,7 +19,7 @@ public class PutOp<R_(T), OpBasics(HasAccess<? extends Write> & PointsTo<T> & Ha
 	@Override
 	@SuppressWarnings("unchecked")
 	public Void execute(){
-		h.getStore().putObj(h.getUnderlyingObj(), t);
+		h.getUnderlyingObj().put(t);
 		return null;
 	}
 

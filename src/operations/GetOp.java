@@ -6,7 +6,7 @@ import remote.*;
 import access.*;
 import consistency.*;
 
-public class GetOp<R_(HT), OpBasics(HasAccess<? extends Read> & HasConsistency<C>) > extends Operation<R_g(HT),C> {
+public class GetOp<R_(HT), HBSObj extends ObjGet, Consistency_(C), H extends GetUnderlyingObj<HBSObj> & HasAccess<? extends Read> & HasConsistency<C> & PointsTo<HT> > extends Operation<R_g(HT),C> {
 
 	private H h;
 	
@@ -17,7 +17,7 @@ public class GetOp<R_(HT), OpBasics(HasAccess<? extends Read> & HasConsistency<C
 	@Override
 	@SuppressWarnings("unchecked")
 	public HT execute(){
-		return (HT) h.getStore().getObj(h.getUnderlyingObj());
+		return (HT) h.getUnderlyingObj().get();
 	}
 
 }

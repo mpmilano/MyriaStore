@@ -54,6 +54,16 @@ public class FSStore extends FSS_t implements Replace<FSStore.FSObject>,
 		public Class<?> getUnderlyingClass(){
 			return storedclass;
 		}
+
+		@Override
+		public Object get(){
+			return getObj(this);
+		}
+
+		@Override
+		public <R_(T)> void put(T o){
+			putObj(this,o);
+		}
 	}
 
 	public class FSDir extends FSObject {

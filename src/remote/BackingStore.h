@@ -22,5 +22,5 @@
 #define R_g(t) t
 
 
-#define OpBasics(x) S extends operations.Get<HBSObj> & operations.Put<HBSObj>, HBSObj, Consistency_(C), H extends x & remote.StoreActions<S,HBSObj>
+#define OpBasics(x) S extends operations.Get<HBSObj> & operations.Put<HBSObj>, HBSObj extends operations.ObjGet & operations.ObjPut, Consistency_(C), H extends x & remote.StoreActions<S,HBSObj>
 #define OpBasics_g S, HBSObj, C, H

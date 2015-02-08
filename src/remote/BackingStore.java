@@ -6,12 +6,14 @@ import operations.*;
 
 public abstract class BackingStore<BackingStore_(HBS)> implements Get<HBSObj>, Put<HBSObj>{
 
-public abstract class RemoteObject {
-	public abstract HBS getStore();
-	public abstract Class<?> getUnderlyingClass();
-	public abstract consistency.Consistency getModel();
-	public abstract void setModel(consistency.Consistency c);
-}
+	public abstract class RemoteObject implements ObjGet, ObjPut{
+		public abstract HBS getStore();
+		public abstract Class<?> getUnderlyingClass();
+		public abstract consistency.Consistency getModel();
+		public abstract void setModel(consistency.Consistency c);
+		public abstract Object get();
+		public abstract <R_(T)> void put(T o);
+	}
 
 	protected abstract HBSObj newObj(HBSAtype arg, Object init) throws Exception;
 

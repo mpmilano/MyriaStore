@@ -31,6 +31,8 @@ public class Main {
 
 		new Repeat<>(new GetFactory<>(h), 3, h).execute();
 		Repeat rp = null;
+
+		(new GetOp<>(h.generic())).execute();
 		
 	}
 }
