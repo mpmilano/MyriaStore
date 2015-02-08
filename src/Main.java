@@ -29,7 +29,7 @@ public class Main {
 		for (String s : (new ListOp<>(dir)).execute()) 	System.out.println(s);
 		(new SwapOp<>(h,h)).execute();
 
-		OperationFactory of = null;
+		new Repeat<>(new GetFactory<>(h), 3, h).execute();
 		Repeat rp = null;
 		
 	}

@@ -2,8 +2,9 @@
 #include "Handle.h"
 
 package remote;
+import operations.*;
 
-public abstract class BackingStore<BackingStore_(HBS)> implements util.Dummy {
+public abstract class BackingStore<BackingStore_(HBS)> implements Get<HBSObj>, Put<HBSObj>{
 
 public abstract class RemoteObject {
 	public abstract HBS getStore();
@@ -14,7 +15,7 @@ public abstract class RemoteObject {
 
 	protected abstract HBSObj newObj(HBSAtype arg, Object init) throws Exception;
 
-	public <R_(HT)> Handle<Handle_fromBS(H)> newObject(R_g(HT) init, HBSAtype arg){
+	public <R_(T)> Handle<R_g(T), Handle_fromBS(H)> newObject(R_g(T) init, HBSAtype arg){
 		try {
 			HBSObj newobj = newObj(arg,init);
 			assert(init.getClass() == newobj.getUnderlyingClass());
@@ -25,9 +26,14 @@ public abstract class RemoteObject {
 		}
 	}
 
-	public abstract class AltObjFact<R_(HT), OHBSObj extends HBSObj> {
-		protected Handle<Handle_fromBS2(H,OH)> buildHandle(OHBSObj oh){
+	public abstract class AltObjFact<R_(T), OHBSObj extends HBSObj> {
+		protected Handle<R_g(T), Handle_fromBS2(H,OH)> buildHandle(OHBSObj oh){
 			return new Handle<>(oh);
+		}
+	}
+	protected abstract class ObjFact<R_(T), Access_(A)> {
+		public Handle<R_g(T), BSref_(HBS), A, HBSCons> buildHandle(HBSObj o) {
+			return new Handle<>(o);
 		}
 	}
 

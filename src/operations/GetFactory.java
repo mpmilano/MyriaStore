@@ -3,10 +3,16 @@
 package operations;
 import remote.*;
 
-public class GetFactory  {
-	public static final GetFactory t = new GetFactory();
-	public <BackingStore_(BS), R_(T), Consistency_C(C,BSCons)> Operation<R_g(T),BSref_(BS),Cref_(C)> build(Handle hs){
-		return null;
+public class GetFactory<R_(T), OpBasics(access.HasAccess<? extends access.Read> & consistency.HasConsistency<C>)>  implements OperationFactory<T,OpBasics_g> {
+	
+	public GetFactory(H h){
+		//just for inference purposes.
+	}
+
+	public GetFactory(){}
+	
+	public GetOp<T,OpBasics_g> build(H hs){
+		return new GetOp<>(hs);
 	}
 	
 }

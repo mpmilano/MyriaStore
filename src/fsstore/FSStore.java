@@ -4,10 +4,9 @@ import remote.*;
 import access.*;
 import operations.*;
 import java.io.*;
+import consistency.*;
 	
-public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
-											  Put<FSStore.FSObject>,
-											  Replace<FSStore.FSObject>,
+public class FSStore extends FSS_t implements Replace<FSStore.FSObject>,
 											  List<FSStore.FSDir>,
 											  Swap<FSStore.FSObject>
 {
@@ -58,9 +57,14 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
 	}
 
 	public class FSDir extends FSObject {
+		private FSObject[] files;
 		private FSDir(String location) throws IOException {
 			super(location,null);
 			if (! this.location.isDirectory()) throw new IOException("must be a dir!");
+			String[] fls = this.location.list();
+			files = new FSObject[fls.length];
+			for (int i = 0; i < files.length; ++i) files[i] = new FSObject(fls[i],null);
+			
 		}
 	}
 
@@ -68,6 +72,17 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
 	public String[] list(FSDir fs){
 		return fs.location.list();
 	}
+
+
+	//@Override
+	public <R_(T), Access_(A)>
+		void foreach(OperationFactory<T, FSStore, FSObject, Lin, Handle<T,Lin,?,FSStore,FSObject,A,Lin> > of, FSDir fs){
+		for (FSObject f : fs.files){
+			Handle<T,Lin,?,FSStore,FSObject,A,Lin> h = (new FSObjFact<T,A>()).buildHandle(f);
+			of.build(h).execute();
+		}
+	} //
+
 
 	public class DirFact extends FSS_t.AltObjFact<Serializable, FSDir> {
 
@@ -80,6 +95,11 @@ public class FSStore extends FSS_t implements Get<FSStore.FSObject>,
 			}
 		}
 	}
+
+	protected class FSObjFact<R_(T), Access_(A)> extends FSS_t.ObjFact<T,A> {
+		
+	}
+	
 	public DirFact df = new DirFact();
 
 	@Override

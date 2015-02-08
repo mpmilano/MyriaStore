@@ -23,6 +23,14 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 		return (Handle<NewT, Handle_Post_g(H)>) h;
 	}
 
+	//relaxing the type of the handle
+	@SuppressWarnings("unchecked")
+	public static <Handle_P_(H)>
+		Handle<Handle_P_g(H)> relaxStoreObj(Handle<Handle_P_g(H)> h){
+		return (Handle<Handle_P_g(H)>) h;
+	}
+
+
 	public static <R_(HT), BackingStore_PC(HBS,access.Read), Consistency_C(HC, HBSCons)>
 		Handle<Handle_Pre_g(H), access.Read, HC> changeUp(Handle<Handle_Pre_g(H), ? extends access.Read, ? super HC> h) {
 		return new Handle<>(h.obj);
@@ -33,11 +41,11 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 		Handle<HT, BSref_(HBS), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {		
 		return new Handle<>(h.obj);
 		//TODO - signal the store that this is weaker somehow? 
-	}
+	}	
 
 	@SuppressWarnings("unchecked")
-	public Handle<Handle_fromBS(H)> restore(){
-		return (Handle<Handle_fromBS(H)>) this;
+	public Handle<R_g(HT), Handle_fromBS(H)> restore(){
+		return (Handle<R_g(HT), Handle_fromBS(H)>) this;
 	}
 
 	@Override
