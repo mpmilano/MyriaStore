@@ -9,6 +9,7 @@ import consistency.*;
 public class FSStore extends FSS_t implements Replace<FSStore.FSObject>,
 											  List<FSStore.FSDir>,
 											  Swap<FSStore.FSObject>
+											  ,ForEach<consistency.Lin, FSStore.FSDir>
 {
 	
 	public class FSObject extends FSS_t.RemoteObject {
@@ -86,12 +87,12 @@ public class FSStore extends FSS_t implements Replace<FSStore.FSObject>,
 
 	//@Override
 	public <R_(T), Access_(A)>
-		void foreach(OperationFactory<T, FSStore, FSObject, Lin, Handle<T,Lin,?,FSStore,FSObject,A,Lin> > of, FSDir fs){
+		void foreach(OperationFactory<T, ?, ?, Lin, Handle<T,Lin,?,?,?,A,Lin> > of, FSDir fs){
 		for (FSObject f : fs.files){
 			Handle<T,Lin,?,FSStore,FSObject,A,Lin> h = (new FSObjFact<T,A>()).buildHandle(f);
 			of.build(h).execute();
 		}
-	} //
+	}
 
 
 	public class DirFact extends FSS_t.AltObjFact<Serializable, FSDir> {
