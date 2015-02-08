@@ -48,8 +48,8 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 	}
 
 	@SuppressWarnings("unchecked")
-	public Handle<HT, HBSCons, ?, BackingStore<HBSCons,?,?,?>, BackingStore<HBSCons,?,BackingStore<HBSCons,?,?,?>,?>.RemoteObject, HA, HC> generic(){
-		return (Handle<HT, HBSCons, ?, BackingStore<HBSCons,?,?,?>, BackingStore<HBSCons,?,BackingStore<HBSCons,?,?,?>,?>.RemoteObject, HA, HC>) this;
+	public Handle<HT, HBSCons, ?, ?, ?, HA, HC> generic(){
+		return (Handle<HT, HBSCons, ?, ?, ?, HA, HC>) this;
 	}
 
 	@Override
