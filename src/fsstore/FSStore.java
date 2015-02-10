@@ -63,7 +63,8 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 			if (! this.location.isDirectory()) throw new IOException("must be a dir!");
 			String[] fls = this.location.list();
 			files = new FSObject[fls.length];
-			for (int i = 0; i < files.length; ++i) files[i] = new FSObject<T>(fls[i],null);
+			for (int i = 0; i < files.length; ++i) files[i] = new FSObject<T>(location + "/" + fls[i],null);
+			System.out.println("constructed!");
 		}
 	}
 
@@ -100,6 +101,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 	@Override
 	//TODO: oponly
 	public String[] list(FSDir fs){
+		System.out.println("using FSStore native operation");
 		return fs.location.list();
 	}
 
@@ -113,10 +115,12 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 	//TODO: oponly
 	public <Out, T extends Serializable, A extends access.Unknown>
 		void foreach(OperationFactory<Out,T, consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin> > of, FSDir<?> fs){
+		System.out.println("native ForEach attempt");
 		@SuppressWarnings("unchecked")
 			FSDir<T> realfs= (FSDir<T>) fs;
 		for (FSObject<T> f : realfs.files){
 			Handle<T, consistency.Lin, A, consistency.Lin> h = (new FSObjFact<T,A>()).build(f);
+			System.out.println("loop...");
 			of.build(h).execute();
 		}
 		
