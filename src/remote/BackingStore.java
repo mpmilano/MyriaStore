@@ -6,7 +6,7 @@ import operations.*;
 
 public abstract class BackingStore<BackingStore_(HBS)> implements Get<HBSObj>, Put<HBSObj>{
 
-	public abstract class RemoteObject implements ObjGet, ObjPut{
+	public abstract class RemoteObject implements ObjActions {
 		public abstract HBS getStore();
 		public abstract Class<?> getUnderlyingClass();
 		public abstract consistency.Consistency getModel();

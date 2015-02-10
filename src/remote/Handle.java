@@ -9,10 +9,7 @@ package remote;
 
 //of these, only access level and consistency are really "user-facing" "public" things.
 
-public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, access.HasAccess<HA>,
-												   consistency.HasConsistency<HC>,
-												   consistency.OriginalConsistency<HBSCons>,
-												   PointsTo<HT> {
+public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, RemHandle<HT, HC, HA, HBSCons> {
 	public final HBSObj obj;
 
 	Handle(HBSObj obj){
@@ -51,7 +48,7 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 	}
 
 	@SuppressWarnings("unchecked")
-	public Handle<HT, HBSCons, ?, ?, ?, HA, HC> generic(){
+	public Handle<HT, HBSCons, ?, ?, ?, HA, HC> forget(){
 		return (Handle<HT, HBSCons, ?, ?, ?, HA, HC>) this;
 	}
 
@@ -62,6 +59,11 @@ public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, acc
 
 	@Override
 	public HBSObj getUnderlyingObj(){
+		return this.obj;
+	}
+
+	@Override
+	public ObjActions getRemoteObj(){
 		return this.obj;
 	}
 

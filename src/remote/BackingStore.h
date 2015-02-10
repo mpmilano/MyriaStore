@@ -21,6 +21,8 @@
 #define R_(t) t extends java.io.Serializable
 #define R_g(t) t
 
+#define OpBasicsOp(x,y) S extends operations.Get<HBSObj> & operations.Put<HBSObj>, HBSObj extends operations.ObjGet & operations.ObjPut, Consistency_(C), H extends x y remote.StoreActions<S,HBSObj>
 
-#define OpBasics(x) S extends operations.Get<HBSObj> & operations.Put<HBSObj>, HBSObj extends operations.ObjGet & operations.ObjPut, Consistency_(C), H extends x & remote.StoreActions<S,HBSObj>
+#define OpBasics(x) OpBasicsOp(x,&)
+
 #define OpBasics_g S, HBSObj, C, H

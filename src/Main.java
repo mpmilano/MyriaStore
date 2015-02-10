@@ -32,9 +32,10 @@ public class Main {
 		new Repeat<>(new GetFactory<>(h), 3, h).execute();
 		Repeat rp = null;
 
-		(new GetOp<>(h.generic())).execute();
+		(new GetOp<>(h.forget())).execute();
 
-		
+		(new ForEachOp<>(new GetFactory<>(h),dir)).execute();
+		//(new ForEachOp<String, FSStore, FSStore.FSDir, consistency.Lin, access.ReadWrite, Handle<Serializable, FSSp_, FSStore.FSDir, access.ReadWrite, consistency.Lin>>((new GetFactory<String, FSStore, FSStore.FSObject, consistency.Lin, Handle<String, FSS_,/*consistency.Lin, ?,?,?, */ access.ReadWrite, consistency.Lin>>(/*h.forget() */)).forget(), dir)).execute();
 		
 	}
 }

@@ -4,7 +4,7 @@ package operations;
 import remote.*;
 
 public class GetFactory<R_(T), OpBasics(access.HasAccess<? extends access.Read> & consistency.HasConsistency<C> & PointsTo<T>)>
-	implements OperationFactory<T,OpBasics_g> {
+	implements OperationFactory<T,C,H> {
 	
 	public GetFactory(H h){
 		//just for inference purposes.
@@ -15,6 +15,7 @@ public class GetFactory<R_(T), OpBasics(access.HasAccess<? extends access.Read> 
 	public GetOp<T,HBSObj, C, H> build(H hs){
 		return new GetOp<>(hs);
 	}
+
 	
 }
 

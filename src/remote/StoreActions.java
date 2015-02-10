@@ -1,3 +1,3 @@
 package remote;
 
-public interface StoreActions<A,B> extends GetStore<A>, GetUnderlyingObj<B> {}
+public interface StoreActions<A,B> extends GetStore<A>, GetUnderlyingObj<B>, GetRemoteObj {}

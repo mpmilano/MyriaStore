@@ -1,7 +1,7 @@
 #include "../remote/BackingStore.h"
 package operations;
 
-public class Repeat<R_(T), OpBasics(Object), Factory extends OperationFactory<T,OpBasics_g>> extends Operation<T,C> {
+public class Repeat<R_(T), OpBasics(Object), Factory extends OperationFactory<T,C,H>> extends Operation<T,C> {
 	private H h;
 	private Factory f;
 	private int times;

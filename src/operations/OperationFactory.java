@@ -2,7 +2,7 @@
 package operations;
 import remote.*;
 
-public interface OperationFactory<R_(T), OpBasics(Object)> {
+public interface OperationFactory<R_(T), Consistency_(C), H extends GetRemoteObj> {
 
 	public  Operation<T,C> build(H h);
 }

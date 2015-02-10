@@ -85,11 +85,12 @@ public class FSStore extends FSS_t implements Replace<FSStore.FSObject>,
 	}
 
 
-	//@Override
+	@Override
 	public <R_(T), Access_(A)>
-		void foreach(OperationFactory<T, ?, ?, Lin, Handle<T,Lin,?,?,?,A,Lin> > of, FSDir fs){
+		void foreach(OperationFactory<T, Lin, RemHandle<T,Lin,A,Lin> > of, FSDir fs){
 		for (FSObject f : fs.files){
 			Handle<T,Lin,?,FSStore,FSObject,A,Lin> h = (new FSObjFact<T,A>()).buildHandle(f);
+			
 			of.build(h).execute();
 		}
 	}
