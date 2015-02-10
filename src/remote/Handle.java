@@ -6,7 +6,8 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>
 {
 
-	private RemoteObject<T> ro;
+	//TODO - want a friend designator. 
+	public RemoteObject<T> ro;
 
 	Handle(RemoteObject<T> ro){
 		this.ro = ro;

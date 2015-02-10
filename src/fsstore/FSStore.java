@@ -5,7 +5,7 @@ import java.util.*;
 import remote.*;
 import util.*;
 
-public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> {
+public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> implements operations.List<FSStore.FSDir> {
 
 
 	public class FSObject<T extends Serializable> implements RemoteObject<T> {
@@ -39,6 +39,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> {
 		public void put(T o){
 			putObj(this,o);
 		}
+
+		@Override
+		public FSStore getStore() {
+			return FSStore.this;
+		}
 	}
 
 	@Override
@@ -64,7 +69,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> {
 		}
 	}
 
-	public <T extends Serializable> T getObj(FSObject<T> o){
+	private <T extends Serializable> T getObj(FSObject<T> o){
 		try {
 			@SuppressWarnings("unchecked")
 			T t = (T) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
@@ -78,13 +83,19 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> {
 			throw new RuntimeException(e);
 		}
 	}
-	public <T extends Serializable> void putObj(FSObject<T> o, T t){
+	private <T extends Serializable> void putObj(FSObject<T> o, T t){
 		try {
 			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	//TODO: oponly
+	public String[] list(FSDir fs){
+		return fs.location.list();
 	}
 	
 }
