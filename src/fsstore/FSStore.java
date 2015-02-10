@@ -4,8 +4,12 @@ import java.io.*;
 import java.util.*;
 import remote.*;
 import util.*;
+import operations.*;
 
-public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> implements operations.List<FSStore.FSDir> {
+public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
+	implements operations.List<FSStore.FSDir>,
+			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>>
+{
 
 
 	public class FSObject<T extends Serializable> implements RemoteObject<T> {
@@ -52,7 +56,8 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> im
 	}
 
 	public class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
-		private FSObject[] files;
+		private FSObject<T>[] files;
+		@SuppressWarnings("unchecked")
 		private FSDir(String location) throws IOException {
 			super(location,null);
 			if (! this.location.isDirectory()) throw new IOException("must be a dir!");
@@ -62,7 +67,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> im
 		}
 	}
 
-	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, FSDir<T> > {
+	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, access.ReadWrite, FSDir<T> > {
 		public Handle<SerializableCollection<T>, consistency.Lin, access.ReadWrite, consistency.Lin>
 			newObject(String name) throws IOException{
 			return buildHandle(new FSDir<T>(name));
@@ -97,5 +102,26 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String> im
 	public String[] list(FSDir fs){
 		return fs.location.list();
 	}
+
+	private class FSObjFact<T extends Serializable, A extends access.Unknown> extends AltObjFact<T, A, FSObject> {
+		public Handle<T, consistency.Lin, A, consistency.Lin> build(FSObject<T> fso){
+			return buildHandle(fso);
+		}
+	}
+
+	@Override
+	//TODO: oponly
+	public <Out, T extends Serializable, A extends access.Unknown>
+		void foreach(OperationFactory<Out,T, consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin> > of, FSDir<?> fs){
+		@SuppressWarnings("unchecked")
+			FSDir<T> realfs= (FSDir<T>) fs;
+		for (FSObject<T> f : realfs.files){
+			Handle<T, consistency.Lin, A, consistency.Lin> h = (new FSObjFact<T,A>()).build(f);
+			of.build(h).execute();
+		}
+		
+	}
+	
+
 	
 }

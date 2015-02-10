@@ -3,7 +3,7 @@ package remote;
 import java.io.Serializable;
 
 public final class Handle<T extends Serializable, Cons extends consistency.Top, Access extends access.Unknown, OriginalCons extends consistency.Top>
-	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>
+	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T>
 {
 
 	//TODO - want a friend designator. 
@@ -13,8 +13,10 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 		this.ro = ro;
 	}
 
+	public RemoteObject<T> getRemoteObj(){ return ro; }
+
 	@SuppressWarnings("unchecked")
-	static <NewT extends Serializable, T extends NewT,
+	public static <NewT extends Serializable, T extends NewT,
 					  Cons extends consistency.Top,
 								   Access extends access.Unknown,
 												  OriginalCons extends consistency.Top>
@@ -23,7 +25,7 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T extends Serializable,
+	public static <T extends Serializable,
 					  Cons extends consistency.Top,
 								   OriginalCons extends consistency.Top>
 		Handle<T, Cons, access.Write, OriginalCons> changeUp(Handle<T,? extends Cons,? extends access.ReadWrite,OriginalCons> h){
@@ -31,11 +33,21 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T extends Serializable,
+	public static <T extends Serializable,
 					  Cons extends consistency.Top,
 								   OriginalCons extends consistency.Top>
 		Handle<T, Cons, access.Read, OriginalCons> changeDown(Handle<T,? super Cons,? extends access.ReadWrite,OriginalCons> h){
 		return new Handle<>(h.ro);
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable,
+					  NewAccess extends access.Unknown, OldAccess extends NewAccess,
+					  Cons extends consistency.Top,
+								   OriginalCons extends consistency.Top>
+		Handle<T, Cons, NewAccess, OriginalCons> restrict(Handle<T,Cons,OldAccess,OriginalCons> h){
+		return new Handle<>(h.ro);
+	}
+
 
 }
