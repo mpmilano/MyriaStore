@@ -24,12 +24,13 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 		return (Handle<NewT, Cons, Access, OriginalCons>) h;
 	}
 
+
 	@SuppressWarnings("unchecked")
 	public static <T extends Serializable,
 					  Cons extends consistency.Top,
 								   OriginalCons extends consistency.Top>
 		Handle<T, Cons, access.Write, OriginalCons> changeUp(Handle<T,? extends Cons,? extends access.ReadWrite,OriginalCons> h){
-		return new Handle<>(h.ro);
+		return (Handle<T, Cons, access.Write, OriginalCons>) ((Handle) h); 
 	}
 
 	@SuppressWarnings("unchecked")
@@ -37,7 +38,7 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 					  Cons extends consistency.Top,
 								   OriginalCons extends consistency.Top>
 		Handle<T, Cons, access.Read, OriginalCons> changeDown(Handle<T,? super Cons,? extends access.ReadWrite,OriginalCons> h){
-		return new Handle<>(h.ro);
+		return (Handle<T, Cons, access.Read, OriginalCons>) ((Handle) h); 
 	}
 
 	@SuppressWarnings("unchecked")
@@ -46,7 +47,7 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 					  Cons extends consistency.Top,
 								   OriginalCons extends consistency.Top>
 		Handle<T, Cons, NewAccess, OriginalCons> restrict(Handle<T,Cons,OldAccess,OriginalCons> h){
-		return new Handle<>(h.ro);
+		return (Handle<T, Cons, NewAccess, OriginalCons>) ((Handle) h);
 	}
 
 
