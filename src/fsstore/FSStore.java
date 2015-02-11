@@ -6,9 +6,9 @@ import remote.*;
 import util.*;
 import operations.*;
 
-public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
+public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FSStore>
 	implements operations.List<FSStore.FSDir>,
-			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>>
+			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>
 {
 
 
@@ -69,7 +69,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 	}
 
 	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, access.ReadWrite, FSDir<T> > {
-		public Handle<SerializableCollection<T>, consistency.Lin, access.ReadWrite, consistency.Lin>
+		public Handle<SerializableCollection<T>, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>
 			newObject(String name) throws IOException{
 			return buildHandle(new FSDir<T>(name));
 		}
@@ -106,7 +106,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 	}
 
 	private class FSObjFact<T extends Serializable, A extends access.Unknown> extends AltObjFact<T, A, FSObject> {
-		public Handle<T, consistency.Lin, A, consistency.Lin> build(FSObject<T> fso){
+		public Handle<T, consistency.Lin, A, consistency.Lin, FSStore> build(FSObject<T> fso){
 			return buildHandle(fso);
 		}
 	}
@@ -114,12 +114,12 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String>
 	@Override
 	//TODO: oponly
 	public <Out, T extends Serializable, A extends access.Unknown>
-		void foreach(OperationFactory<Out,T, consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin> > of, FSDir<?> fs){
+		void foreach(OperationFactory<Out,T, consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin, FSStore> > of, FSDir<?> fs){
 		System.out.println("native ForEach attempt");
 		@SuppressWarnings("unchecked")
 			FSDir<T> realfs= (FSDir<T>) fs;
 		for (FSObject<T> f : realfs.files){
-			Handle<T, consistency.Lin, A, consistency.Lin> h = (new FSObjFact<T,A>()).build(f);
+			Handle<T, consistency.Lin, A, consistency.Lin, FSStore> h = (new FSObjFact<T,A>()).build(f);
 			System.out.println("loop...");
 			of.build(h).execute();
 		}

@@ -19,7 +19,7 @@ public class Main{
 			System.out.println(s);
 		}
 
-		PrintFactory<String, consistency.Lin, Handle<String, consistency.Lin, access.ReadWrite, consistency.Lin>> pf =
+		PrintFactory<String, consistency.Lin, Handle<String, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>> pf =
 			new PrintFactory<>();
 
 

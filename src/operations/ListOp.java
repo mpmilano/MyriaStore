@@ -6,9 +6,9 @@ import remote.*;
 
 public class ListOp<C extends consistency.Top, Obj extends RemoteObject, Sto extends List<Obj> > extends Operation<String[],C> {
 
-	private Handle<? extends Collection<?>,C,? extends access.Read, ?> h;
+	private Handle<? extends Collection<?>,C,? extends access.Read, ?, ?> h;
 	
-	public ListOp(Handle<? extends Collection<?>,C,? extends access.Read, ?> h ){
+	public ListOp(Handle<? extends Collection<?>,C,? extends access.Read, ?, ?> h ){
 		this.h = h;
 	}
 

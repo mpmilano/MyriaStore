@@ -2,7 +2,7 @@ package remote;
 
 import java.io.Serializable;
 
-public final class Handle<T extends Serializable, Cons extends consistency.Top, Access extends access.Unknown, OriginalCons extends consistency.Top>
+public final class Handle<T extends Serializable, Cons extends consistency.Top, Access extends access.Unknown, OriginalCons extends consistency.Top, Store>
 	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T>
 {
 
@@ -19,35 +19,35 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	public static <NewT extends Serializable, T extends NewT,
 					  Cons extends consistency.Top,
 								   Access extends access.Unknown,
-												  OriginalCons extends consistency.Top>
-		Handle<NewT, Cons, Access, OriginalCons> relaxT(Handle<T,Cons,Access,OriginalCons> h){
-		return (Handle<NewT, Cons, Access, OriginalCons>) h;
+												  OriginalCons extends consistency.Top, Store>
+		Handle<NewT, Cons, Access, OriginalCons, Store> relaxT(Handle<T,Cons,Access,OriginalCons, Store> h){
+		return (Handle<NewT, Cons, Access, OriginalCons, Store>) h;
 	}
 
 
 	@SuppressWarnings("unchecked")
 	public static <T extends Serializable,
 					  Cons extends consistency.Top,
-								   OriginalCons extends consistency.Top>
-		Handle<T, Cons, access.Write, OriginalCons> changeUp(Handle<T,? extends Cons,? extends access.ReadWrite,OriginalCons> h){
-		return (Handle<T, Cons, access.Write, OriginalCons>) ((Handle) h); 
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, access.Write, OriginalCons, Store> changeUp(Handle<T,? extends Cons,? extends access.ReadWrite,OriginalCons, Store> h){
+		return (Handle<T, Cons, access.Write, OriginalCons, Store>) ((Handle) h); 
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T extends Serializable,
 					  Cons extends consistency.Top,
-								   OriginalCons extends consistency.Top>
-		Handle<T, Cons, access.Read, OriginalCons> changeDown(Handle<T,? super Cons,? extends access.ReadWrite,OriginalCons> h){
-		return (Handle<T, Cons, access.Read, OriginalCons>) ((Handle) h); 
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, access.Read, OriginalCons, Store> changeDown(Handle<T,? super Cons,? extends access.ReadWrite,OriginalCons, Store> h){
+		return (Handle<T, Cons, access.Read, OriginalCons, Store>) ((Handle) h); 
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T extends Serializable,
 					  NewAccess extends access.Unknown, OldAccess extends NewAccess,
 					  Cons extends consistency.Top,
-								   OriginalCons extends consistency.Top>
-		Handle<T, Cons, NewAccess, OriginalCons> restrict(Handle<T,Cons,OldAccess,OriginalCons> h){
-		return (Handle<T, Cons, NewAccess, OriginalCons>) ((Handle) h);
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, NewAccess, OriginalCons, Store> restrict(Handle<T,Cons,OldAccess,OriginalCons, Store> h){
+		return (Handle<T, Cons, NewAccess, OriginalCons, Store>) ((Handle) h);
 	}
 
 
