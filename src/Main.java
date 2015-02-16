@@ -32,6 +32,7 @@ public class Main{
 		Store s = null;
 		GetOp go = null;
 		ListOp lo = null;
+		InsertOp io = null;
 		
 	}
 }

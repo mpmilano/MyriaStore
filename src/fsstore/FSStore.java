@@ -5,10 +5,12 @@ import java.util.*;
 import remote.*;
 import util.*;
 import operations.*;
+import java.nio.file.*;
 
 public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FSStore>
 	implements operations.List<FSStore.FSDir>,
-			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>
+			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
+			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
 {
 
 
@@ -123,7 +125,13 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			System.out.println("loop...");
 			of.build(h).execute();
 		}
-		
+	}
+
+	@Override
+	//TODO: oponly
+	public void insert(FSDir<?> set, FSObject<?> e) throws IOException{
+		Files.copy(e.location.toPath(),(new File(set.location.getAbsolutePath() + "/" + e.location.getName())).toPath());
+		//TODO: generally speaking, a native-exception which is checked statically should be created for all of these.
 	}
 	
 
