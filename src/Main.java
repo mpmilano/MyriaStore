@@ -26,7 +26,9 @@ public class Main{
 		System.out.println("using ForEach");
 		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
-		
+
+		(new InsertOp<>((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo"))).execute();
+		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/fooey/"))).execute();
 		
 		Handle h = null;
 		Store s = null;

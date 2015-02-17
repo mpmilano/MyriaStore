@@ -62,12 +62,23 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		@SuppressWarnings("unchecked")
 		private FSDir(String location) throws IOException {
 			super(location,null);
+			this.location.mkdirs();
 			if (! this.location.isDirectory()) throw new IOException("must be a dir!");
 			String[] fls = this.location.list();
 			files = new FSObject[fls.length];
 			for (int i = 0; i < files.length; ++i) files[i] = new FSObject<T>(location + "/" + fls[i],null);
 			System.out.println("constructed!");
 		}
+
+		@Override
+		public SerializableCollection<T> get(){
+			return getObj(this);
+		}
+		@Override
+		public void put(SerializableCollection<T> o){
+			putObj(this,o);
+		}
+
 	}
 
 	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, access.ReadWrite, FSDir<T> > {
@@ -77,6 +88,10 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		}
 	}
 
+	private <T extends Serializable, C extends SerializableCollection<T> > C getObj(FSDir<T> o){
+		throw new RuntimeException("whoops, unimplemented!");
+	}
+	
 	private <T extends Serializable> T getObj(FSObject<T> o){
 		try {
 			@SuppressWarnings("unchecked")
@@ -130,7 +145,9 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	@Override
 	//TODO: oponly
 	public void insert(FSDir<?> set, FSObject<?> e) throws IOException{
-		Files.copy(e.location.toPath(),(new File(set.location.getAbsolutePath() + "/" + e.location.getName())).toPath());
+		File nf = (new File(set.location.getAbsolutePath() + "/" + e.location.getName()));
+		nf.delete();
+		Files.copy(e.location.toPath(),nf.toPath());
 		//TODO: generally speaking, a native-exception which is checked statically should be created for all of these.
 	}
 	

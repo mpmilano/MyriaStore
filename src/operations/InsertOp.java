@@ -30,10 +30,14 @@ public class InsertOp<T extends Serializable, J extends Collection<T> & Serializ
 				Obj obj = (Obj) elem.ro;
 			sto.insert(st,obj);
 		}
-		catch (ClassCastException | java.io.IOException e){
+		catch (ClassCastException e){
 			J j = set.ro.get();
 			j.add(elem.ro.get());
 			set.ro.put(j);
+		}
+		catch (java.io.IOException e){
+			System.err.println("something is very wrong!");
+			throw new RuntimeException(e);
 		}
 		return null;
 	}
