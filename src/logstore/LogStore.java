@@ -14,24 +14,28 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, Void, LogStor
 
 	LinkedList<LinkedList<Runnable>> log = new LinkedList<>();
 
+	public static LogStore inst = new LogStore();
+	
+	private LogStore(){}
+
 	@Override
 	protected Void genArg(){
 		return null;
 	}
 
 
-	public class LogObject<T extends Serializable> implements RemoteObject<T> {
+	static class LogObject<T extends Serializable> implements RemoteObject<T> {
 
 		private T t;
 
 		private LogObject(T t) {this.t = t;}
 		
 		@Override
-		public LogStore getStore() {return LogStore.this;}
+		public LogStore getStore() {return inst;}
 
 		@Override
 		public void put(final T t){
-			log.getLast().add(new Runnable(){
+			inst.log.getLast().add(new Runnable(){
 					public void run(){
 						LogObject.this.t = t;
 					}
