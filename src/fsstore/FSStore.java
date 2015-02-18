@@ -12,6 +12,9 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
 			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
 {
+	private FSStore(){}
+
+	public static FSStore inst = new FSStore();
 
 	@Override
 	protected String genArg(){
@@ -24,7 +27,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		}
 	}
 
-	public class FSObject<T extends Serializable> implements RemoteObject<T> {
+	static class FSObject<T extends Serializable> implements RemoteObject<T> {
 		protected final File location;
 		protected final Class<?> storedclass;
 		private FSObject(String location, T initialValue) throws IOException {
@@ -49,16 +52,16 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 
 		@Override
 		public T get(){
-			return getObj(this);
+			return inst.getObj(this);
 		}
 		@Override
 		public void put(T o){
-			putObj(this,o);
+			inst.putObj(this,o);
 		}
 
 		@Override
 		public FSStore getStore() {
-			return FSStore.this;
+			return inst;
 		}
 	}
 
@@ -67,7 +70,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		return new FSObject<T>(name, initialValue);
 	}
 
-	public class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
+	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
 		private FSObject<T>[] files;
 		@SuppressWarnings("unchecked")
 		private FSDir(String location) throws IOException {
@@ -82,11 +85,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 
 		@Override
 		public SerializableCollection<T> get(){
-			return getObj(this);
+			return inst.getObj(this);
 		}
 		@Override
 		public void put(SerializableCollection<T> o){
-			putObj(this,o);
+			inst.putObj(this,o);
 		}
 
 	}

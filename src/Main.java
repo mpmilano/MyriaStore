@@ -7,7 +7,7 @@ import transactions.*;
 
 public class Main{
 	public static void main(String[] args) throws Exception{
-		FSStore fs = new FSStore();
+		FSStore fs = FSStore.inst;
 		System.out.println((new GetOp<>(fs.newObject("foofoo","/tmp/foo"))).execute());
 		for (String s : (new ListOp<>((fs.new DirFact<String>()).newObject("/")).execute())){
 			System.out.println(s);

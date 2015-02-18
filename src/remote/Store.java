@@ -2,7 +2,9 @@ package remote;
 
 import java.io.Serializable;
 
-public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, Store_p> {
+public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, Store_p>
+	implements HasConsistency<Cons>, HasAccess<access.ReadWrite>, StoreCons<Cons>
+{
 
 	protected abstract <T extends Serializable> RObj newObject(SType arg, T init) throws Exception;
 	protected abstract SType genArg();
