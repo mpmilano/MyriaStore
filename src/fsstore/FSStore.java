@@ -13,6 +13,16 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
 {
 
+	@Override
+	protected String genArg(){
+		try {
+			return File.createTempFile("linable","store").getAbsolutePath();
+		}
+		catch( IOException e){
+			//TODO handle
+			return "";
+		}
+	}
 
 	public class FSObject<T extends Serializable> implements RemoteObject<T> {
 		protected final File location;
@@ -150,7 +160,13 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		Files.copy(e.location.toPath(),nf.toPath());
 		//TODO: generally speaking, a native-exception which is checked statically should be created for all of these.
 	}
-	
+
+	@Override
+	//TODO: oponly
+	public void insert(FSDir<?> set, Serializable e) throws IOException{
+		insert(set, newObject(genArg(), e));
+	}
+
 
 	
 }

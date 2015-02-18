@@ -2,6 +2,7 @@ import remote.*;
 import fsstore.*;
 import operations.*;
 import java.util.*;
+import transactions.*;
 
 public class Main{
 	public static void main(String[] args) throws Exception{
@@ -35,6 +36,10 @@ public class Main{
 		GetOp go = null;
 		ListOp lo = null;
 		InsertOp io = null;
+		Gets g = null;
+
+		logstore.LogStore ls;
+		blog.Blog b;
 		
 	}
 }
