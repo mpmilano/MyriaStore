@@ -2,6 +2,7 @@ import remote.*;
 import fsstore.*;
 import operations.*;
 import java.util.*;
+import util.*;
 import transactions.*;
 
 public class Main{
@@ -28,14 +29,13 @@ public class Main{
 		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
 
-		(new InsertOp<>((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo"))).execute();
+		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo"))).execute();
 		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/fooey/"))).execute();
 		
 		Handle h = null;
 		Store s = null;
 		GetOp go = null;
 		ListOp lo = null;
-		InsertOp io = null;
 		Gets g = null;
 
 		logstore.LogStore ls;
