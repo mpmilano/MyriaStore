@@ -17,29 +17,19 @@ class Comment implements Serializable {
 	public final String comment;
 }
 
-class BlogEntry implements Serializable{
-	Handle<String,Lin, ReadWrite, ?, ?> text;
-	Handle<ArrayList<Comment>, Causal, ReadWrite, ? ,?> comments = null;
-	public BlogEntry(Store<Lin,?,?,?> s, String entry){
-		this.text = s.newObject(entry);
-	}
-
-	public void addComment(int time, String str){
-
-	}
-}
-
-public class Blog{
+public class Blog<S extends Store<Lin,?,?,?> & Insert<?,?>>{
 
 	public Handle<ArrayList<BlogEntry>, Lin, ReadWrite, ? , ?> entries;
 
-	public Blog(Handle<ArrayList<BlogEntry>, Lin, ReadWrite, ? , ?> entries){
+	public Blog(Handle<ArrayList<BlogEntry>, Lin, ReadWrite, ? , S> entries){
 		this.entries = entries;
 	}
 
-	void postNewEntry(Store<Lin,?,?,?> s, InsertFactory<?,?,?> ifact, String text){
+	public BlogEntry postNewEntry(S s, String text){
 		//entries.insert(text)
-		(ifact.build2(entries,new BlogEntry(s,text))).execute();
+		BlogEntry bo = new BlogEntry(s,text);
+		(s.ifact().build2(entries,bo)).execute();
+		return bo;
 	}
 
 }

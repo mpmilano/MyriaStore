@@ -167,6 +167,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		insert(set, newObject(genArg(), e));
 	}
 
+	@Override
+	public InsertFactory<?,?,?> ifact(){
+		return new InsertFactory<>(this);
+	}
+
 
 	
 }
