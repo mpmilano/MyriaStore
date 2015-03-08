@@ -33,6 +33,20 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 		}
 	}
 
+	abstract void registerOnWrite(util.Function<SType,Void> r);
+
+	abstract void registerOnRead(util.Function<SType,Void> r);
+
+	abstract void registerOnTick(Runnable r);
+
+
+	//only constraint here is consistent mapping.
+	//incorporating the string directly would be nice
+	//for debugging though, if it's possible to do.
+	abstract SType ofString(String s);
+
+	abstract SType concat(SType a, SType b);
+
 	public /*ops-only*/ void beginTransaction(){
 		//TODO - make this do something.
 	}
