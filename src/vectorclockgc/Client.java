@@ -61,7 +61,7 @@ public class Cliet<StrongStore, CausalStore, CStoreType>{
 			public void run(){
 				(new PutOp<>(my_global_contribution,localClock)).execute();
 				ArrayList<VectorClock> cache = new ArrayList<VectorClock>();
-				for (Handle<> h : global_clocks){
+				for (Handle<VectorClock, Lin, ReadWrite, Lin, StrongStore> h : global_clocks){
 					cache.add((new GetOp<>(h)).execute());
 				}
 				global_estimate.advanceTo(VectorClock.meetOf(cache));

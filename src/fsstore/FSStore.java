@@ -12,6 +12,14 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
 			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
 {
+
+	//String manipulations!
+
+	public String ofString(String s){ return s;}
+
+	public String concat(String a, String b){return a + b;}
+	
+	
 	private FSStore(){}
 
 	public static FSStore inst = new FSStore();
@@ -101,12 +109,22 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		}
 	}
 
+	
+	ArrayList<util.Function<String,Void>> onRead;
+	@Override
+	public void registerOnRead(util.Function<String,Void> r){
+		onRead.add(r);
+	}
+
 	private <T extends Serializable, C extends SerializableCollection<T> > C getObj(FSDir<T> o){
 		throw new RuntimeException("whoops, unimplemented!");
 	}
 	
 	private <T extends Serializable> T getObj(FSObject<T> o){
 		try {
+			for (util.Function<String,Void> f : onRead){
+				f.apply(o.location.getCanonicalPath());
+			}
 			@SuppressWarnings("unchecked")
 			T t = (T) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
 			return t;
@@ -119,8 +137,18 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			throw new RuntimeException(e);
 		}
 	}
+
+	ArrayList<util.Function<String,Void>> onWrite;
+	@Override
+	public void registerOnWrite(util.Function<String,Void> r){
+		onWrite.add(r);
+	}
+	
 	private <T extends Serializable> void putObj(FSObject<T> o, T t){
 		try {
+			for (util.Function<String,Void> f : onWrite){
+				f.apply(o.location.getCanonicalPath());
+			}
 			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
 		}
 		catch (IOException e){
@@ -174,7 +202,21 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	public InsertFactory<?,?,?> ifact(){
 		return new InsertFactory<>(this);
 	}
+	
 
-
+	@Override
+	public void registerOnTick(Runnable r){
+		final Runnable rp = r;
+		(new Thread(){
+				@Override
+				public void run(){
+					try{
+						Thread.sleep(3); //TODO random
+					}
+					catch(Exception e){}
+					rp.run();
+				}
+			}).start();
+	}
 	
 }

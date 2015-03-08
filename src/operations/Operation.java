@@ -1,6 +1,9 @@
 package operations;
 
+
 import java.util.concurrent.Callable;
+import transactions.*;
+
 public abstract class Operation<T, C extends consistency.Top > extends Transaction implements Callable<T> {
 	abstract public T execute();
 	@Override
@@ -9,7 +12,7 @@ public abstract class Operation<T, C extends consistency.Top > extends Transacti
 	}
 	@Override
 	public void run() {
-		return execute();
+		execute();
 	}
 }
 	
