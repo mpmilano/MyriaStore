@@ -146,10 +146,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	
 	private <T extends Serializable> void putObj(FSObject<T> o, T t){
 		try {
+			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
 			for (util.Function<String,Void> f : onWrite){
 				f.apply(o.location.getCanonicalPath());
 			}
-			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
+
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
@@ -201,22 +202,5 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	@Override
 	public InsertFactory<?,?,?> ifact(){
 		return new InsertFactory<>(this);
-	}
-	
-
-	@Override
-	public void registerOnTick(Runnable r){
-		final Runnable rp = r;
-		(new Thread(){
-				@Override
-				public void run(){
-					try{
-						Thread.sleep(3); //TODO random
-					}
-					catch(Exception e){}
-					rp.run();
-				}
-			}).start();
-	}
-	
+	}	
 }

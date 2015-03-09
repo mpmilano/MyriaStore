@@ -9,8 +9,18 @@ import java.util.LinkedList;
 import java.util.Collection;
 
 
-public class LogStore extends Store<Causal, LogStore.LogObject<?>, Void, LogStore>
+public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore>
 	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>{
+
+	//actions on identifiers
+	@Override
+	public String concat(String a, String b){
+		return a + b;
+	}
+
+	@Override
+	public String ofString(String a){return a;}
+	//end actions of identifiers
 
 	LinkedList<LinkedList<Runnable>> log = new LinkedList<>();
 
@@ -19,16 +29,18 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, Void, LogStor
 	private LogStore(){}
 
 	@Override
-	protected Void genArg(){
-		return null;
+	protected String genArg(){
+		return java.util.UUID.randomUUID().toString();
 	}
 
 
 	static class LogObject<T extends Serializable> implements RemoteObject<T> {
 
 		private T t;
+		private String name;
 
-		private LogObject(T t) {this.t = t;}
+		private LogObject(String name, T t)
+		{this.name = name; this.t = t;}
 		
 		@Override
 		public LogStore getStore() {return inst;}
@@ -40,15 +52,36 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, Void, LogStor
 						LogObject.this.t = t;
 					}
 				});
+			for (util.Function<String, Void> f : inst.onWrite) {
+				f.apply(name);
+			}
 		}
-
+		
 		@Override
-		public T get(){ return t; }
+		public T get(){
+			for (util.Function<String, Void> f : inst.onRead){
+				f.apply(name);
+			}
+			return t;
+		}
+	}
+
+	private java.util.ArrayList<util.Function<String, Void>> onWrite;
+	private java.util.ArrayList<util.Function<String, Void>> onRead;
+	
+	@Override
+	public void registerOnRead(util.Function<String, Void> f){
+		onRead.add(f);
 	}
 
 	@Override
-	protected <T extends Serializable> LogObject<?> newObject(Void nill, T initial){
-		return new LogObject<>(initial);
+	public void registerOnWrite(util.Function<String, Void> f){
+		onWrite.add(f);
+	}
+
+	@Override
+	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial){
+		return new LogObject<>(uuid,initial);
 	}
 
 	@Override
@@ -73,5 +106,6 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, Void, LogStor
 
 	@Override
 	public InsertFactory<?,?,?> ifact() {return new InsertFactory<>(this); }
+
 
 }

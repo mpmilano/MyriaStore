@@ -1,6 +1,7 @@
 package remote;
 
 import java.io.Serializable;
+import java.util.*;
 
 public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, Store_p>
 	implements HasConsistency<Cons>, HasAccess<access.ReadWrite>, StoreCons<Cons>
@@ -33,11 +34,26 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 		}
 	}
 
+	//happens AFTER write
 	public abstract void registerOnWrite(util.Function<SType,Void> r);
 
+	//happens BEFORE read
 	public abstract void registerOnRead(util.Function<SType,Void> r);
 
-	public abstract void registerOnTick(Runnable r);
+	private Random rand = new Random();
+	public void registerOnTick(Runnable r){
+		final Runnable rp = r;
+		(new Thread(){
+				@Override
+				public void run(){
+					try{
+						Thread.sleep(rand.nextInt((10 - 0) + 1) + 0); 
+					}
+					catch(Exception e){}
+					rp.run();
+				}
+			}).start();
+	}
 
 
 	//only constraint here is consistent mapping.
