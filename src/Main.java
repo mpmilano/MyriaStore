@@ -42,6 +42,8 @@ public class Main{
 		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>())))
 			.postNewEntry(fs,"This is an entry!")
 			.addComment(fs.ifact(), 3, "A COMMENT!");
+
+		vectorclockgc.Client c;
 		
 	}
 }
