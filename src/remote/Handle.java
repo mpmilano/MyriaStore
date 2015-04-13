@@ -6,6 +6,10 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T>, Serializable
 {
 
+	//note - if you want to actually refer to things by these predicates,
+	//you can just implement an "isHandle" interface and then make static functions which convert
+	//types like Foo & isHandle into Handle<Foo ... >.  
+	
 	//TODO - want a friend designator. 
 	public RemoteObject<T> ro;
 
