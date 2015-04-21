@@ -45,6 +45,7 @@ public class Main{
 		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>(), fs)))
 			.postNewEntry(fs,"This is an entry!")
 			.addComment(fs.ifact(), 3, "A COMMENT!");
-		
 	}
+
+	client.CrossStore cs;
 }
