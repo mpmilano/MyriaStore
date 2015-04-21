@@ -2,6 +2,7 @@ package remote;
 
 import java.io.Serializable;
 import java.util.*;
+import consistency.*;
 
 public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, Store_p>
 	implements HasConsistency<Cons>, HasAccess<access.ReadWrite>, StoreCons<Cons>
@@ -10,7 +11,9 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 	protected abstract <T extends Serializable> RObj newObject(SType arg, T init) throws Exception;
 	protected abstract SType genArg();
 
-	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p> newObject(T init, SType arg){
+	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+		newObject(T init, SType arg, Store<consistency.Lin,?,?,Store_p> s){
+		assert(s == this);
 		try {
 			@SuppressWarnings("unchecked")
 				RemoteObject<T> newobj = (RemoteObject<T>) newObject(arg,init);
@@ -21,9 +24,29 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 		}
 	}
 
-	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p> newObject(T init){
-		return newObject(init,genArg());
+	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+		newObject(T init, SType arg, Store<consistency.Causal,?,?,Store_p> s){
+		assert(s == this);
+		try {
+			@SuppressWarnings("unchecked")
+				RemoteObject<T> newobj = (RemoteObject<T>) newObject(arg,init);
+			return new Handle<>(newobj);
+		}
+		catch (Exception e){
+			throw new RuntimeException(e);
+		}
+	}	
+
+	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+		newObject(T init, Store<consistency.Lin,?,?,Store_p> s){
+		return newObject(init,genArg(),s);
 	}
+
+	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+		newObject(T init, Store<consistency.Causal,?,?,Store_p> s){
+		return newObject(init,genArg(),s);
+	}
+
 
 
 	public abstract class AltObjFact<T extends Serializable, A extends access.Unknown, OHBSObj extends RObj> {
