@@ -9,6 +9,9 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 {
 
 	protected abstract <T extends Serializable> RObj newObject(SType arg, T init) throws Exception;
+
+	//for referencing existing objects by name
+	protected abstract <T extends Serializable> RObj newObject(SType arg) throws Exception;
 	protected abstract SType genArg();
 
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>

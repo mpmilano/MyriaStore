@@ -7,6 +7,8 @@ import remote.*;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Collection;
+import java.util.*;
+import java.io.*;
 
 
 public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore>
@@ -36,11 +38,24 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 
 	static class LogObject<T extends Serializable> implements RemoteObject<T> {
 
+		static Map<String, Object> cache = new HashMap<>();
+		
 		private T t;
 		private String name;
 
-		private LogObject(String name, T t)
-		{this.name = name; this.t = t;}
+		private LogObject(String name, T t) throws IOException
+		{
+			if (t == null){
+				@SuppressWarnings("unchecked")
+				T t_ = (T) cache.get(name);
+				t = t_;
+				if (t == null) throw new IOException("Can't find this name!");
+			}
+			else {
+				this.name = name; this.t = t;
+				cache.put(name,t);
+			}
+		}
 		
 		@Override
 		public LogStore getStore() {return inst;}
@@ -80,8 +95,13 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 	}
 
 	@Override
-	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial){
+	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial) throws IOException{
 		return new LogObject<>(uuid,initial);
+	}
+
+	@Override
+	protected <T extends Serializable> LogObject<?> newObject(String uuid) throws IOException{
+		return new LogObject<>(uuid,null);
 	}
 
 	@Override

@@ -47,5 +47,5 @@ public class Main{
 			.addComment(fs.ifact(), 3, "A COMMENT!");
 	}
 
-	client.CrossStore cs;
+	CrossStore cs;
 }

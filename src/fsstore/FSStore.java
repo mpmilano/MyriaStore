@@ -78,6 +78,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 		return new FSObject<T>(name, initialValue);
 	}
 
+	@Override
+	protected <T extends Serializable> FSObject<T> newObject(String name) throws IOException{
+		return new FSObject<T>(name, null);
+	}
+
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
 		private FSObject<T>[] files;
 		@SuppressWarnings("unchecked")
@@ -150,7 +155,6 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			for (util.Function<String,Void> f : onWrite){
 				f.apply(o.location.getCanonicalPath());
 			}
-
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
