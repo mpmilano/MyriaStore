@@ -28,9 +28,21 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalP, Lin
 		Set<ReadSetPair> readfrom;
 		Nonce n;
 		ReplicaID natural_replica;
+		public final Set<?> ends;
 		public MetaData(Set<ReadSetPair> readfrom, Nonce n, ReplicaID natural_replica){
 			this.readfrom = readfrom; this.n = n; this.natural_replica = natural_replica;
 		}
+	}
+
+	private class Tombstone implements Serializable {
+		public final Nonce n;
+		public final CausalType name;
+
+		public Tombstone(Nonce n){
+			this.n = n;
+			this.name = c.concat(c.ofString("tombstone-"), c.ofString(n));
+		}
+
 	}
 	
 	public CrossStore(final CausalStore c, final LinStore l){
@@ -46,16 +58,41 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalP, Lin
 				@Override
 				public Void apply(LinType name){
 					Nonce n = NonceGenerator.get();
-					LinType meta_name =
-						l.concat(name,metadata_suffix);
-					TreeSet<ReadSetPair> rscopy = new TreeSet<>();
-					rscopy.addAll(readset);
-					rscopy.add(new ReadSetPair(natural_replica, n));
-					l.newObject(new MetaData(rscopy, n, natural_replica), meta_name, l);
+					{
+						LinType meta_name =
+							l.concat(name,metadata_suffix);
+						TreeSet<ReadSetPair> rscopy = new TreeSet<>();
+						rscopy.addAll(readset);
+						rscopy.add(new ReadSetPair(natural_replica, n));
+						//annotate with metadata
+						l.newObject(new MetaData(rscopy, n, natural_replica, ends),
+									meta_name, l);
+					}
+					//write tombstone
+					{
+						Tombstone t = new Tombstone(n);
+						c.newObject(t, t.name);
+					}
 					
 					return null;
 				}
 			});
+		
+		l.registerOnRead(new Function<LinType,Void>(){
+				@Override
+				public Void apply(LinType name){
+					LinType meta_name =
+						l.concat(name,metadata_suffix);
+					RemoteObject<MetaData> rmeta =
+						(RemoteObject<MetaData>) l.existingObject(meta_name);
+					MetaData meta = rmeta.get();
+					if (!ends_prec(meta.ends, ends)) {
+						...
+					}
+					return null;
+				}
+			});
+
 
 		c.registerOnWrite(new Function<CausalType,Void>(){
 				@Override

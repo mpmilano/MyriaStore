@@ -10,7 +10,11 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 
 	protected abstract <T extends Serializable> RObj newObject(SType arg, T init) throws Exception;
 
-	//for referencing existing objects by name
+	//for referencing existing objects by name.  Only for use within framework.
+	<T extends Serializable> RObj existingObject(SType arg) throws Exception {
+		return newObject(arg);
+	}
+	
 	protected abstract <T extends Serializable> RObj newObject(SType arg) throws Exception;
 	protected abstract SType genArg();
 
