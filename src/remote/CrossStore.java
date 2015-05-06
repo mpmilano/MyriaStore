@@ -143,7 +143,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 		c.registerOnRead(new Function<CausalType, Void>(){
 
 				@SuppressWarnings("unchecked")
-				private <T> void helper(Mergable<T> m, CausalType name) {
+				private <T> Mergable<T>
+					helper(Mergable<T> m, CausalType name) {
 					for (ReadSetPair rsp : readset){
 						try{
 							Mergable<T> r = (Mergable<T>)
@@ -156,12 +157,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 							throw new RuntimeException(e);
 						}
 					}
+					return m;
 				}
 				
 				@Override
 				public Void apply(CausalType name){
 					Mergable<?> m = null;
-					helper(m, name);
+					to_return = helper(m, name);
 					return null;
 				}
 			});
