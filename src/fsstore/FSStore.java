@@ -6,8 +6,9 @@ import remote.*;
 import util.*;
 import operations.*;
 import java.nio.file.*;
+import java.net.*;
 
-public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FSStore>
+public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,InetAddress, FSStore>
 	implements operations.List<FSStore.FSDir>,
 			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
 			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
@@ -206,5 +207,15 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	@Override
 	public InsertFactory<?,?,?> ifact(){
 		return new InsertFactory<>(this);
-	}	
+	}
+
+	@Override
+	public InetAddress this_replica(){
+		try {
+			return InetAddress.getLocalHost();
+		}
+		catch (UnknownHostException e){
+			throw new RuntimeException(e);
+		}
+	}
 }

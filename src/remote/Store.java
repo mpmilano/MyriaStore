@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import consistency.*;
 
-public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, Store_p>
+public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, RType, Store_p>
 	implements HasConsistency<Cons>, HasAccess<access.ReadWrite>, StoreCons<Cons>
 {
 
@@ -19,7 +19,7 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 	protected abstract SType genArg();
 
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
-		newObject(T init, SType arg, Store<consistency.Lin,?,?,Store_p> s){
+		newObject(T init, SType arg, Store<consistency.Lin,?,?,?,Store_p> s){
 		assert(s == this);
 		try {
 			@SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 	}
 
 	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
-		newObject(T init, SType arg, Store<consistency.Causal,?,?,Store_p> s){
+		newObject(T init, SType arg, Store<consistency.Causal,?,?,?,Store_p> s){
 		assert(s == this);
 		try {
 			@SuppressWarnings("unchecked")
@@ -45,12 +45,12 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 	}	
 
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
-		newObject(T init, Store<consistency.Lin,?,?,Store_p> s){
+		newObject(T init, Store<consistency.Lin,?,?,?,Store_p> s){
 		return newObject(init,genArg(),s);
 	}
 
 	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
-		newObject(T init, Store<consistency.Causal,?,?,Store_p> s){
+		newObject(T init, Store<consistency.Causal,?,?,?,Store_p> s){
 		return newObject(init,genArg(),s);
 	}
 
@@ -100,5 +100,22 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 	public /*ops-only*/ void endTransaction(){
 		//TODO - make this do something.
 	}
-	
+
+
+	//optional - override if this functionality makes sense for you.
+	protected boolean sync_req_impl(RType from, RType to){	
+		return false;
+	}
+
+	boolean sync_req(RType from, RType to){
+		return sync_req_impl(from,to);
+	}	
+
+	public abstract RType this_replica();
+
+	//override if you want this functionality.
+	//allows direct access to non-default replica
+	public Store<Cons, RObj, SType, RType, Store_p> access_replica(RType rt){
+		return null;
+	}
 }

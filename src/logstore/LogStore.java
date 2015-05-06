@@ -11,7 +11,7 @@ import java.util.*;
 import java.io.*;
 
 
-public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore>
+public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
 	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>{
 
 	//actions on identifiers
@@ -126,6 +126,16 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 
 	@Override
 	public InsertFactory<?,?,?> ifact() {return new InsertFactory<>(this); }
+
+	@Override
+	public LogStore this_replica(){
+		return this;
+	}
+
+	@Override
+	public LogStore access_replica(LogStore ls){
+		return ls;
+	}
 
 
 }

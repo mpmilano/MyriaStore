@@ -12,7 +12,7 @@ import consistency.*;
 public class BlogEntry implements Serializable{
 	Handle<String,Lin, ReadWrite, ?, ?> text;
 	Handle<ArrayList<Comment>, Causal, ReadWrite, ? ,?> comments = null;
-	public <Storep> BlogEntry(Store<Lin,?,?,Storep> s, String entry){
+	public <Storep> BlogEntry(Store<Lin,?,?,?,Storep> s, String entry){
 		this.text = s.newObject(entry,s);
 	}
 
