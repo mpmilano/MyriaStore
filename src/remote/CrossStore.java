@@ -8,7 +8,7 @@ import java.util.*;
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
 #define CrossStoreT CrossStore<CausalObj, CausalType, CausalReplica, CausalP, LinObj, LinType, LinReplica, LinP>
 	
-public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplica, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplica extends HasClock, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
 	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStore> {
 	//private CausalStore causal;
 	//private LinStore lin;
@@ -47,43 +47,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 
 	}
 
-	private static class Timestamp{
-		private final Nonce n;
-		private final long time;
-		private final long epsilon;
-
-		public Timestamp(final long time, final long epsilon){
-			this.n = NonceGenerator.get();
-			this.time = time;
-			this.epsilon = epsilon;
-		}
-		
-		private boolean prec(Timestamp t){
-			if (epsilon != t.epsilon)
-				throw new RuntimeException("incomparable timestamps");
-			if (n == t.n) return true;
-			if (Math.abs(time - t.time) < epsilon) return false;
-			return (time < t.time);
-		}
-		public static boolean prec(Timestamp before, Timestamp after){
-			if (before == null && after == null) return true;
-			else if (after == null) return false;
-			else if (before == null) return true;
-			else return before.prec(after);
-		}
-
-		private Timestamp mergeOf(Timestamp update){
-			return new Timestamp((time + update.time) / 2, epsilon);
-		}
-		
-		public static Timestamp update(Timestamp old, Timestamp update){
-			if (prec(old,update)) return update;
-			else if (prec(update,old)) return old;
-			else return old.mergeOf(update);
-		}
-	}
-
-	private class Ends extends HashMap<CausalReplica, Timestamp>{
+	private class Ends extends HashMap<CausalReplica, Timestamp> implements CausalSafe{
 		public boolean prec(Ends e){
 
 			Set<CausalReplica> crs = new TreeSet<>();
@@ -116,8 +80,25 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 
 		final Ends ends = null;
 		final Set<ReadSetPair> readset = new TreeSet<>();
-		final ReplicaID natural_replica = null; //TODO: ? 
+		final ReplicaID natural_replica = this_store.this_replica();
 		final LinType metadata_suffix = l.ofString("metadata");
+
+		{
+			#define Arg Void
+				#define Ret Ends
+		}
+		final Function<Arg,Ret> write_casual_meta= new Function<Arg,Ret>(){
+				@Override
+				public Ret apply(Arg arg){
+					Ends tstamp = new Ends();
+					for (ReadSetPair rsp : readset){
+						Timestamp t = ends.get(rsp.replica);
+						assert(t != null);
+						tstamp.put(rsp.replica,t);
+					}
+					return tstamp;
+				}
+			};
 
 		l.registerOnWrite(new Function<LinType,Void>(){
 				@Override
@@ -157,9 +138,12 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 					@SuppressWarnings("unchecked")
 					MetaData meta = (MetaData) rmeta.get();
 					if (!meta.ends.prec(ends)) {
-						readset.addAll(meta.readfrom);
 						ends.fast_forward(meta.ends);
-						c.sync_req(meta.natural_replica, natural_replica);
+						if (!contains_tombstone(meta.n)){
+							readset.addAll(meta.readfrom);
+							c.sync_req(meta.natural_replica,
+									   natural_replica);
+						}
 					}
 					return null;
 				}
@@ -193,25 +177,40 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 				}
 			});
 
+		c.registerOnWrite(new Function<CausalType, Void>(){
+				@Override
+				public Void apply(CausalType ct){
+					ends.put(natural_replica, natural_replica.currentTime());
+					CausalType metaname =
+						c.concat(c.ofString("metameta-"),ct);
+					c.newObject(write_casual_meta.apply(null), metaname, c);
+					return null;
+				}
+			});
+
 		c.registerOnTick(new Runnable(){
 				@Override
 				public void run(){
 					Object found = null;
 					final List<ReadSetPair> readset_new = new LinkedList<>();
 					for (ReadSetPair rsp : readset){
-						try {
-							found = c.existingObject(new Tombstone(rsp.operation_nonce).name).get();
-						}
-						catch(Exception e) { /* handled in finally */ }
-						finally {
-							if (found == null) readset_new.add(rsp);
-							else found = null;
-						}
+						if (!contains_tombstone(rsp.operation_nonce))
+							readset_new.add(rsp);
 					}
 					readset.clear();
 					readset.addAll(readset_new);
 				}
 			});
+	}
+
+	private boolean contains_tombstone(Nonce n){
+		Object found = null;
+		try {
+			found = this_store.existingObject(new Tombstone(n).name).get();
+			if (found != null) return true;
+		}
+		catch(Exception e) {}
+		return false;
 	}
 
 	@Override
