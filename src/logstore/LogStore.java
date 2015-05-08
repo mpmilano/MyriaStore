@@ -12,7 +12,9 @@ import java.io.*;
 
 
 public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
-	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>{
+	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>,
+			   AccessReplica<Causal, LogStore.LogObject<?>, String, LogStore, LogStore> 
+{
 
 	//actions on identifiers
 	@Override

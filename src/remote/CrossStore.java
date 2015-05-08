@@ -26,17 +26,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				#define MD_ends(x) x.d
 		}
 
-	/*	private class MetaData implements Serializable{
-		Set<Pair<ReplicaID, Nonce>> readfrom;
-		Nonce n;
-		ReplicaID natural_replica;
-		public final Ends ends;
-		public MetaData(Set<Pair<ReplicaID, Nonce>> readfrom, Nonce n, ReplicaID natural_replica, Ends ends){
-			this.readfrom = readfrom; this.n = n; this.natural_replica = natural_replica; this.ends = ends;
-		}
-	}
-	*/
-
 	private final CausalType tombstone_word;
 	private CausalType tombstone_name(String s){
 		return this_store.concat(tombstone_word,
@@ -83,7 +72,11 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	Object to_return = null;
 		
-	public <CS extends CausalStore & HasClock>
+	public <CS extends CausalStore &
+					   HasClock &
+					   AccessReplica
+					   <Causal, CausalObj, CausalType, CReplicaID, CausalP>&
+					   Synq<CReplicaID> >
 		CrossStore(final CS c, final LinStore l){
 		this_store = c;
 		tombstone_word = this_store.ofString("tombstone-");
@@ -224,7 +217,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	private boolean contains_tombstone(Nonce n){
 		Object found = null;
 		try {
-			found = this_store.existingObject(new Tombstone(n).name).get();
+			found = this_store.existingObject(tombstone_name(n)).get();
 			if (found != null) return true;
 		}
 		catch(Exception e) {}

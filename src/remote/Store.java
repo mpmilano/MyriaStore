@@ -101,21 +101,6 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 		//TODO - make this do something.
 	}
 
-
-	//optional - override if this functionality makes sense for you.
-	protected boolean sync_req_impl(RType from, RType to){	
-		return false;
-	}
-
-	boolean sync_req(RType from, RType to){
-		return sync_req_impl(from,to);
-	}	
-
 	public abstract RType this_replica();
 
-	//override if you want this functionality.
-	//allows direct access to non-default replica
-	public Store<Cons, RObj, SType, RType, Store_p> access_replica(RType rt){
-		return null;
-	}
 }
