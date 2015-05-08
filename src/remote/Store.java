@@ -85,14 +85,6 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 			}).start();
 	}
 
-
-	//only constraint here is consistent mapping.
-	//incorporating the string directly would be nice
-	//for debugging though, if it's possible to do.
-	public abstract SType ofString(String s);
-
-	public abstract SType concat(SType a, SType b);
-
 	public /*ops-only*/ void beginTransaction(){
 		//TODO - make this do something.
 	}

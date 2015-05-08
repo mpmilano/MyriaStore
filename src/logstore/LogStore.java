@@ -13,7 +13,8 @@ import java.io.*;
 
 public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
 	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>,
-			   AccessReplica<Causal, LogStore.LogObject<?>, String, LogStore, LogStore> 
+			   AccessReplica<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>,
+			   util.NameManager<String>
 {
 
 	//actions on identifiers

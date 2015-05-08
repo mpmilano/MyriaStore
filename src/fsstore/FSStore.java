@@ -11,7 +11,8 @@ import java.net.*;
 public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,InetAddress, FSStore>
 	implements operations.List<FSStore.FSDir>,
 			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
-			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
+			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>,
+			   util.NameManager<String>
 {
 
 	//String manipulations!

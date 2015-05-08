@@ -28,8 +28,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	private final CausalType tombstone_word;
 	private CausalType tombstone_name(String s){
-		return this_store.concat(tombstone_word,
-								 this_store.ofString(s));
+		return cnm.concat(tombstone_word,
+								 cnm.ofString(s));
 	}
 	
 	private class Tombstone implements Serializable {
@@ -70,23 +70,28 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		}
 	}
 
-	Object to_return = null;
+	private Object to_return = null;
+	private final NameManager<CausalType> cnm;
+	private final NameManager<LinType> lnm;
 		
 	public <CS extends CausalStore &
 					   HasClock &
 					   AccessReplica
 					   <Causal, CausalObj, CausalType, CReplicaID, CausalP>&
 					   Synq<CReplicaID> >
-		CrossStore(final CS c, final LinStore l){
+		CrossStore(final CS c, final NameManager<CausalType> cnm,
+				   final LinStore l, final NameManager<LinType> lnm){
 		this_store = c;
-		tombstone_word = this_store.ofString("tombstone-");
+		this.cnm = cnm;
+		this.lnm = lnm;
+		tombstone_word = cnm.ofString("tombstone-");
 		//causal = c;
 		//lin = l;
 
 		final Ends ends = null;
 		final Set<Pair<ReplicaID, Nonce>> readset = new TreeSet<>();
 		final ReplicaID natural_replica = this_store.this_replica();
-		final LinType metadata_suffix = l.ofString("metadata");
+		final LinType metadata_suffix = lnm.ofString("metadata");
 
 		{
 			#define Arg Void
@@ -111,7 +116,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					Nonce n = NonceGenerator.get();
 					{
 						LinType meta_name =
-							l.concat(name,metadata_suffix);
+							lnm.concat(name,metadata_suffix);
 						TreeSet<Pair<ReplicaID, Nonce>> rscopy =
 							new TreeSet<>();
 						rscopy.addAll(readset);
@@ -137,7 +142,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				@Override
 				public Void apply(LinType name){
 					LinType meta_name =
-						l.concat(name,metadata_suffix);
+						lnm.concat(name,metadata_suffix);
 					LinObj rmeta;
 					try {rmeta = l.existingObject(meta_name);}
 					catch (Exception e) {throw new RuntimeException(e);}
@@ -182,8 +187,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					Mergable<?> m = null;
 					to_return = helper(m, ct);
 					Ends e = null;
-					ends.fast_forward(helper(e,c.concat
-											 (c.ofString("metameta-"),ct)));
+					ends.fast_forward(helper(e,cnm.concat
+											 (cnm.ofString("metameta-"),ct)));
 					return null;
 				}
 			});
@@ -193,7 +198,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				public Void apply(CausalType ct){
 					ends.put(natural_replica, c.currentTime());
 					CausalType metaname =
-						c.concat(c.ofString("metameta-"),ct);
+						cnm.concat(cnm.ofString("metameta-"),ct);
 					c.newObject(write_casual_meta.apply(null), metaname, c);
 					return null;
 				}
@@ -271,16 +276,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	@Override
 	public Void this_replica() { return null; }
-
-	@Override
-	public CausalType concat(CausalType ct, CausalType ct2){
-		return this_store.concat(ct,ct2);
-	}
-
-	@Override
-	public CausalType ofString(String ct2){
-		return this_store.ofString(ct2);
-	}
 
 	@Override
 	public void registerOnRead(Function<CausalType, Void> f){
