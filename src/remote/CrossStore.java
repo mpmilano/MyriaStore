@@ -4,57 +4,64 @@ import util.*;
 import java.io.*;
 import java.util.*;
 
-#define CausalStore Store<Causal, CausalObj, CausalType, CausalReplica, CausalP>
+#define CausalStore Store<Causal, CausalObj, CausalType, CReplicaID, CausalP>
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
-#define CrossStoreT CrossStore<CausalObj, CausalType, CausalReplica, CausalP, LinObj, LinType, LinReplica, LinP>
+#define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
-public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplica extends HasClock, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends Serializable, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
 	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStore> {
 	//private CausalStore causal;
 	//private LinStore lin;
 
-	private class ReadSetPair implements Serializable{
+	final CausalStore this_store;
+	
 		{
-			#define ReplicaID CausalReplica
+			#define ReplicaID CReplicaID
 			#define Nonce String
+				#define MetaData FourTuple<TreeSet<Pair<ReplicaID,Nonce>>, \
+				Nonce, ReplicaID, Ends>
+				#define MD_readfrom(x) x.a
+				#define MD_n(x) x.b
+				#define MD_natural_replica(x) x.c
+				#define MD_ends(x) x.d
 		}
-		public final ReplicaID replica;
-		public final Nonce operation_nonce;
-		public ReadSetPair(final ReplicaID r, final Nonce s){
-			replica = r;
-			operation_nonce = s;
-		}
-	}
 
-	private class MetaData implements Serializable{
-		Set<ReadSetPair> readfrom;
+	/*	private class MetaData implements Serializable{
+		Set<Pair<ReplicaID, Nonce>> readfrom;
 		Nonce n;
 		ReplicaID natural_replica;
 		public final Ends ends;
-		public MetaData(Set<ReadSetPair> readfrom, Nonce n, ReplicaID natural_replica, Ends ends){
+		public MetaData(Set<Pair<ReplicaID, Nonce>> readfrom, Nonce n, ReplicaID natural_replica, Ends ends){
 			this.readfrom = readfrom; this.n = n; this.natural_replica = natural_replica; this.ends = ends;
 		}
 	}
+	*/
 
+	private final CausalType tombstone_word;
+	private CausalType tombstone_name(String s){
+		return this_store.concat(tombstone_word,
+								 this_store.ofString(s));
+	}
+	
 	private class Tombstone implements Serializable {
 		public final Nonce n;
 		public final CausalType name;
 
 		public Tombstone(Nonce n){
 			this.n = n;
-			this.name = this_store.concat(this_store.ofString("tombstone-"), this_store.ofString(n));
+			this.name = tombstone_name(n);
 		}
 
 	}
 
-	private class Ends extends HashMap<CausalReplica, Timestamp> implements CausalSafe{
+	private class Ends extends HashMap<CReplicaID, Timestamp> implements CausalSafe, Mergable<Ends>{
 		public boolean prec(Ends e){
 
-			Set<CausalReplica> crs = new TreeSet<>();
+			Set<CReplicaID> crs = new TreeSet<>();
 			crs.addAll(keySet());
 			crs.addAll(e.keySet());
 			
-			for (CausalReplica cr : crs){
+			for (CReplicaID cr : crs){
 				Timestamp this_ts = get(cr);
 				Timestamp e_ts = e.get(cr);
 				if (!Timestamp.prec(this_ts,e_ts)) return false;
@@ -62,24 +69,29 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 			return true;
 		}
 		public Ends fast_forward(Ends future){
-			for (CausalReplica cr : future.keySet()){
+			for (CReplicaID cr : future.keySet()){
 				put(cr,Timestamp.update(get(cr), future.get(cr)));
 			}
 			return this;
 		}
-	}
 
-	final CausalStore this_store;
+		@Override
+		public Ends merge(Ends e){
+			return this.fast_forward(e);
+		}
+	}
 
 	Object to_return = null;
 		
-	public CrossStore(final CausalStore c, final LinStore l){
+	public <CS extends CausalStore & HasClock>
+		CrossStore(final CS c, final LinStore l){
 		this_store = c;
+		tombstone_word = this_store.ofString("tombstone-");
 		//causal = c;
 		//lin = l;
 
 		final Ends ends = null;
-		final Set<ReadSetPair> readset = new TreeSet<>();
+		final Set<Pair<ReplicaID, Nonce>> readset = new TreeSet<>();
 		final ReplicaID natural_replica = this_store.this_replica();
 		final LinType metadata_suffix = l.ofString("metadata");
 
@@ -91,10 +103,10 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 				@Override
 				public Ret apply(Arg arg){
 					Ends tstamp = new Ends();
-					for (ReadSetPair rsp : readset){
-						Timestamp t = ends.get(rsp.replica);
+					for (Pair<ReplicaID, Nonce> rsp : readset){
+						Timestamp t = ends.get(rsp.first);
 						assert(t != null);
-						tstamp.put(rsp.replica,t);
+						tstamp.put(rsp.first,t);
 					}
 					return tstamp;
 				}
@@ -107,9 +119,10 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 					{
 						LinType meta_name =
 							l.concat(name,metadata_suffix);
-						Set<ReadSetPair> rscopy = new TreeSet<>();
+						TreeSet<Pair<ReplicaID, Nonce>> rscopy =
+							new TreeSet<>();
 						rscopy.addAll(readset);
-						rscopy.add(new ReadSetPair(natural_replica, n));
+						rscopy.add(new Pair<ReplicaID, Nonce>(natural_replica, n));
 						//annotate with metadata
 						l.newObject(new MetaData
 									(rscopy, n, natural_replica, ends),
@@ -137,11 +150,11 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 					catch (Exception e) {throw new RuntimeException(e);}
 					@SuppressWarnings("unchecked")
 					MetaData meta = (MetaData) rmeta.get();
-					if (!meta.ends.prec(ends)) {
-						ends.fast_forward(meta.ends);
-						if (!contains_tombstone(meta.n)){
-							readset.addAll(meta.readfrom);
-							c.sync_req(meta.natural_replica,
+					if (!MD_ends(meta).prec(ends)) {
+						ends.fast_forward(MD_ends(meta));
+						if (!contains_tombstone(MD_n(meta))){
+							readset.addAll(MD_readfrom(meta));
+							c.sync_req(MD_natural_replica(meta),
 									   natural_replica);
 						}
 					}
@@ -152,15 +165,17 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 		c.registerOnRead(new Function<CausalType, Void>(){
 
 				@SuppressWarnings("unchecked")
-				private <T> Mergable<T>
-					helper(Mergable<T> m, CausalType name) {
-					for (ReadSetPair rsp : readset){
+				private <T> T
+					helper(Mergable<T> mp, CausalType name) {
+					@SuppressWarnings("unchecked")
+					T m = (T) mp;
+					for (Pair<ReplicaID, Nonce> rsp : readset){
 						try{
-							Mergable<T> r = (Mergable<T>)
-								c.access_replica(rsp.replica)
+							T r = (T)
+								c.access_replica(rsp.first)
 								.existingObject(name).get();
 							if (m == null) m = r;
-							else m = (Mergable<T>) m.merge(r);
+							else m = (T) mp.merge(r);
 						}
 						catch(Exception e){
 							throw new RuntimeException(e);
@@ -170,9 +185,12 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 				}
 				
 				@Override
-				public Void apply(CausalType name){
+				public Void apply(CausalType ct){
 					Mergable<?> m = null;
-					to_return = helper(m, name);
+					to_return = helper(m, ct);
+					Ends e = null;
+					ends.fast_forward(helper(e,c.concat
+											 (c.ofString("metameta-"),ct)));
 					return null;
 				}
 			});
@@ -180,7 +198,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 		c.registerOnWrite(new Function<CausalType, Void>(){
 				@Override
 				public Void apply(CausalType ct){
-					ends.put(natural_replica, natural_replica.currentTime());
+					ends.put(natural_replica, c.currentTime());
 					CausalType metaname =
 						c.concat(c.ofString("metameta-"),ct);
 					c.newObject(write_casual_meta.apply(null), metaname, c);
@@ -192,9 +210,9 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CausalReplic
 				@Override
 				public void run(){
 					Object found = null;
-					final List<ReadSetPair> readset_new = new LinkedList<>();
-					for (ReadSetPair rsp : readset){
-						if (!contains_tombstone(rsp.operation_nonce))
+					final List<Pair<ReplicaID, Nonce>> readset_new = new LinkedList<>();
+					for (Pair<ReplicaID, Nonce> rsp : readset){
+						if (!contains_tombstone(rsp.second))
 							readset_new.add(rsp);
 					}
 					readset.clear();

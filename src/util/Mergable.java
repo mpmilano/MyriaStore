@@ -4,5 +4,5 @@ import java.io.Serializable;
 
 public interface Mergable<T> extends Serializable {
 
-	public T merge(Mergable<T> m);
+	public T merge(T m);
 }
