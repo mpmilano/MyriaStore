@@ -1,5 +1,5 @@
-#include "BackingStore.h"
 
 package remote;
+import java.io.Serializable;
 
-public interface PointsTo<R_(T)> {}
+public interface PointsTo<T extends Serializable> {}

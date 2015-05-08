@@ -1,34 +1,31 @@
-#include "../remote/BackingStore.h"
-#include "../remote/Handle.h"	
 package operations;
-
 import remote.*;
 import access.*;
 import consistency.*;
+import java.io.Serializable;
+import java.util.Collection;
 
-public class ForEachOp<R_(T), S extends ForEach<C,HBSObj>, HBSObj, Consistency_(C), Access_C(A, Read),
-										H extends StoreActions<S,HBSObj> & HasAccess<A> & HasConsistency<C> >
-	extends Operation<Void,C> {
+public class ForEachOp<C extends consistency.Top, T extends Serializable, A extends access.Unknown, Sto extends ForEach<C,Obj, Sto>, Obj extends RemoteObject<? extends Collection<?> > > 
+	extends Operation<Void, C> {
 
-//public class ForEachOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
-
-	private H h;
-	private OperationFactory<T, C, RemHandle<T,C,A,C> > of;
-	private RemHandle<?,C,A,C> h_backup;
-	public ForEachOp(OperationFactory<T,C, RemHandle<T,C,A,C> > of, H h){
+	private OperationFactory<?,T,C,Handle<T,C,A,C, Sto>> of;
+	private Handle<? extends Collection<?>,C,? extends access.Read, ?, Sto > h;
+	
+	public ForEachOp(OperationFactory<?,T,C,Handle<T,C,A,C, Sto>> of, Handle<? extends Collection<?>,C,? extends access.Read, ?, Sto > h){
+		this.of = of;
 		this.h = h;
-		this.of = of;
 	}
 
-	public ForEachOp(OperationFactory<T,C, RemHandle<T,C,A,C> > of, RemHandle<?,C,A,C> h){
-		this.h_backup = h;
-		this.of = of;
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public Void execute(){
-		if (h != null) h.getStore().foreach(of,h.getUnderlyingObj());
-		//else do native version.
-		return null;
+		public Void execute(){
+		try {
+			((Sto) h.ro.getStore()).foreach(of, (Obj) h.ro);
+			return null;
+		}
+		catch (ClassCastException e){
+			//make a temporary store and such in-line, build handles, pass newly-minted handles to factory.
+			return null;
+		}
 	}
 }

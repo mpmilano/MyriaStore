@@ -1,25 +1,31 @@
-#include "../remote/BackingStore.h"
-#include "../remote/Handle.h"	
 package operations;
 
+import java.io.Serializable;
+import java.util.*;
 import remote.*;
-import access.*;
-import consistency.*;
 
-public class ListOp<S extends List<HBSObj>, HBSObj, Consistency_(C),
-							  H extends StoreActions<S,HBSObj> & HasAccess<? extends Read> & HasConsistency<C> >
-	extends Operation<String[],C> {
+public class ListOp<C extends consistency.Top, Obj extends RemoteObject, Sto extends List<Obj> > extends Operation<String[],C> {
 
-//public class ListOp<R_(HT), GT extends BackingStore<?,?,?,?>.RemoteObject<?>  > extends Operation<R_g(HT)> {
-
-	private H h;
+	private Handle<? extends Collection<?>,C,? extends access.Read, ?, ?> h;
 	
-	public ListOp(H h){
+	public ListOp(Handle<? extends Collection<?>,C,? extends access.Read, ?, ?> h ){
 		this.h = h;
 	}
 
-	@Override
 	public String[] execute(){
-		return h.getStore().list(h.getUnderlyingObj());
+		try {
+			@SuppressWarnings("unchecked")
+			String[] ret = ((Sto) h.ro.getStore()).list((Obj) h.ro);
+			return ret;
+		}
+		catch (ClassCastException e){
+			ArrayList<String> ret = new ArrayList<String>();
+			Iterator<?> i = h.ro.get().iterator();
+			while (i.hasNext()) {
+				ret.add(i.next().toString());
+			}
+			String[] ret2 = new String[ret.size()];
+			return ret.toArray(ret2);
+		}
 	}
 }

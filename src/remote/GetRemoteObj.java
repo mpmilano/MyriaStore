@@ -1,7 +1,5 @@
 package remote;
 
-public interface GetRemoteObj {
-
-	public ObjActions getRemoteObj();
-
+public interface GetRemoteObj<T extends java.io.Serializable> {
+	public RemoteObject<T> getRemoteObj();
 }

@@ -1,41 +1,51 @@
-#include "fsstore/FSStore.h"
-import fsstore.*;
 import remote.*;
+import fsstore.*;
 import operations.*;
-import java.io.*;
+import java.util.*;
+import util.*;
+import transactions.*;
+import consistency.*;
 
-#define hargs String, FSS_, access.ReadWrite, consistency.Lin
-public class Main {
-	public static void main(String[] args) throws java.io.IOException{
-		FSStore fs = new FSStore();
+public class Main{
+	public static void main(String[] args) throws Exception{
+		Lin lin = new Lin(){};
+		Causal cause = new Causal(){};
+		FSStore fs = FSStore.inst;
+		System.out.println((new GetOp<>(fs.newObject("foofoo","/tmp/foo",fs))).execute());
+		for (String s : (new ListOp<>((fs.new DirFact<String>()).newObject("/")).execute())){
+			System.out.println(s);
+		}
 
+		ArrayList<String> al = new ArrayList<>();
+		al.add("TESTING TESTING");
+		al.add("TESTING TESTING");
 		
-		Handle<hargs> h = fs.newObject("run away!","/tmp/foofoofoo");
-		System.out.println((new GetOp<>(h)).execute());
+		for (String s : (new ListOp<>(fs.newObject(al, "/tmp/testing",fs)).execute())){
+			System.out.println(s);
+		}
+
+		PrintFactory<String, consistency.Lin, Handle<String, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>> pf =
+			new PrintFactory<>();
 
 
-
+		System.out.println("using ForEach");
+		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
-		System.out.println((new LinGet<>(h)).execute());
-		(new PutOp<>(h, "newFoo")).execute();
-		System.out.println((new LinGet<>(h)).execute());
-		System.out.println("finished");
-		(new ReplaceOp<>(h,h)).execute();
-		Handle<Serializable, FSS_, access.ReadWrite, consistency.Lin> rel = Handle.relaxT(h);
-		Handle<Serializable, FSS_, access.Write, consistency.Lin> op = Handle.changeDown(rel);
-		Handle<Serializable, FSS_, ?, ?> op2 = Handle.changeUp(rel);
-		Handle<Serializable, FSS_, access.ReadWrite, consistency.Lin> orig = op2.restore();
-		Handle<Serializable, FSSp_, FSStore.FSDir, access.ReadWrite, consistency.Lin> dir = fs.df.newObj("/tmp/");
-		for (String s : (new ListOp<>(dir)).execute()) 	System.out.println(s);
-		(new SwapOp<>(h,h)).execute();
 
-		new Repeat<>(new GetFactory<>(h), 3, h).execute();
-		Repeat rp = null;
-
-		(new GetOp<>(h.forget())).execute();
-
-		(new ForEachOp<>(new GetFactory<>(h),dir)).execute();
-		//(new ForEachOp<String, FSStore, FSStore.FSDir, consistency.Lin, access.ReadWrite, Handle<Serializable, FSSp_, FSStore.FSDir, access.ReadWrite, consistency.Lin>>((new GetFactory<String, FSStore, FSStore.FSObject, consistency.Lin, Handle<String, FSS_,/*consistency.Lin, ?,?,?, */ access.ReadWrite, consistency.Lin>>(/*h.forget() */)).forget(), dir)).execute();
+		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo",fs))).execute();
+		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/fooey/"))).execute();
 		
+		Handle h = null;
+		Store s = null;
+		GetOp go = null;
+		ListOp lo = null;
+		Gets g = null;
+
+		logstore.LogStore ls;
+		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>(), fs)))
+			.postNewEntry(fs,"This is an entry!")
+			.addComment(fs.ifact(), 3, "A COMMENT!");
 	}
+
+	CrossStore cs;
 }

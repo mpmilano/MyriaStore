@@ -1,70 +1,58 @@
-#include "BackingStore.h"
-#include "Handle.h"	
 package remote;
 
+import java.io.Serializable;
 
-//Things we can track statically:
-// Origin, Origin's consistency, Handle's consistency, 
-// handle's access level, 
+public final class Handle<T extends Serializable, Cons extends consistency.Top, Access extends access.Unknown, OriginalCons extends consistency.Top, Store>
+	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T>, Serializable
+{
 
-//of these, only access level and consistency are really "user-facing" "public" things.
+	//note - if you want to actually refer to things by these predicates,
+	//you can just implement an "isHandle" interface and then make static functions which convert
+	//types like Foo & isHandle into Handle<Foo ... >.  
+	
+	//TODO - want a friend designator. 
+	public RemoteObject<T> ro;
 
-public final class Handle<Handle_P_(H)> implements StoreActions<HBS,HBSObj>, RemHandle<HT, HC, HA, HBSCons> {
-	public final HBSObj obj;
-
-	Handle(HBSObj obj){
-		this.obj = obj;
+	Handle(RemoteObject<T> ro){
+		this.ro = ro;
 	}
 
-	//relaxing the type of the handle
-	@SuppressWarnings("unchecked")
-	public static <R_(NewT), OldT extends NewT, Handle_Post_(H) >
-		Handle<NewT, Handle_Post_g(H)> relaxT(Handle<OldT, Handle_Post_g(H)> h){
-		return (Handle<NewT, Handle_Post_g(H)>) h;
-	}
-
-	//relaxing the store internals
-	@SuppressWarnings("unchecked")
-	public static <Handle_P_(H), HBSObjOld extends HBSObj>
-		Handle<Handle_P_g(H)> relaxStoreObj(Handle<HT, HBSCons, HBSAtype, HBS, HBSObjOld, HA, HC> h){
-		return (Handle<Handle_P_g(H)>) h;
-	}
-
-	public static <R_(HT), BackingStore_PC(HBS,access.Read), Consistency_C(HC, HBSCons)>
-		Handle<Handle_Pre_g(H), access.Read, HC> changeUp(Handle<Handle_Pre_g(H), ? extends access.Read, ? super HC> h) {
-		return new Handle<>(h.obj);
-		//TODO - signal the store that this is weaker somehow? 
-	}
-
-	public static <R_(HT), BackingStore_(HBS), Consistency_(HC)>
-		Handle<HT, BSref_(HBS), access.Write, HC> changeDown(Handle<HT, BSref_(HBS), ? extends access.Write, ? extends HC> h) {		
-		return new Handle<>(h.obj);
-		//TODO - signal the store that this is weaker somehow? 
-	}	
+	public RemoteObject<T> getRemoteObj(){ return ro; }
 
 	@SuppressWarnings("unchecked")
-	public Handle<R_g(HT), Handle_fromBS(H)> restore(){
-		return (Handle<R_g(HT), Handle_fromBS(H)>) this;
+	public static <NewT extends Serializable, T extends NewT,
+					  Cons extends consistency.Top,
+								   Access extends access.Unknown,
+												  OriginalCons extends consistency.Top, Store>
+		Handle<NewT, Cons, Access, OriginalCons, Store> relaxT(Handle<T,Cons,Access,OriginalCons, Store> h){
+		return (Handle<NewT, Cons, Access, OriginalCons, Store>) h;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable,
+					  Cons extends consistency.Top,
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, access.Write, OriginalCons, Store> changeUp(Handle<T,? extends Cons,? extends access.ReadWrite,OriginalCons, Store> h){
+		return (Handle<T, Cons, access.Write, OriginalCons, Store>) ((Handle) h); 
 	}
 
 	@SuppressWarnings("unchecked")
-	public Handle<HT, HBSCons, ?, ?, ?, HA, HC> forget(){
-		return (Handle<HT, HBSCons, ?, ?, ?, HA, HC>) this;
+	public static <T extends Serializable,
+					  Cons extends consistency.Top,
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, access.Read, OriginalCons, Store> changeDown(Handle<T,? super Cons,? extends access.ReadWrite,OriginalCons, Store> h){
+		return (Handle<T, Cons, access.Read, OriginalCons, Store>) ((Handle) h); 
 	}
 
-	@Override
-	public HBS getStore(){
-		return this.obj.getStore();
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable,
+					  NewAccess extends access.Unknown, OldAccess extends NewAccess,
+					  Cons extends consistency.Top,
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, NewAccess, OriginalCons, Store> restrict(Handle<T,Cons,OldAccess,OriginalCons, Store> h){
+		return (Handle<T, Cons, NewAccess, OriginalCons, Store>) ((Handle) h);
 	}
 
-	@Override
-	public HBSObj getUnderlyingObj(){
-		return this.obj;
-	}
-
-	@Override
-	public ObjActions getRemoteObj(){
-		return this.obj;
-	}
 
 }
