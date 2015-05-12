@@ -86,6 +86,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		this.cnm = cnm;
 		this.lnm = lnm;
 		tombstone_word = cnm.ofString("tombstone-");
+		final CausalType meta_name = cnm.ofString("metameta-");
 		//causal = c;
 		//lin = l;
 
@@ -93,23 +94,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		final Set<Pair<ReplicaID, Nonce>> readset = new TreeSet<>();
 		final ReplicaID natural_replica = this_store.this_replica();
 		final LinType metadata_suffix = lnm.ofString("metadata");
-
-		{
-			#define Arg Void
-				#define Ret Ends
-		}
-		final Function<Arg,Ret> write_casual_meta= new Function<Arg,Ret>(){
-				@Override
-				public Ret apply(Arg arg){
-					Ends tstamp = new Ends();
-					for (Pair<ReplicaID, Nonce> rsp : readset){
-						Timestamp t = ends.get(rsp.first);
-						assert(t != null);
-						tstamp.put(rsp.first,t);
-					}
-					return tstamp;
-				}
-			};
 
 		l.registerOnWrite(new Function<LinType,Void>(){
 				@Override
@@ -134,7 +118,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					} catch(Exception e){
 						throw new RuntimeException(e);
 					}
-					
 					return null;
 				}
 			});
@@ -162,7 +145,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 			});
 
 		c.registerOnRead(new Function<CausalType, Void>(){
-
 				@SuppressWarnings("unchecked")
 				private <T> T
 					helper(Mergable<T> mp, CausalType name) {
@@ -188,24 +170,44 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					Mergable<?> m = null;
 					to_return = helper(m, ct);
 					Ends e = null;
-					ends.fast_forward(helper(e,cnm.concat
-											 (cnm.ofString("metameta-"),ct)));
+					ends.fast_forward(helper(e,cnm.concat(meta_name,ct)));
 					return null;
 				}
 			});
 
 		c.registerOnWrite(new Function<CausalType, Void>(){
+
+				private Ends generate_casual_meta () {
+					Ends tstamp = new Ends();
+					for (Pair<ReplicaID, Nonce> rsp : readset){
+						Timestamp t = ends.get(rsp.first);
+						assert(t != null);
+						tstamp.put(rsp.first,t);
+					}
+					return tstamp;
+				}
+
 				@Override
 				public Void apply(CausalType ct){
 					ends.put(natural_replica, c.currentTime());
-					CausalType metaname =
-						cnm.concat(cnm.ofString("metameta-"),ct);
-					c.newObject(write_casual_meta.apply(null), metaname, c);
+					CausalType metaname = cnm.concat(meta_name,ct);
+					c.newObject(generate_casual_meta(), metaname, c);
 					return null;
 				}
 			});
 
 		c.registerOnTick(new Runnable(){
+				
+				private boolean contains_tombstone(Nonce n){
+					Object found = null;
+					try {
+						found = this_store.existingObject(tombstone_name(n)).get();
+						if (found != null) return true;
+					}
+					catch(Exception e) {}
+					return false;
+				}
+
 				@Override
 				public void run(){
 					Object found = null;
@@ -220,16 +222,9 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 			});
 	}
 
-	private boolean contains_tombstone(Nonce n){
-		Object found = null;
-		try {
-			found = this_store.existingObject(tombstone_name(n)).get();
-			if (found != null) return true;
-		}
-		catch(Exception e) {}
-		return false;
-	}
 
+	//Necessary overhead to make the above work - mostly filling in abstract methods with the obvious stuff.
+	
 	@Override
 	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws Exception{
 		//TODO - tracking?
