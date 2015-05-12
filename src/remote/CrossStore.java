@@ -43,7 +43,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	}
 
-	private class Ends extends HashMap<CReplicaID, Timestamp> implements CausalSafe, Mergable<Ends>{
+	private class Ends extends HashMap<CReplicaID, Timestamp> implements CausalSafe, Mergable<Ends>, IsSerializable<Timestamp>, IsAlsoSerializable<CReplicaID>{
 		public boolean prec(Ends e){
 
 			Set<CReplicaID> crs = new TreeSet<>();
@@ -57,6 +57,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 			}
 			return true;
 		}
+		
 		public Ends fast_forward(Ends future){
 			for (CReplicaID cr : future.keySet()){
 				put(cr,Timestamp.update(get(cr), future.get(cr)));

@@ -1,6 +1,6 @@
 package util;
 
-public final class Timestamp{
+public final class Timestamp implements java.io.Serializable{
 	private final String n;
 	private final long time;
 	private final long epsilon;
@@ -12,6 +12,7 @@ public final class Timestamp{
 	}
 	
 	private boolean prec(Timestamp t){
+		assert(t != null);
 		if (epsilon != t.epsilon)
 			throw new RuntimeException("incomparable timestamps");
 		if (n == t.n) return true;
@@ -26,12 +27,17 @@ public final class Timestamp{
 	}
 	
 	private Timestamp mergeOf(Timestamp update){
+		assert(update != null);
+		assert(!(prec(update,this) || prec(this,update)));
 		return new Timestamp((time + update.time) / 2, epsilon);
 	}
 	
 	public static Timestamp update(Timestamp old, Timestamp update){
 		if (prec(old,update)) return update;
 		else if (prec(update,old)) return old;
-		else return old.mergeOf(update);
+		else {
+			assert(old != null && update != null);
+			return old.mergeOf(update);
+		}
 	}
 }
