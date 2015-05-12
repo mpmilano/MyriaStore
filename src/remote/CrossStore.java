@@ -9,7 +9,7 @@ import java.util.*;
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
 public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends Serializable, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
-	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStore> {
+	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStoreT> {
 	//private CausalStore causal;
 	//private LinStore lin;
 
