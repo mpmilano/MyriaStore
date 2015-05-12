@@ -12,6 +12,10 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 		this.real = real;
 	}
 
+	public void reset(Store<Model,?,S,R,?> real){
+		this.real = real;
+	}
+
 	@Override
 	public R this_replica(){
 		return real.this_replica();
