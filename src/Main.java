@@ -1,5 +1,6 @@
 import remote.*;
 import fsstore.*;
+import logstore.*;
 import operations.*;
 import java.util.*;
 import util.*;
@@ -54,4 +55,12 @@ public class Main{
 	}
 
 	CrossStore cs;
+
+	TestCrossStore tcs;
+}
+
+
+class TestCrossStore {
+	private IndirectStore<Causal, String, LogStore> cross = new IndirectStore<>(new CrossStore<>(LogStore.inst, LogStore.inst, FSStore.inst, FSStore.inst));
+	
 }
