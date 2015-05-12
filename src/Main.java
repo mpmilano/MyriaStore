@@ -6,8 +6,14 @@ import util.*;
 import transactions.*;
 import consistency.*;
 
+// -6 
+
 public class Main{
+
+
+	
 	public static void main(String[] args) throws Exception{
+
 		Lin lin = new Lin(){};
 		Causal cause = new Causal(){};
 		FSStore fs = FSStore.inst;

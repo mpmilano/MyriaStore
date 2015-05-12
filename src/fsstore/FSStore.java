@@ -32,8 +32,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 			return File.createTempFile("linable","store").getAbsolutePath();
 		}
 		catch( IOException e){
-			//TODO handle
-			return "";
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -117,7 +116,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	}
 
 	
-	ArrayList<util.Function<String,Void>> onRead;
+	ArrayList<util.Function<String,Void>> onRead = new ArrayList<>();
 	@Override
 	public void registerOnRead(util.Function<String,Void> r){
 		onRead.add(r);
@@ -139,13 +138,12 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		catch (IOException e){
 			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
 
-	ArrayList<util.Function<String,Void>> onWrite;
+	ArrayList<util.Function<String,Void>> onWrite = new ArrayList<>();
 	@Override
 	public void registerOnWrite(util.Function<String,Void> r){
 		onWrite.add(r);
