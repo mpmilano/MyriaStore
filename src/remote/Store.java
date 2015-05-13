@@ -4,18 +4,23 @@ import java.io.Serializable;
 import java.util.*;
 import consistency.*;
 
-public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObject, SType, RType, Store_p>
+public abstract class Store<Cons extends consistency.Top,
+										 RObj extends RemoteObject,
+													  SType, RType, Store_p>
 	implements HasConsistency<Cons>, HasAccess<access.ReadWrite>, StoreCons<Cons>
 {
 
-	protected abstract <T extends Serializable> RObj newObject(SType arg, T init) throws Exception;
+	protected abstract <T extends Serializable> RObj
+		newObject(SType arg, T init) throws Exception;
 
 	//for referencing existing objects by name.  Only for use within framework.
 	<T extends Serializable> RObj existingObject(SType arg) throws Exception {
 		return newObject(arg);
 	}
 	
-	protected abstract <T extends Serializable> RObj newObject(SType arg) throws Exception;
+	protected abstract <T extends Serializable> RObj
+		newObject(SType arg) throws Exception;
+	
 	protected abstract SType genArg();
 
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
@@ -56,7 +61,9 @@ public abstract class Store<Cons extends consistency.Top, RObj extends RemoteObj
 
 
 
-	public abstract class AltObjFact<T extends Serializable, A extends access.Unknown, OHBSObj extends RObj> {
+	public abstract class AltObjFact<T extends Serializable,
+											   A extends access.Unknown,
+														 OHBSObj extends RObj> {
 		protected Handle<T, Cons, A, Cons, Store_p> buildHandle(OHBSObj oh){
 			@SuppressWarnings("unchecked")
 			RemoteObject<T> newobj = (RemoteObject<T>) oh;

@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Collection;
 import java.util.*;
 import java.io.*;
+import util.*;
 
 
 public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
@@ -39,7 +40,7 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 	}
 
 
-	static class LogObject<T extends Serializable> implements RemoteObject<T> {
+	static class LogObject<T extends Serializable & Mergable<T> > implements RemoteObject<T> {
 
 		static Map<String, Object> cache = new HashMap<>();
 		
@@ -99,12 +100,12 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 
 	@Override
 	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial) throws IOException{
-		return new LogObject<>(uuid,initial);
+		return new LogObject<>(uuid,new MakeMerge<>(initial));
 	}
 
 	@Override
 	protected <T extends Serializable> LogObject<?> newObject(String uuid) throws IOException{
-		return new LogObject<>(uuid,null);
+		return new LogObject<>(uuid,new MakeMerge<T>(null));
 	}
 
 	@Override

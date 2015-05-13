@@ -1,6 +1,7 @@
 import remote.*;
 import fsstore.*;
 import logstore.*;
+import simplecausal.*;
 import operations.*;
 import java.util.*;
 import util.*;
@@ -61,6 +62,6 @@ public class Main{
 
 
 class TestCrossStore {
-	private IndirectStore<Causal, String, LogStore> cross = new IndirectStore<>(new CrossStore<>(LogStore.inst, LogStore.inst, FSStore.inst, FSStore.inst));
+	private IndirectStore<Causal, String, SimpleCausal> cross = new IndirectStore<>(new CrossStore<>(new SimpleCausal(), new SimpleNameManager(), FSStore.inst, FSStore.inst));
 	
 }
