@@ -57,7 +57,7 @@ public class Main{
 
 	CrossStore cs;
 
-	TestCrossStore tcs;
+	TestCrossStore tcs = new TestCrossStore();
 }
 
 

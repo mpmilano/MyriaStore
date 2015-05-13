@@ -35,14 +35,19 @@ public class CloneFromMergable<T extends Serializable & Mergable<T>>
 		if (second_level_support){
 			throw new UnsupportedOperationException("error!");
 		}
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		(new ObjectOutputStream(baos)).writeObject(t);
-		return
-			new CloneFromMergable<T>
-			((T) (new ObjectInputStream
-				  (new ByteArrayInputStream
-				   (baos.toByteArray()))).readObject());
+		try{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			(new ObjectOutputStream(baos)).writeObject(t);
+			return
+				new CloneFromMergable<T>
+				((T) (new ObjectInputStream
+					  (new ByteArrayInputStream
+					   (baos.toByteArray()))).readObject());
+		}
+		catch(IOException | ClassNotFoundException e){
+			//this IS NOT POSSIBLE	
+			throw new RuntimeException("INCONCEIVABLE!");
+		}
 	}
 
 	@Override

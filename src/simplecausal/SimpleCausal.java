@@ -31,7 +31,24 @@ public class SimpleCausal
 	private Integer myID = NonceGenerator.get().hashCode();
 
 	public SimpleCausal(){
-		//onTick, sync.
+		//TODO: onTick, sync.
+	}
+
+	@Override
+	public Timestamp currentTime(){
+		return new Timestamp(System.currentTimeMillis(), 10);
+	}
+
+	@Override
+	public SimpleCausal access_replica(Integer i){
+		return replicas.get(i);
+	}
+
+	@Override
+	public boolean sync_req(Integer from, Integer to){
+		//TODO - need a sync method in here, for both
+		//this and onTick.
+		return false;
 	}
 
 	@Override
