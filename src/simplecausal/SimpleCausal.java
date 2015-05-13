@@ -31,6 +31,7 @@ public class SimpleCausal
 	private Integer myID = NonceGenerator.get().hashCode();
 
 	public SimpleCausal(){
+		throw new UnsupportedOperationException("TODO: finish");
 		//TODO: onTick, sync.
 	}
 
