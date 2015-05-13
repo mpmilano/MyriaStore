@@ -63,11 +63,38 @@ public class Main{
 
 class TestCrossStore {
 
-	private class SimpleCounter implements java.io.Serializable{
-		private int i = 0;
-		public void incr() {++i;}
-		public void decr() {--i;}
-		public int get() {return i;}
+	private class SimpleCounter implements CausalSafe<SimpleCounter> {
+		private TreeSet<TwoTuple<String, Boolean>> i = new TreeSet<>();
+		public void incr() {
+			i.add(new TwoTuple<>(NonceGenerator.get(),true));
+		}
+		public void decr() {
+			i.add(new TwoTuple<>(NonceGenerator.get(),false));
+		}
+		public int get() {
+			int i = 0;
+			for (TwoTuple<String, Boolean> e : this.i){
+				if (e.b) ++i;
+				else --i;
+			}
+			return i;
+		}
+
+		@Override
+		public SimpleCounter merge(SimpleCounter c){
+			i.addAll(c.i);
+			return this;
+		}
+
+		@Override
+		public SimpleCounter rclone(){
+			SimpleCounter sc = new SimpleCounter();
+			for (TwoTuple<String, Boolean> i : this.i){
+				if (i.b) sc.incr();
+				else sc.decr();
+			}
+			return sc;
+		}
 	}
 
 	Runnable r = new Runnable(){
@@ -81,7 +108,7 @@ class TestCrossStore {
 					 (new SimpleCausal(), snm,
 					  FSStore.inst, FSStore.inst));
 
-				//cross.newObject(new SimpleCounter(), cross);
+				cross.newObject(new SimpleCounter(), new SafeInteger(NonceGenerator.get().hashCode()), cross);
 			}
 		};
 	
