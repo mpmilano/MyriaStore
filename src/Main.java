@@ -53,15 +53,34 @@ public class Main{
 		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>(), fs)))
 			.postNewEntry(fs,"This is an entry!")
 			.addComment(fs.ifact(), 3, "A COMMENT!");
+
+
+		TestCrossStore tcs = new TestCrossStore();
 	}
 
-	CrossStore cs;
-
-	TestCrossStore tcs = new TestCrossStore();
 }
 
 
 class TestCrossStore {
-	private IndirectStore<Causal, Integer, ?> cross = new IndirectStore<>(new CrossStore<>(new SimpleCausal(), new SimpleNameManager(), FSStore.inst, FSStore.inst));
-	
+
+	Runnable r = new Runnable(){
+		@Override
+		public void run(){
+			IndirectStore<Causal, Integer, ?> cross
+				= new IndirectStore<>
+				(new CrossStore<>
+				 (new SimpleCausal(), new SimpleNameManager(),
+				  FSStore.inst, FSStore.inst));
+		}
+	};
+
+	public TestCrossStore(){
+		new Thread(r).start();
+		new Thread(r).start();
+		new Thread(r).start();
+		new Thread(r).start();
+		new Thread(r).start();
+		new Thread(r).start();
+		new Thread(r).start();
+	}
 }
