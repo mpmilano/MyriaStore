@@ -1,6 +1,7 @@
 package consistency;
 import java.io.*;
+import util.*;
 
-public interface CausalSafe extends Serializable {
+public interface CausalSafe<T> extends Serializable, Mergable<T>, RCloneable<T> {
 	
 }

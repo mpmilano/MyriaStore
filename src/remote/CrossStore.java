@@ -8,7 +8,7 @@ import java.util.*;
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
-public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends Serializable, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends CausalSafe<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
 	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStoreT> {
 	//private CausalStore causal;
 	//private LinStore lin;
@@ -43,7 +43,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	}
 
-	private class Ends extends HashMap<CReplicaID, Timestamp> implements CausalSafe, Mergable<Ends>, IsSerializable<Timestamp>, IsAlsoSerializable<CReplicaID>{
+	private class Ends extends HashMap<CReplicaID, Timestamp>
+		implements CausalSafe<Ends>,
+				   IsSerializable<Timestamp>,
+				   IsAlsoSerializable<CReplicaID>,
+				   ISRCloneable<CReplicaID>,
+				   ISAlsoRCloneable<Timestamp>
+	{
 		public boolean prec(Ends e){
 
 			Set<CReplicaID> crs = new TreeSet<>();
@@ -68,6 +74,20 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		@Override
 		public Ends merge(Ends e){
 			return this.fast_forward(e);
+		}
+
+		@Override
+		public Ends rclone(){
+			Ends ret = new Ends();
+			for (Map.Entry<CReplicaID, Timestamp> e : entrySet()){
+				ret.put(e.getKey().rclone(), e.getValue().rclone());
+			}
+			return ret;
+		}
+
+		@Override
+		public Object clone(){
+			return rclone();
 		}
 	}
 

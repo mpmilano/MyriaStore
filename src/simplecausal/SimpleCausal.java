@@ -14,21 +14,21 @@ import util.*;
 public class SimpleCausal
 	extends Store<Causal,
 					  SimpleCausal.SimpleRemoteObject<?>,
-					  Integer, Integer, SimpleCausal>
+					  SafeInteger, SafeInteger, SimpleCausal>
 	implements HasClock, AccessReplica<Causal,
 										   SimpleCausal.SimpleRemoteObject<?>
-										   , Integer,
-										   Integer,
+										   , SafeInteger,
+										   SafeInteger,
 										   SimpleCausal>,
-			   Synq<Integer>, Runnable {
+			   Synq<SafeInteger>, Runnable {
 	
-	private static HashMap<Integer, RCloneable<?>> master
+	private static HashMap<SafeInteger, RCloneable<?>> master
 		= new HashMap<>();
-	private static HashMap<Integer, SimpleCausal> replicas =
+	private static HashMap<SafeInteger, SimpleCausal> replicas =
 		new HashMap<>();
 
-	private HashMap<Integer, RCloneable<?>> local = new HashMap<>();
-	private Integer myID = NonceGenerator.get().hashCode();
+	private HashMap<SafeInteger, RCloneable<?>> local = new HashMap<>();
+	private SafeInteger myID = SafeInteger.wrap(NonceGenerator.get().hashCode());
 
 	public SimpleCausal(){
 		replicas.put(myID, this);
@@ -37,14 +37,14 @@ public class SimpleCausal
 
 	public void run(){
 		synchronized(master){
-			for (Map.Entry<Integer, RCloneable<?>> e : local.entrySet()){
+			for (Map.Entry<SafeInteger, RCloneable<?>> e : local.entrySet()){
 				@SuppressWarnings("unchecked")
 				Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().rclone();
-				Integer key = e.getKey();
+				SafeInteger key = e.getKey();
 				RCloneable<?> merged = elem.merge(master.get(key));
 				master.put(key, merged);
 			}
-			for (Map.Entry<Integer, RCloneable<?>> e : master.entrySet()){
+			for (Map.Entry<SafeInteger, RCloneable<?>> e : master.entrySet()){
 				local.put(e.getKey(),(RCloneable<?>)e.getValue().rclone());
 			}
 		}
@@ -56,37 +56,37 @@ public class SimpleCausal
 	}
 
 	@Override
-	public SimpleCausal access_replica(Integer i){
+	public SimpleCausal access_replica(SafeInteger i){
 		return replicas.get(i);
 	}
 
 	@Override
-	public boolean sync_req(Integer from, Integer to){
+	public boolean sync_req(SafeInteger from, SafeInteger to){
 		access_replica(from).run();
 		access_replica(to).run();
 		return true;
 	}
 
 	@Override
-	public Integer this_replica(){
+	public SafeInteger this_replica(){
 		return myID;
 	}
 
 	@Override
-	public Integer genArg(){
-		return NonceGenerator.get().hashCode();
+	public SafeInteger genArg(){
+		return SafeInteger.wrap(NonceGenerator.get().hashCode());
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")	
-	protected <T extends Serializable> SimpleRemoteObject<?> newObject(Integer i){
+	protected <T extends Serializable> SimpleRemoteObject<?> newObject(SafeInteger i){
 		return new SimpleRemoteObject(i);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	protected <T extends Serializable> SimpleRemoteObject<?>
-		newObject(Integer i, T t){
+		newObject(SafeInteger i, T t){
 		return new
 			SimpleRemoteObject(i,CloneFromMergable.wrap(MakeMerge.wrap(t)));
 	}
@@ -97,10 +97,10 @@ public class SimpleCausal
 				   RCloneable<T>> 
 		implements RemoteObject<T>{
 
-		public Integer a;
+		public SafeInteger a;
 		public T b;
 
-		public SimpleRemoteObject(Integer name){
+		public SimpleRemoteObject(SafeInteger name){
 			@SuppressWarnings("unchecked")
 			T t = (T) local.get(name);
 			b = t;
@@ -108,7 +108,7 @@ public class SimpleCausal
 			a = name;
 		}
 		
-		public SimpleRemoteObject(Integer name, T t){
+		public SimpleRemoteObject(SafeInteger name, T t){
 			assert(t != null);
 			local.put(name,t);
 			this.a = name;
@@ -120,7 +120,7 @@ public class SimpleCausal
 
 		@Override
 		public void put(T t){
-			for (Function<Integer, Void> f : onWrite)
+			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
 			b = t;
 			assert(local.get(a) == this);
@@ -128,23 +128,23 @@ public class SimpleCausal
 
 		@Override
 		public T get(){
-			for (Function<Integer, Void> f : onRead)
+			for (Function<SafeInteger, Void> f : onRead)
 				f.apply(a);
 			return b;
 		}
 		
 	}
 
-	private LinkedList<Function<Integer, Void>> onRead = new LinkedList<>();
-	private LinkedList<Function<Integer, Void>> onWrite = new LinkedList<>();
+	private LinkedList<Function<SafeInteger, Void>> onRead = new LinkedList<>();
+	private LinkedList<Function<SafeInteger, Void>> onWrite = new LinkedList<>();
 
 	@Override
-	public void registerOnRead(Function<Integer, Void> f){
+	public void registerOnRead(Function<SafeInteger, Void> f){
 		onRead.add(f);
 	}
 
 	@Override
-	public void registerOnWrite(Function<Integer, Void> f){
+	public void registerOnWrite(Function<SafeInteger, Void> f){
 		onWrite.add(f);
 	}
 	

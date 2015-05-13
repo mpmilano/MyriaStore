@@ -36,7 +36,7 @@ public abstract class Store<Cons extends consistency.Top,
 		}
 	}
 
-	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(T init, SType arg, Store<consistency.Causal,?,?,?,Store_p> s){
 		assert(s == this);
 		try {
@@ -54,7 +54,7 @@ public abstract class Store<Cons extends consistency.Top,
 		return newObject(init,genArg(),s);
 	}
 
-	public <T extends CausalSafe> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(T init, Store<consistency.Causal,?,?,?,Store_p> s){
 		return newObject(init,genArg(),s);
 	}

@@ -2,17 +2,17 @@ package simplecausal;
 import remote.*;
 import util.*;
 
-public class SimpleNameManager implements NameManager<Integer> {
+public class SimpleNameManager implements NameManager<SafeInteger> {
 	public static final SimpleNameManager inst =
 		new SimpleNameManager();
 
 	@Override
-	public Integer ofString(String s){
-		return s.hashCode();
+	public SafeInteger ofString(String s){
+		return SafeInteger.wrap(s.hashCode());
 	}
 
 	@Override
-	public Integer concat(Integer a, Integer b){
-		return a + b;
+	public SafeInteger concat(SafeInteger a, SafeInteger b){
+		return SafeInteger.wrap(a.i + b.i);
 	}
 }

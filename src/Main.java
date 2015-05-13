@@ -63,17 +63,28 @@ public class Main{
 
 class TestCrossStore {
 
-	Runnable r = new Runnable(){
-		@Override
-		public void run(){
-			IndirectStore<Causal, Integer, ?> cross
-				= new IndirectStore<>
-				(new CrossStore<>
-				 (new SimpleCausal(), new SimpleNameManager(),
-				  FSStore.inst, FSStore.inst));
-		}
-	};
+	private class SimpleCounter implements java.io.Serializable{
+		private int i = 0;
+		public void incr() {++i;}
+		public void decr() {--i;}
+		public int get() {return i;}
+	}
 
+	Runnable r = new Runnable(){
+			SimpleNameManager snm = new SimpleNameManager();
+			
+			@Override
+			public void run(){
+				IndirectStore<Causal, SafeInteger, Void> cross
+					= new IndirectStore<>
+					(new CrossStore<>
+					 (new SimpleCausal(), snm,
+					  FSStore.inst, FSStore.inst));
+
+				//cross.newObject(new SimpleCounter(), cross);
+			}
+		};
+	
 	public TestCrossStore(){
 		new Thread(r).start();
 		new Thread(r).start();
