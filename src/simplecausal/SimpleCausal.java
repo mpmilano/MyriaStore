@@ -14,7 +14,14 @@ import util.*;
 public class SimpleCausal
 	extends Store<Causal,
 					  SimpleCausal.SimpleRemoteObject<?>,
-					  Integer, Integer, SimpleCausal> {
+					  Integer, Integer, SimpleCausal>
+	implements HasClock, AccessReplica<Causal,
+										   SimpleCausal.SimpleRemoteObject<?>
+										   , Integer,
+										   Integer,
+										   SimpleCausal>, Synq<Integer>
+				
+{
 
 	private static HashMap<Integer, RCloneable<?>> master
 		= new HashMap<>();

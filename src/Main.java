@@ -62,6 +62,6 @@ public class Main{
 
 
 class TestCrossStore {
-	private IndirectStore<Causal, String, SimpleCausal> cross = new IndirectStore<>(new CrossStore<>(new SimpleCausal(), new SimpleNameManager(), FSStore.inst, FSStore.inst));
+	private IndirectStore<Causal, Integer, ?> cross = new IndirectStore<>(new CrossStore<>(new SimpleCausal(), new SimpleNameManager(), FSStore.inst, FSStore.inst));
 	
 }
