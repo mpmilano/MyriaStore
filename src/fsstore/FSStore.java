@@ -2,6 +2,7 @@ package fsstore;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import remote.*;
 import util.*;
 import operations.*;
@@ -116,7 +117,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	}
 
 	
-	ArrayList<util.Function<String,Void>> onRead = new ArrayList<>();
+	CopyOnWriteArrayList<util.Function<String,Void>> onRead = new CopyOnWriteArrayList<>();
 	@Override
 	public void registerOnRead(util.Function<String,Void> r){
 		onRead.add(r);
@@ -143,7 +144,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		}
 	}
 
-	ArrayList<util.Function<String,Void>> onWrite = new ArrayList<>();
+	CopyOnWriteArrayList<util.Function<String,Void>> onWrite = new CopyOnWriteArrayList<>();
 	@Override
 	public void registerOnWrite(util.Function<String,Void> r){
 		onWrite.add(r);

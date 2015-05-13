@@ -84,7 +84,11 @@ public abstract class Store<Cons extends consistency.Top,
 				@Override
 				public void run(){
 					try{
-						Thread.sleep(rand.nextInt((10 - 0) + 1) + 0); 
+						int i = 0;
+						synchronized(rand){
+							i = rand.nextInt((10 - 0) + 1);
+						}
+						Thread.sleep(i + 0); 
 					}
 					catch(Exception e){}
 					rp.run();
