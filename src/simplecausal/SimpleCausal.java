@@ -19,20 +19,35 @@ public class SimpleCausal
 										   SimpleCausal.SimpleRemoteObject<?>
 										   , Integer,
 										   Integer,
-										   SimpleCausal>, Synq<Integer>
-				
-{
-
+										   SimpleCausal>,
+			   Synq<Integer>, Runnable {
+	
 	private static HashMap<Integer, RCloneable<?>> master
 		= new HashMap<>();
 	private static HashMap<Integer, SimpleCausal> replicas =
 		new HashMap<>();
 
+	private HashMap<Integer, RCloneable<?>> local = new HashMap<>();
 	private Integer myID = NonceGenerator.get().hashCode();
 
 	public SimpleCausal(){
-		throw new UnsupportedOperationException("TODO: finish");
-		//TODO: onTick, sync.
+		replicas.put(myID, this);
+		registerOnTick(this);
+	}
+
+	public void run(){
+		synchronized(master){
+			for (Map.Entry<Integer, RCloneable<?>> e : local.entrySet()){
+				@SuppressWarnings("unchecked")
+				Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().rclone();
+				Integer key = e.getKey();
+				RCloneable<?> merged = elem.merge(master.get(key));
+				master.put(key, merged);
+			}
+			for (Map.Entry<Integer, RCloneable<?>> e : master.entrySet()){
+				local.put(e.getKey(),(RCloneable<?>)e.getValue().rclone());
+			}
+		}
 	}
 
 	@Override
@@ -47,9 +62,9 @@ public class SimpleCausal
 
 	@Override
 	public boolean sync_req(Integer from, Integer to){
-		//TODO - need a sync method in here, for both
-		//this and onTick.
-		return false;
+		access_replica(from).run();
+		access_replica(to).run();
+		return true;
 	}
 
 	@Override
@@ -63,9 +78,9 @@ public class SimpleCausal
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")	
 	protected <T extends Serializable> SimpleRemoteObject<?> newObject(Integer i){
-		
-		return new SimpleRemoteObject<CloneFromMergable<MakeMerge<T>>>(i);
+		return new SimpleRemoteObject(i);
 	}
 
 	@Override
@@ -76,12 +91,11 @@ public class SimpleCausal
 			SimpleRemoteObject(i,CloneFromMergable.wrap(MakeMerge.wrap(t)));
 	}
 
-	public class SimpleRemoteObject<T extends Serializable &
-											  Mergable<T> &
-											  RCloneable<T>> 
+	public class SimpleRemoteObject
+		<T extends Serializable &
+				   Mergable<T> &
+				   RCloneable<T>> 
 		implements RemoteObject<T>{
-
-		private HashMap<Integer, RCloneable<?>> local = new HashMap<>();
 
 		public Integer a;
 		public T b;
