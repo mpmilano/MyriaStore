@@ -45,10 +45,16 @@ public class SimpleCausal
 			lock.writeLock().lock();
 			synchronized(master){
 				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
+					assert(e != null);
+					assert(e.getValue() != null);
+					assert(e.getKey() != null);
 					@SuppressWarnings("unchecked")
 						Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().get();
+					assert(elem != null);
 					SafeInteger key = e.getKey();
-					RCloneable<?> merged = elem.merge(master.get(key).readOnlyIpromise());
+					assert(master != null);
+					RCloneable<?> merged = elem.merge(ImmutableContainer.readOnlyIfExists(master.get(key)));
+					
 					@SuppressWarnings("unchecked")
 						ImmutableContainer<?> formaster = new ImmutableContainer(merged);
 					master.put(key, formaster);

@@ -82,7 +82,7 @@ class TestCrossStore {
 
 		@Override
 		public SimpleCounter merge(SimpleCounter c){
-			i.addAll(c.i);
+			if (c != null) i.addAll(c.i);
 			return this;
 		}
 
