@@ -40,12 +40,15 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 	}
 
 
-	static class LogObject<T extends Serializable & Mergable<T> > implements RemoteObject<T> {
+	static class LogObject<T extends Serializable & Mergable<T> > implements RemoteObject<T, String> {
 
 		static Map<String, Object> cache = new HashMap<>();
 		
 		private T t;
 		private String name;
+
+		@Override
+		public String name(){return name;}
 
 		private LogObject(String name, T t) throws IOException
 		{

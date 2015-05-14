@@ -19,13 +19,16 @@ public class IncrementFactory {
 					//If it doesn't support such an operation, this will fail
 					//and fall back to the everystore catch-block implementation.
 					@SuppressWarnings("unchecked")
-						Increment<RemoteObject<? extends Incrementable>> sto =
-						((Increment<RemoteObject<? extends Incrementable>>) elem.ro.getStore());
-					RemoteObject<? extends Incrementable> obj = (RemoteObject<? extends Incrementable>) elem.ro;
+						Increment<RemoteObject<? extends Incrementable,?>> sto =
+						((Increment<RemoteObject<? extends Incrementable,?>>) elem.ro.getStore());
+					RemoteObject<? extends Incrementable,?> obj =
+						(RemoteObject<? extends Incrementable,?>) elem.ro;
 					sto.incr(obj);
 				}
 				catch (ClassCastException e){
+					assert(elem.ro != null);
 					T a = elem.ro.get();
+					assert(a != null);
 					a.incr();
 					elem.ro.put(a);
 				}

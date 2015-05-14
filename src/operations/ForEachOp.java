@@ -5,7 +5,7 @@ import consistency.*;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class ForEachOp<C extends consistency.Top, T extends Serializable, A extends access.Unknown, Sto extends ForEach<C,Obj, Sto>, Obj extends RemoteObject<? extends Collection<?> > > 
+public class ForEachOp<C extends consistency.Top, T extends Serializable, A extends access.Unknown, Sto extends ForEach<C,Obj, Sto>, Obj extends RemoteObject<? extends Collection<?>,? > > 
 	extends Operation<Void, C> {
 
 	private OperationFactory<?,T,C,Handle<T,C,A,C, Sto>> of;

@@ -2,7 +2,7 @@ package operations;
 
 import remote.*;
 
-public class PrintFactory<T2 extends java.io.Serializable, C extends consistency.Top, H extends GetRemoteObj<T2>> implements OperationFactory<Void, T2, C, H> {
+public class PrintFactory<T2 extends java.io.Serializable, C extends consistency.Top, H extends GetRemoteObj<T2,?>> implements OperationFactory<Void, T2, C, H> {
 
 	public Operation<Void,C> build(H h){
 		System.out.println("building...");

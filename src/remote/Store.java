@@ -28,7 +28,7 @@ public abstract class Store<Cons extends consistency.Top,
 		assert(s == this);
 		try {
 			@SuppressWarnings("unchecked")
-				RemoteObject<T> newobj = (RemoteObject<T>) newObject(arg,init);
+				RemoteObject<T,SType> newobj = (RemoteObject<T,SType>) newObject(arg,init);
 			return new Handle<>(newobj);
 		}
 		catch (Exception e){
@@ -41,7 +41,7 @@ public abstract class Store<Cons extends consistency.Top,
 		assert(s == this);
 		try {
 			@SuppressWarnings("unchecked")
-				RemoteObject<T> newobj = (RemoteObject<T>) newObject(arg,init);
+				RemoteObject<T,SType> newobj = (RemoteObject<T,SType>) newObject(arg,init);
 			return new Handle<>(newobj);
 		}
 		catch (Exception e){
@@ -66,7 +66,7 @@ public abstract class Store<Cons extends consistency.Top,
 														 OHBSObj extends RObj> {
 		protected Handle<T, Cons, A, Cons, Store_p> buildHandle(OHBSObj oh){
 			@SuppressWarnings("unchecked")
-			RemoteObject<T> newobj = (RemoteObject<T>) oh;
+			RemoteObject<T,SType> newobj = (RemoteObject<T,SType>) oh;
 			return new Handle<>(newobj);
 		}
 	}

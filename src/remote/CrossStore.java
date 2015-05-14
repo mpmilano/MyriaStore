@@ -8,7 +8,7 @@ import java.util.*;
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
-public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends CausalSafe<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends CausalSafe<CReplicaID> & Comparable<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
 	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStoreT> {
 	//private CausalStore causal;
 	//private LinStore lin;
@@ -94,7 +94,9 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	private Object to_return = null;
 	private final NameManager<CausalType> cnm;
 	private final NameManager<LinType> lnm;
-		
+	final Function<CausalType, Void> onRead;		
+	
+
 	public <CS extends CausalStore &
 					   HasClock &
 					   AccessReplica
@@ -114,6 +116,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		final Set<Pair<ReplicaID, Nonce>> readset = new TreeSet<>();
 		final ReplicaID natural_replica = this_store.this_replica();
 		final LinType metadata_suffix = lnm.ofString("metadata");
+
+		readset.add(new Pair<>(natural_replica, NonceGenerator.get()));
 
 		l.registerOnWrite(new Function<LinType,Void>(){
 				@Override
@@ -164,12 +168,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				}
 			});
 
-		c.registerOnRead(new Function<CausalType, Void>(){
+		onRead = (new Function<CausalType, Void>(){
 				@SuppressWarnings("unchecked")
 				private <T> T
 					helper(Mergable<T> mp, CausalType name) {
 					@SuppressWarnings("unchecked")
 					T m = (T) mp;
+					boolean once = false;
 					for (Pair<ReplicaID, Nonce> rsp : readset){
 						try{
 							T r = (T)
@@ -181,7 +186,10 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 						catch(Exception e){
 							throw new RuntimeException(e);
 						}
+						once = true;
 					}
+					assert(once);
+					assert(m != null);
 					return m;
 				}
 				
@@ -259,13 +267,14 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	
 
 	public class CrossObject<T extends Serializable>
-		implements RemoteObject<T>{
+		implements RemoteObject<T, CausalType>{
 
-		final RemoteObject<T> real;
+		final RemoteObject<T, CausalType> real;
 
 		public CrossObject(final CausalObj real){
 			@SuppressWarnings("unchecked")
-			RemoteObject<T> coerce = (RemoteObject<T>) real;
+				RemoteObject<T,CausalType> coerce =
+				(RemoteObject<T, CausalType>) real;
 			this.real = coerce;
 		}
 
@@ -280,8 +289,15 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		}
 
 		@Override
+		public CausalType name(){
+			return real.name();
+		}
+
+		@Override
 		@SuppressWarnings("unchecked")
 		public T get(){
+			onRead.apply(real.name());
+			assert(to_return != null);
 			return (T) to_return;
 		}
 		

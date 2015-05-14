@@ -3,7 +3,7 @@ package remote;
 import java.io.Serializable;
 
 public final class Handle<T extends Serializable, Cons extends consistency.Top, Access extends access.Unknown, OriginalCons extends consistency.Top, Store>
-	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T>, Serializable
+	implements HasConsistency<Cons>, HasAccess<Access>, PointsTo<T>, StoreCons<OriginalCons>, GetRemoteObj<T,Object>, Serializable
 {
 
 	//note - if you want to actually refer to things by these predicates,
@@ -11,13 +11,16 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	//types like Foo & isHandle into Handle<Foo ... >.  
 	
 	//TODO - want a friend designator. 
-	public RemoteObject<T> ro;
+	public RemoteObject<T,?> ro;
 
-	Handle(RemoteObject<T> ro){
+	Handle(RemoteObject<T,?> ro){
 		this.ro = ro;
 	}
 
-	public RemoteObject<T> getRemoteObj(){ return ro; }
+	@SuppressWarnings("unchecked")
+	public RemoteObject<T,Object> getRemoteObj(){
+		return (RemoteObject<T,Object>) ro;
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <NewT extends Serializable, T extends NewT,

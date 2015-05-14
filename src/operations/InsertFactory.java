@@ -4,8 +4,8 @@ import remote.*;
 import java.util.Collection;
 import java.io.Serializable;
 
-public class InsertFactory<Obj extends RemoteObject<?>,
-									   Set extends RemoteObject<? extends Collection<?> >,
+public class InsertFactory<Obj extends RemoteObject<?,?>,
+									   Set extends RemoteObject<? extends Collection<?>, ? >,
 												   Sto extends Insert<Set,Obj> > {
 
 	public InsertFactory(Sto s){}

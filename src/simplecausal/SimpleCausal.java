@@ -29,8 +29,10 @@ public class SimpleCausal
 	private static ConcurrentNavigableMap<SafeInteger, SimpleCausal> replicas =
 		new ConcurrentSkipListMap<>();
 
-	private ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local = new ConcurrentSkipListMap<>();
-	private final SafeInteger myID = SafeInteger.wrap(NonceGenerator.get().hashCode());
+	private ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local =
+		new ConcurrentSkipListMap<>();
+	private final SafeInteger myID =
+		SafeInteger.wrap(NonceGenerator.get().hashCode());
 
 	ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -44,22 +46,28 @@ public class SimpleCausal
 		try{
 			lock.writeLock().lock();
 			synchronized(master){
-				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
+				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e :
+						 local.entrySet()){
 					assert(e != null);
 					assert(e.getValue() != null);
 					assert(e.getKey() != null);
 					@SuppressWarnings("unchecked")
-						Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().get();
+						Mergable<RCloneable<?>> elem
+						= (Mergable<RCloneable<?>>) e.getValue().get();
 					assert(elem != null);
 					SafeInteger key = e.getKey();
 					assert(master != null);
-					RCloneable<?> merged = elem.merge(ImmutableContainer.readOnlyIfExists(master.get(key)));
+					RCloneable<?> merged =
+						elem.merge(ImmutableContainer.readOnlyIfExists
+								   (master.get(key)));
 					
 					@SuppressWarnings("unchecked")
-						ImmutableContainer<?> formaster = new ImmutableContainer(merged);
+						ImmutableContainer<?> formaster =
+						new ImmutableContainer(merged);
 					master.put(key, formaster);
 				}
-				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : master.entrySet()){
+				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e :
+						 master.entrySet()){
 					local.put(e.getKey(),e.getValue());
 				}
 			}
@@ -97,7 +105,8 @@ public class SimpleCausal
 	
 	@Override
 	@SuppressWarnings("unchecked")	
-	protected <T extends Serializable> SimpleRemoteObject<?> newObject(SafeInteger i){
+	protected <T extends Serializable> SimpleRemoteObject<?>
+		newObject(SafeInteger i){
 		return new SimpleRemoteObject(i);
 	}
 
@@ -113,7 +122,7 @@ public class SimpleCausal
 		<T extends Serializable &
 				   Mergable<T> &
 				   RCloneable<T>> 
-		implements RemoteObject<T>{
+		implements RemoteObject<T, SafeInteger>{
 
 		public SafeInteger a;
 		public ImmutableContainer<T> b;
@@ -132,11 +141,17 @@ public class SimpleCausal
 				assert(t != null);
 				this.a = name;
 				this.b = new ImmutableContainer<>(t);
+				assert(b != null);
 				local.put(name,b);
 			}
 			finally{
 				lock.readLock().unlock();
 			}
+		}
+
+		@Override
+		public SafeInteger name(){
+			return a;
 		}
 
 		@Override
@@ -147,6 +162,7 @@ public class SimpleCausal
 		public void put(T t){
 			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
+			assert(b != null);
 			b = new ImmutableContainer<>(t);
 			try{
 				lock.readLock().lock();
@@ -159,8 +175,13 @@ public class SimpleCausal
 
 		@Override
 		public T get(){
-			for (Function<SafeInteger, Void> f : onRead)
+			boolean any = false;
+			for (Function<SafeInteger, Void> f : onRead){
+				any = true;
 				f.apply(a);
+			}
+			assert(b.get() != null);
+			assert(any);
 			return b.get();
 		}
 		
@@ -172,6 +193,7 @@ public class SimpleCausal
 	@Override
 	public void registerOnRead(Function<SafeInteger, Void> f){
 		onRead.add(f);
+		assert(onRead.contains(f));
 	}
 
 	@Override

@@ -63,11 +63,17 @@ public class Main{
 
 class TestCrossStore {
 
-	private class SimpleCounter implements CausalSafe<SimpleCounter> {
+	private class SimpleCounter implements CausalSafe<SimpleCounter>,
+										   Incrementable
+	{
 		private TreeSet<TwoTuple<String, Boolean>> i = new TreeSet<>();
+
+		@Override
 		public void incr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),true));
 		}
+
+		@Override
 		public void decr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),false));
 		}
@@ -99,6 +105,7 @@ class TestCrossStore {
 
 	Runnable r = new Runnable(){
 			SimpleNameManager snm = new SimpleNameManager();
+			IncrementFactory incrfact = new IncrementFactory();
 			
 			@Override
 			public void run(){
@@ -108,19 +115,22 @@ class TestCrossStore {
 					 (new SimpleCausal(), snm,
 					  FSStore.inst, FSStore.inst));
 
-				cross.newObject(new SimpleCounter(),
+				assert((cross.newObject(new SimpleCounter(),
 								new SafeInteger(NonceGenerator.get().hashCode()),
-								cross);
+										cross)).ro.get() != null);
+				incrfact.build(cross.newObject(new SimpleCounter(),
+								new SafeInteger(NonceGenerator.get().hashCode()),
+											   cross)).execute();
 			}
 		};
 	
 	public TestCrossStore(){
+		new Thread(r).start();/*
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
+		new Thread(r).start(); //*/
 	}
 }

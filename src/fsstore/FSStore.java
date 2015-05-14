@@ -37,7 +37,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		}
 	}
 
-	static class FSObject<T extends Serializable> implements RemoteObject<T> {
+	static class FSObject<T extends Serializable> implements RemoteObject<T, String> {
 		protected final File location;
 		protected final Class<?> storedclass;
 		private FSObject(String location, T initialValue) throws IOException {
@@ -58,6 +58,10 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 					if (fos != null) fos.close();
 				}
 			}
+		}
+		@Override
+		public String name(){
+			return location.getPath();
 		}
 
 		@Override
