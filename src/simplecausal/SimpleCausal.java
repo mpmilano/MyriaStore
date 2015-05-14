@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Collection;
 import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
 import util.*;
 
@@ -22,30 +23,33 @@ public class SimpleCausal
 										   SimpleCausal>,
 			   Synq<SafeInteger>, Runnable {
 	
-	private static HashMap<SafeInteger, RCloneable<?>> master
-		= new HashMap<>();
-	private static HashMap<SafeInteger, SimpleCausal> replicas =
-		new HashMap<>();
+	private static ConcurrentNavigableMap<SafeInteger, ImmutableContainer<?>> master
+		= new ConcurrentSkipListMap<>();
+	private static ConcurrentNavigableMap<SafeInteger, SimpleCausal> replicas =
+		new ConcurrentSkipListMap<>();
 
-	private HashMap<SafeInteger, RCloneable<?>> local = new HashMap<>();
-	private SafeInteger myID = SafeInteger.wrap(NonceGenerator.get().hashCode());
+	private ConcurrentNavigableMap<SafeInteger, ImmutableContainer<?>> local = new ConcurrentSkipListMap<>();
+	private final SafeInteger myID = SafeInteger.wrap(NonceGenerator.get().hashCode());
 
 	public SimpleCausal(){
 		replicas.put(myID, this);
 		registerOnTick(this);
 	}
 
+	@Override
 	public void run(){
 		synchronized(master){
-			for (Map.Entry<SafeInteger, RCloneable<?>> e : local.entrySet()){
+			for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
 				@SuppressWarnings("unchecked")
-				Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().rclone();
+				Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().get();
 				SafeInteger key = e.getKey();
-				RCloneable<?> merged = elem.merge(master.get(key));
-				master.put(key, merged);
+				RCloneable<?> merged = elem.merge(master.get(key).readOnlyIpromise());
+				@SuppressWarnings("unchecked")
+				ImmutableContainer<?> formaster = new ImmutableContainer(merged);
+				master.put(key, formaster);
 			}
-			for (Map.Entry<SafeInteger, RCloneable<?>> e : master.entrySet()){
-				local.put(e.getKey(),(RCloneable<?>)e.getValue().rclone());
+			for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : master.entrySet()){
+				local.put(e.getKey(),e.getValue());
 			}
 		}
 	}
@@ -62,9 +66,8 @@ public class SimpleCausal
 
 	@Override
 	public boolean sync_req(SafeInteger from, SafeInteger to){
-		access_replica(from).run();
-		access_replica(to).run();
-		return true;
+		//TODO - simulate the need for this.  Right now it's not keenly felt.
+		return false;
 	}
 
 	@Override
@@ -98,11 +101,11 @@ public class SimpleCausal
 		implements RemoteObject<T>{
 
 		public SafeInteger a;
-		public T b;
+		public ImmutableContainer<T> b;
 
 		public SimpleRemoteObject(SafeInteger name){
 			@SuppressWarnings("unchecked")
-			T t = (T) local.get(name);
+			ImmutableContainer<T> t = (ImmutableContainer<T>) local.get(name);
 			b = t;
 			assert(b != null);
 			a = name;
@@ -110,11 +113,12 @@ public class SimpleCausal
 		
 		public SimpleRemoteObject(SafeInteger name, T t){
 			assert(t != null);
-			local.put(name,t);
 			this.a = name;
-			this.b = t;
+			this.b = new ImmutableContainer<>(t);
+			local.put(name,b);
 		}
 
+		@Override
 		public SimpleCausal getStore()
 		{ return SimpleCausal.this; }
 
@@ -122,15 +126,15 @@ public class SimpleCausal
 		public void put(T t){
 			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
-			b = t;
-			assert(local.get(a) == this);
+			b = new ImmutableContainer<>(t);
+			local.put(a,b);
 		}
 
 		@Override
 		public T get(){
 			for (Function<SafeInteger, Void> f : onRead)
 				f.apply(a);
-			return b;
+			return b.get();
 		}
 		
 	}

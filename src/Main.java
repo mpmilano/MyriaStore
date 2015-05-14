@@ -108,7 +108,9 @@ class TestCrossStore {
 					 (new SimpleCausal(), snm,
 					  FSStore.inst, FSStore.inst));
 
-				cross.newObject(new SimpleCounter(), new SafeInteger(NonceGenerator.get().hashCode()), cross);
+				cross.newObject(new SimpleCounter(),
+								new SafeInteger(NonceGenerator.get().hashCode()),
+								cross);
 			}
 		};
 	

@@ -5,14 +5,14 @@ import java.math.*;
 
 public class NonceGenerator{
 	private SessionIdentifierGenerator sid = new SessionIdentifierGenerator();
-	public static NonceGenerator inst = new NonceGenerator();
+	private static NonceGenerator inst = new NonceGenerator();
 	private NonceGenerator(){}
 
-	public static String get(){
+	public static synchronized String get(){
 		return inst.sid.nextSessionId();
 	}
 	
-	public final class SessionIdentifierGenerator {
+	private final class SessionIdentifierGenerator {
 		private SecureRandom random = new SecureRandom();
 		
 		public String nextSessionId() {
