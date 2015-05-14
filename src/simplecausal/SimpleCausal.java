@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Collection;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 import java.io.*;
 import util.*;
 
@@ -28,8 +29,10 @@ public class SimpleCausal
 	private static ConcurrentNavigableMap<SafeInteger, SimpleCausal> replicas =
 		new ConcurrentSkipListMap<>();
 
-	private ConcurrentNavigableMap<SafeInteger, ImmutableContainer<?>> local = new ConcurrentSkipListMap<>();
+	private ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local = new ConcurrentSkipListMap<>();
 	private final SafeInteger myID = SafeInteger.wrap(NonceGenerator.get().hashCode());
+
+	ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	public SimpleCausal(){
 		replicas.put(myID, this);
@@ -38,19 +41,25 @@ public class SimpleCausal
 
 	@Override
 	public void run(){
-		synchronized(master){
-			for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
-				@SuppressWarnings("unchecked")
-				Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().get();
-				SafeInteger key = e.getKey();
-				RCloneable<?> merged = elem.merge(master.get(key).readOnlyIpromise());
-				@SuppressWarnings("unchecked")
-				ImmutableContainer<?> formaster = new ImmutableContainer(merged);
-				master.put(key, formaster);
+		try{
+			lock.writeLock().lock();
+			synchronized(master){
+				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
+					@SuppressWarnings("unchecked")
+						Mergable<RCloneable<?>> elem = (Mergable<RCloneable<?>>) e.getValue().get();
+					SafeInteger key = e.getKey();
+					RCloneable<?> merged = elem.merge(master.get(key).readOnlyIpromise());
+					@SuppressWarnings("unchecked")
+						ImmutableContainer<?> formaster = new ImmutableContainer(merged);
+					master.put(key, formaster);
+				}
+				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : master.entrySet()){
+					local.put(e.getKey(),e.getValue());
+				}
 			}
-			for (Map.Entry<SafeInteger, ImmutableContainer<?>> e : master.entrySet()){
-				local.put(e.getKey(),e.getValue());
-			}
+		}
+		finally{
+			lock.writeLock().unlock();
 		}
 	}
 
@@ -112,10 +121,16 @@ public class SimpleCausal
 		}
 		
 		public SimpleRemoteObject(SafeInteger name, T t){
-			assert(t != null);
-			this.a = name;
-			this.b = new ImmutableContainer<>(t);
-			local.put(name,b);
+			try{
+				lock.readLock().lock();
+				assert(t != null);
+				this.a = name;
+				this.b = new ImmutableContainer<>(t);
+				local.put(name,b);
+			}
+			finally{
+				lock.readLock().unlock();
+			}
 		}
 
 		@Override
@@ -127,7 +142,13 @@ public class SimpleCausal
 			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
 			b = new ImmutableContainer<>(t);
-			local.put(a,b);
+			try{
+				lock.readLock().lock();
+				local.put(a,b);
+			}
+			finally{
+				lock.readLock().unlock();
+			}
 		}
 
 		@Override
@@ -139,8 +160,8 @@ public class SimpleCausal
 		
 	}
 
-	private LinkedList<Function<SafeInteger, Void>> onRead = new LinkedList<>();
-	private LinkedList<Function<SafeInteger, Void>> onWrite = new LinkedList<>();
+	private java.util.List<Function<SafeInteger, Void>> onRead = new LinkedList<>();
+	private java.util.List<Function<SafeInteger, Void>> onWrite = new LinkedList<>();
 
 	@Override
 	public void registerOnRead(Function<SafeInteger, Void> f){
