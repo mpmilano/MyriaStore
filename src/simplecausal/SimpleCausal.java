@@ -160,8 +160,8 @@ public class SimpleCausal
 		
 	}
 
-	private java.util.List<Function<SafeInteger, Void>> onRead = new LinkedList<>();
-	private java.util.List<Function<SafeInteger, Void>> onWrite = new LinkedList<>();
+	private java.util.List<Function<SafeInteger, Void>> onRead = new CopyOnWriteArrayList<>();
+	private java.util.List<Function<SafeInteger, Void>> onWrite = new CopyOnWriteArrayList<>();
 
 	@Override
 	public void registerOnRead(Function<SafeInteger, Void> f){
