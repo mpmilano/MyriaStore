@@ -260,13 +260,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	
 	@Override
 	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws util.MyriaException{
-		//TODO - tracking?
+		//TODO - will assume metameta exists on get, so need to create it here!
 		return new CrossObject<T>(this_store.newObject(arg,init));
 	}
 
 	@Override
 	protected <T extends Serializable> CrossObject newObject(CausalType arg) throws util.MyriaException{
-		//TODO - tracking?
+		//TODO - will assume metameta exists on get, so need to create it here!
 		return new CrossObject<T>(this_store.newObject(arg));
 	}
 

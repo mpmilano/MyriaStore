@@ -26,6 +26,7 @@ public class IncrementFactory {
 					sto.incr(obj);
 				}
 				catch (ClassCastException e){
+					System.out.println("incrementing like a normal person");
 					assert(elem.ro != null);
 					T a = elem.ro.get();
 					assert(a != null);

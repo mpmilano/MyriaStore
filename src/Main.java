@@ -14,7 +14,7 @@ public class Main{
 
 
 	
-	public static void main(String[] args) throws Throwable{
+	public static void basics(String[] args) throws Throwable{
 
 		Lin lin = new Lin(){};
 		Causal cause = new Causal(){};
@@ -54,7 +54,9 @@ public class Main{
 			.postNewEntry(fs,"This is an entry!")
 			.addComment(fs.ifact(), 3, "A COMMENT!");
 
+	}
 
+	public static void main(String[] args){
 		TestCrossStore tcs = new TestCrossStore();
 	}
 
@@ -118,9 +120,13 @@ class TestCrossStore {
 				assert((cross.newObject(new SimpleCounter(),
 										SafeInteger.ofString(NonceGenerator.get()),
 										cross)).ro.get() != null);
-				incrfact.build(cross.newObject(new SimpleCounter(),
-											   SafeInteger.ofString(NonceGenerator.get()),
-											   cross)).execute();
+				System.out.println("test object created!");
+				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h =
+					cross.newObject(new SimpleCounter(),
+									SafeInteger.ofString(NonceGenerator.get()),
+									cross);
+				System.out.println("we have finished constructing a simple counter!");
+				incrfact.build(h).execute();
 			}
 		};
 	
