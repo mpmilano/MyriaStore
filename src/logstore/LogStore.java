@@ -14,20 +14,8 @@ import util.*;
 
 public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
 	implements Insert<LogStore.LogObject<? extends Collection<? extends Serializable>>, LogStore.LogObject<?>>,
-			   AccessReplica<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>,
-			   util.NameManager<String>
+			   AccessReplica<Causal, LogStore.LogObject<?>, String, LogStore, LogStore>
 {
-
-	//actions on identifiers
-	@Override
-	public String concat(String a, String b){
-		return a + b;
-	}
-
-	@Override
-	public String ofString(String a){return a;}
-	//end actions of identifiers
-
 	LinkedList<LinkedList<Runnable>> log = new LinkedList<>();
 
 	public static LogStore inst = new LogStore();

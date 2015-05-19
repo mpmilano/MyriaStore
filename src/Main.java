@@ -116,10 +116,10 @@ class TestCrossStore {
 					  FSStore.inst, FSStore.inst));
 
 				assert((cross.newObject(new SimpleCounter(),
-								new SafeInteger(NonceGenerator.get().hashCode()),
+										SafeInteger.ofString(NonceGenerator.get()),
 										cross)).ro.get() != null);
 				incrfact.build(cross.newObject(new SimpleCounter(),
-								new SafeInteger(NonceGenerator.get().hashCode()),
+											   SafeInteger.ofString(NonceGenerator.get()),
 											   cross)).execute();
 			}
 		};

@@ -34,7 +34,7 @@ public class SimpleCausal
 	private ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local =
 		new ConcurrentSkipListMap<>();
 	private final SafeInteger myID =
-		SafeInteger.wrap(NonceGenerator.get().hashCode());
+		SafeInteger.ofString(NonceGenerator.get());
 
 	ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -102,7 +102,7 @@ public class SimpleCausal
 
 	@Override
 	public SafeInteger genArg(){
-		return SafeInteger.wrap(NonceGenerator.get().hashCode());
+		return SafeInteger.ofString(NonceGenerator.get());
 	}
 	
 	@Override
@@ -150,6 +150,7 @@ public class SimpleCausal
 				this.b = new ImmutableContainer<>(t);
 				cassert(b != null, "constructors don't work!");
 				local.put(name,b);
+				System.out.println("constructing "+ name.toString());
 			}
 			finally{
 				lock.readLock().unlock();

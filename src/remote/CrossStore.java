@@ -172,26 +172,33 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		onRead = (new Function<CausalType, Void>(){
 				@SuppressWarnings("unchecked")
 				private <T> T
-					helper(Mergable<T> mp, CausalType name) {
+					helper(Mergable<T> mp, final CausalType name) {
 					@SuppressWarnings("unchecked")
 					T m = (T) mp;
 					boolean once = false;
-					for (Pair<ReplicaID, Nonce> rsp : readset){
+					for (final Pair<ReplicaID, Nonce> rsp : readset){
 						try{
+							if (!c.access_replica(rsp.first).objectExists(name))
+								continue;
 							T r = (T)
 								c.access_replica(rsp.first)
 								.existingObject(name).get();
 							if (m == null) m = r;
 							else m = (T) mp.merge(r);
+							once = true;
 						}
 						catch(MyriaException e){
 							throw new RuntimeException(e);
 						}
-						once = true;
+					}
+					if (!once){
+						cassert(this_store.objectExists(name),cnm.toString(name) + " is not contained in the local replica!");
+						cassert(c.access_replica(natural_replica).objectExists(name),cnm.toString(name) +
+								" is not contained in the local replica when accessed via access_replica!");
 					}
 					{
 						final boolean oncet = once;
-						cassert(oncet,"There are no elements in readset!");
+						cassert(oncet,"There are no elements in readset which contain " + cnm.toString(name) + "!");
 						final T mt = m;
 						cassert(mt != null,"result of merge is null!");
 					}

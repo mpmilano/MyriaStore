@@ -21,6 +21,8 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	public String ofString(String s){ return s;}
 
 	public String concat(String a, String b){return a + b;}
+
+	public String toString(String s){return s;}
 	
 	
 	private FSStore(){}

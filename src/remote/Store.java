@@ -18,6 +18,7 @@ public abstract class Store<Cons extends consistency.Top,
 	//for referencing existing objects by name.  Only for use within framework.
 	RObj existingObject(final SType arg) throws util.MyriaException {
 		cassert(arg != null, "attempt to reference existing object with null name");
+		cassert(exists(arg),"attempt to build non-existing object! please check if exists first.");
 		return newObject(arg);
 	}
 

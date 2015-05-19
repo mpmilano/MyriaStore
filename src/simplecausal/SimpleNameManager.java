@@ -7,12 +7,17 @@ public class SimpleNameManager implements NameManager<SafeInteger> {
 		new SimpleNameManager();
 
 	@Override
-	public SafeInteger ofString(String s){
-		return SafeInteger.wrap(s.hashCode());
+	public SafeInteger ofString(final String s){
+		return SafeInteger.ofString(s);
 	}
 
 	@Override
 	public SafeInteger concat(SafeInteger a, SafeInteger b){
-		return SafeInteger.wrap(a.i + b.i);
+		return a.concat(b);
+	}
+
+	@Override
+	public String toString(SafeInteger a){
+		return a.toString();
 	}
 }

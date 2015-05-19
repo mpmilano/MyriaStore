@@ -9,4 +9,6 @@ public interface NameManager<SType> {
 
 	public abstract SType concat(SType a, SType b);
 
+	public abstract String toString(SType a);
+
 }
