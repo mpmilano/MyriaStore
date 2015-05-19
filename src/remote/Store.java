@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import consistency.*;
 
-#define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (x) throw new RuntimeException(s); return true; }}).apply(null));
+#define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 
 public abstract class Store<Cons extends consistency.Top,
 										 RObj extends RemoteObject,
@@ -17,7 +17,7 @@ public abstract class Store<Cons extends consistency.Top,
 
 	//for referencing existing objects by name.  Only for use within framework.
 	<T extends Serializable> RObj existingObject(final SType arg) throws util.MyriaException {
-		cassert(arg == null, "attempt to reference existing object with null name");
+		cassert(arg != null, "attempt to reference existing object with null name");
 		return newObject(arg);
 	}
 	
@@ -29,8 +29,8 @@ public abstract class Store<Cons extends consistency.Top,
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, final SType arg, Store<consistency.Lin,?,?,?,Store_p> s){
 		assert(s == this);
-		cassert(init == null, "attempt to construct lin object with null initial value");
-		cassert(arg == null, "attempt to construct lin object with null name");
+		cassert(init != null, "attempt to construct lin object with null initial value");
+		cassert(arg != null, "attempt to construct lin object with null name");
 		try {
 			@SuppressWarnings("unchecked")
 				RemoteObject<T,SType> newobj = (RemoteObject<T,SType>) newObject(arg,init);
@@ -44,8 +44,8 @@ public abstract class Store<Cons extends consistency.Top,
 	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, final SType arg, Store<consistency.Causal,?,?,?,Store_p> s){
 		assert(s == this);
-		cassert(init == null, "attempt to construct causal object with null initial value");
-		cassert(arg == null, "attempt to construct causal object with null name");
+		cassert(init != null, "attempt to construct causal object with null initial value");
+		cassert(arg != null, "attempt to construct causal object with null name");
 		try {
 			@SuppressWarnings("unchecked")
 				RemoteObject<T,SType> newobj = (RemoteObject<T,SType>) newObject(arg,init);
@@ -58,13 +58,13 @@ public abstract class Store<Cons extends consistency.Top,
 
 	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, Store<consistency.Lin,?,?,?,Store_p> s){
-		cassert(init == null, "attempt to initialize lin object with null!");
+		cassert(init != null, "attempt to initialize lin object with null!");
 		return newObject(init,genArg(),s);
 	}
 
 	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, Store<consistency.Causal,?,?,?,Store_p> s){
-		cassert(init == null, "attempt to initialize causal object with null!");
+		cassert(init != null, "attempt to initialize causal object with null!");
 		return newObject(init,genArg(),s);
 	}
 

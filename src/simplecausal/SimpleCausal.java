@@ -13,7 +13,7 @@ import java.util.concurrent.locks.*;
 import java.io.*;
 import util.*;
 
-#define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (x) throw new RuntimeException(s); return true; }}).apply(null));
+#define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 
 public class SimpleCausal
 	extends Store<Causal,

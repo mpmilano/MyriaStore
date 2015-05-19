@@ -4,6 +4,7 @@ import util.*;
 import java.io.*;
 import java.util.*;
 
+#define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 #define CausalStore Store<Causal, CausalObj, CausalType, CReplicaID, CausalP>
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
@@ -139,7 +140,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					try {
 						Tombstone t = new Tombstone(n);
 						newObject(t.name, t);
-					} catch(Exception e){
+					} catch(MyriaException e){
 						throw new RuntimeException(e);
 					}
 					return null;
@@ -183,13 +184,17 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 							if (m == null) m = r;
 							else m = (T) mp.merge(r);
 						}
-						catch(Exception e){
+						catch(MyriaException e){
 							throw new RuntimeException(e);
 						}
 						once = true;
 					}
-					assert(once);
-					assert(m != null);
+					{
+						final boolean oncet = once;
+						cassert(oncet,"There are no elements in readset!");
+						final T mt = m;
+						cassert(mt != null,"result of merge is null!");
+					}
 					return m;
 				}
 				
@@ -246,7 +251,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 			found = this_store.existingObject(tombstone_name(n)).get();
 			if (found != null) return true;
 		}
-		catch(Exception e) {}
+		catch(MyriaException e) {}
 		return false;
 	}
 
