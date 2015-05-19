@@ -246,13 +246,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	}
 	
 	private boolean contains_tombstone(Nonce n){
-		Object found = null;
-		try {
-			found = this_store.existingObject(tombstone_name(n)).get();
-			if (found != null) return true;
-		}
-		catch(MyriaException e) {}
-		return false;
+		return this_store.objectExists(tombstone_name(n));
 	}
 
 	//Necessary overhead to make the above work - mostly filling in abstract methods with the obvious stuff.
@@ -309,6 +303,11 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	}
 
 	//Dummies and passthroughs
+
+	@Override
+	protected boolean exists(CausalType ct){
+		return this_store.objectExists(ct);
+	}
 
 	@Override
 	public Void this_replica() { return null; }

@@ -21,6 +21,11 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	public R this_replica(){
 		return real.this_replica();
 	}
+
+	@Override
+	protected boolean exists(S arg){
+		return real.objectExists(arg);
+	}
 	
 	@Override
 	protected <T extends Serializable> RemoteObject newObject(S arg) throws util.MyriaException{

@@ -120,6 +120,11 @@ public class SimpleCausal
 			SimpleRemoteObject(i,CloneFromMergable.wrap(MakeMerge.wrap(t)));
 	}
 
+	@Override
+	protected boolean exists(SafeInteger i){
+		return local.containsKey(i);
+	}
+
 	public class SimpleRemoteObject
 		<T extends Serializable &
 				   Mergable<T> &

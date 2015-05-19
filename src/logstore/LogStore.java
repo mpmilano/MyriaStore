@@ -40,6 +40,11 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 	}
 
 
+	@Override
+	protected boolean exists(String s){
+		return LogObject.cache.get(s) != null;
+	}
+	
 	static class LogObject<T extends Serializable & Mergable<T> > implements RemoteObject<T, String> {
 
 		static Map<String, Object> cache = new HashMap<>();

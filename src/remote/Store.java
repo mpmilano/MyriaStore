@@ -16,9 +16,16 @@ public abstract class Store<Cons extends consistency.Top,
 		newObject(SType arg, T init) throws util.MyriaException;
 
 	//for referencing existing objects by name.  Only for use within framework.
-	<T extends Serializable> RObj existingObject(final SType arg) throws util.MyriaException {
+	RObj existingObject(final SType arg) throws util.MyriaException {
 		cassert(arg != null, "attempt to reference existing object with null name");
 		return newObject(arg);
+	}
+
+	protected abstract boolean exists(SType arg);
+	
+	boolean objectExists(final SType arg) {
+		cassert(arg != null, "attempt to query existing object with null name");
+		return exists(arg);
 	}
 	
 	protected abstract <T extends Serializable> RObj
