@@ -7,7 +7,7 @@ import transactions.*;
 public abstract class Operation<T, C extends consistency.Top > extends Transaction implements Callable<T> {
 	abstract public T execute();
 	@Override
-	public T call() throws Exception{
+	public T call() throws util.MyriaException{
 		return execute();
 	}
 	@Override

@@ -40,7 +40,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	static class FSObject<T extends Serializable> implements RemoteObject<T, String> {
 		protected final File location;
 		protected final Class<?> storedclass;
-		private FSObject(String location, T initialValue) throws IOException {
+		private FSObject(String location, T initialValue) throws MyriaIOException {
 			Class<?> class1 = (initialValue == null ? Void.class : initialValue.getClass());
 			this.storedclass = class1;
 			this.location = new File(location);
@@ -53,9 +53,19 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 					oos = new ObjectOutputStream(fos);
 					oos.writeObject(initialValue);
 				}
+				catch (IOException ex){
+					throw new MyriaIOException(ex);
+				}
 				finally {
-					if (oos != null) oos.close();
-					if (fos != null) fos.close();
+					try{
+						if (oos != null) oos.close();
+						if (fos != null) fos.close();
+						
+					}
+					catch (IOException e){
+						throw new MyriaIOException(e);
+					}
+
 				}
 			}
 		}
@@ -80,22 +90,22 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	}
 
 	@Override
-	protected <T extends Serializable> FSObject<T> newObject(String name, T initialValue) throws IOException{
+	protected <T extends Serializable> FSObject<T> newObject(String name, T initialValue) throws MyriaIOException{
 		return new FSObject<T>(name, initialValue);
 	}
 
 	@Override
-	protected <T extends Serializable> FSObject<T> newObject(String name) throws IOException{
-		return new FSObject<T>(name, null);
+	protected <T extends Serializable> FSObject<T> newObject(String name) throws MyriaIOException{
+		return new FSObject<T>(name, null);		
 	}
 
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
 		private FSObject<T>[] files;
 		@SuppressWarnings("unchecked")
-		private FSDir(String location) throws IOException {
+		private FSDir(String location) throws MyriaIOException {
 			super(location,null);
 			this.location.mkdirs();
-			if (! this.location.isDirectory()) throw new IOException("must be a dir!");
+			if (! this.location.isDirectory()) throw new MyriaIOException(new IOException("must be a dir!"));
 			String[] fls = this.location.list();
 			files = new FSObject[fls.length];
 			for (int i = 0; i < files.length; ++i) files[i] = new FSObject<T>(location + "/" + fls[i],null);
@@ -115,7 +125,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, access.ReadWrite, FSDir<T> > {
 		public Handle<SerializableCollection<T>, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>
-			newObject(String name) throws IOException{
+			newObject(String name) throws MyriaIOException{
 			return buildHandle(new FSDir<T>(name));
 		}
 	}
@@ -137,7 +147,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 				f.apply(o.location.getCanonicalPath());
 			}
 			@SuppressWarnings("unchecked")
-			T t = (T) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
+				T t = (T) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
 			return t;
 		}
 		catch (IOException e){
@@ -195,16 +205,22 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	@Override
 	//TODO: oponly
-	public void insert(FSDir<?> set, FSObject<?> e) throws IOException{
+	public void insert(FSDir<?> set, FSObject<?> e) throws MyriaIOException{
 		File nf = (new File(set.location.getAbsolutePath() + "/" + e.location.getName()));
 		nf.delete();
-		Files.copy(e.location.toPath(),nf.toPath());
+		try{
+			Files.copy(e.location.toPath(),nf.toPath());
+		}
+		catch (IOException ex){
+			throw new MyriaIOException(ex);
+		}
+
 		//TODO: generally speaking, a native-exception which is checked statically should be created for all of these.
 	}
 
 	@Override
 	//TODO: oponly
-	public void insert(FSDir<?> set, Serializable e) throws IOException{
+	public void insert(FSDir<?> set, Serializable e) throws MyriaIOException{
 		insert(set, newObject(genArg(), e));
 	}
 

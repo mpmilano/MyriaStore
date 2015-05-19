@@ -253,13 +253,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	//Necessary overhead to make the above work - mostly filling in abstract methods with the obvious stuff.
 	
 	@Override
-	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws Exception{
+	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws util.MyriaException{
 		//TODO - tracking?
 		return new CrossObject<T>(this_store.newObject(arg,init));
 	}
 
 	@Override
-	protected <T extends Serializable> CrossObject newObject(CausalType arg) throws Exception{
+	protected <T extends Serializable> CrossObject newObject(CausalType arg) throws util.MyriaException{
 		//TODO - tracking?
 		return new CrossObject<T>(this_store.newObject(arg));
 	}

@@ -1,6 +1,7 @@
 package operations;
 
 import remote.*;
+import util.*;
 import java.util.Collection;
 import java.io.Serializable;
 
@@ -34,7 +35,7 @@ public class InsertFactory<Obj extends RemoteObject<?,?>,
 					j.add(elem.ro.get());
 					set.ro.put(j);
 				}
-				catch (java.io.IOException e){
+				catch (MyriaIOException e){
 					System.err.println("something is very wrong!");
 					throw new RuntimeException(e);
 				}
@@ -63,7 +64,7 @@ public class InsertFactory<Obj extends RemoteObject<?,?>,
 					j.add(elem);
 					set.ro.put(j);
 				}
-				catch (java.io.IOException e){
+				catch (MyriaIOException e){
 					System.err.println("something is very wrong!");
 					throw new RuntimeException(e);
 				}

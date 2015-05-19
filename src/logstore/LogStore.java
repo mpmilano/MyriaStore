@@ -50,13 +50,13 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 		@Override
 		public String name(){return name;}
 
-		private LogObject(String name, T t) throws IOException
+		private LogObject(String name, T t) throws MyriaIOException
 		{
 			if (t == null){
 				@SuppressWarnings("unchecked")
 				T t_ = (T) cache.get(name);
 				t = t_;
-				if (t == null) throw new IOException("Can't find this name!");
+				if (t == null) throw new MyriaIOException(new IOException("Can't find this name!"));
 			}
 			else {
 				this.name = name; this.t = t;
@@ -102,12 +102,12 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 	}
 
 	@Override
-	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial) throws IOException{
+	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial) throws MyriaIOException{
 		return new LogObject<>(uuid,new MakeMerge<>(initial));
 	}
 
 	@Override
-	protected <T extends Serializable> LogObject<?> newObject(String uuid) throws IOException{
+	protected <T extends Serializable> LogObject<?> newObject(String uuid) throws MyriaIOException{
 		return new LogObject<>(uuid,new MakeMerge<T>(null));
 	}
 

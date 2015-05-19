@@ -14,7 +14,7 @@ public class Main{
 
 
 	
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Throwable{
 
 		Lin lin = new Lin(){};
 		Causal cause = new Causal(){};

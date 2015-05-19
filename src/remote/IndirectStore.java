@@ -23,12 +23,12 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	}
 	
 	@Override
-	protected <T extends Serializable> RemoteObject newObject(S arg) throws Exception{
+	protected <T extends Serializable> RemoteObject newObject(S arg) throws util.MyriaException{
 		return real.newObject(arg);
 	}
 
 	@Override
-	protected <T extends Serializable> RemoteObject newObject(S arg, T init) throws Exception{
+	protected <T extends Serializable> RemoteObject newObject(S arg, T init) throws util.MyriaException{
 		return real.newObject(arg, init);
 	}
 

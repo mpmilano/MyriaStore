@@ -13,6 +13,8 @@ import java.util.concurrent.locks.*;
 import java.io.*;
 import util.*;
 
+#define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (x) throw new RuntimeException(s); return true; }}).apply(null));
+
 public class SimpleCausal
 	extends Store<Causal,
 					  SimpleCausal.SimpleRemoteObject<?>,
@@ -46,17 +48,17 @@ public class SimpleCausal
 		try{
 			lock.writeLock().lock();
 			synchronized(master){
-				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e :
+				for (final Map.Entry<SafeInteger, ImmutableContainer<?>> e :
 						 local.entrySet()){
-					assert(e != null);
-					assert(e.getValue() != null);
-					assert(e.getKey() != null);
+					cassert(e != null, "null entry found in local store!");
+					cassert(e.getValue() != null, "null entry found in local store value!");
+					cassert(e.getKey() != null,"null key found in local store!");
 					@SuppressWarnings("unchecked")
-						Mergable<RCloneable<?>> elem
+						final Mergable<RCloneable<?>> elem
 						= (Mergable<RCloneable<?>>) e.getValue().get();
-					assert(elem != null);
+					cassert(elem != null, "ImmutableContainer contains null in local cache!");
 					SafeInteger key = e.getKey();
-					assert(master != null);
+					cassert(master != null, "no master cache!");
 					RCloneable<?> merged =
 						elem.merge(ImmutableContainer.readOnlyIfExists
 								   (master.get(key)));
@@ -131,17 +133,17 @@ public class SimpleCausal
 			@SuppressWarnings("unchecked")
 			ImmutableContainer<T> t = (ImmutableContainer<T>) local.get(name);
 			b = t;
-			assert(b != null);
+			cassert(b != null,"Null found upon get for valid name!");
 			a = name;
 		}
 		
-		public SimpleRemoteObject(SafeInteger name, T t){
+		public SimpleRemoteObject(SafeInteger name, final T t){
 			try{
 				lock.readLock().lock();
-				assert(t != null);
+				cassert(t != null, "SimpleRemote constructed with null object!");
 				this.a = name;
 				this.b = new ImmutableContainer<>(t);
-				assert(b != null);
+				cassert(b != null, "constructors don't work!");
 				local.put(name,b);
 			}
 			finally{
@@ -162,7 +164,7 @@ public class SimpleCausal
 		public void put(T t){
 			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
-			assert(b != null);
+			cassert(b != null,"SimpleObject contains null!");
 			b = new ImmutableContainer<>(t);
 			try{
 				lock.readLock().lock();
@@ -175,13 +177,10 @@ public class SimpleCausal
 
 		@Override
 		public T get(){
-			boolean any = false;
 			for (Function<SafeInteger, Void> f : onRead){
-				any = true;
 				f.apply(a);
 			}
-			assert(b.get() != null);
-			assert(any);
+			cassert(b.get() != null, "we point to null!");
 			return b.get();
 		}
 		
@@ -191,9 +190,9 @@ public class SimpleCausal
 	private java.util.List<Function<SafeInteger, Void>> onWrite = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void registerOnRead(Function<SafeInteger, Void> f){
+	public void registerOnRead(final Function<SafeInteger, Void> f){
 		onRead.add(f);
-		assert(onRead.contains(f));
+		cassert(onRead.contains(f),"adding didn't work!");
 	}
 
 	@Override
