@@ -3,6 +3,7 @@ import consistency.*;
 import util.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 #define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 #define CausalStoreParams Causal, CausalObj, CausalType, CReplicaID, CausalP
@@ -23,10 +24,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	#include "Tombstone.h"
 	#include "Ends.h"
 
-	private Object to_return = null;
-
 	//cross-store tracking
-	private final Set<Pair<ReplicaID, Nonce>> readset = new TreeSet<>();
+	private final Set<Pair<ReplicaID, Nonce>> readset = new ConcurrentSkipListSet<>();
 	private final Ends ends = new Ends();
 
 	//where to find metadata
@@ -126,26 +125,45 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	}
 	
 	private boolean contains_tombstone(Nonce n){
-		return this_store.objectExists(tombstone_name(n));
+		synchronized(this_store){
+			return this_store.objectExists(tombstone_name(n));
+		}
 	}
 
 	//Necessary overhead to make the above work - mostly filling in abstract methods with the obvious stuff.
+
+
+	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg, T init) throws util.MyriaException {
+		CausalType metaname = cnm.concat(meta_name,arg);
+		synchronized(this_store){
+			this_store.newObject(generate_casual_meta(), metaname, this_store);
+			return new CrossObject<T>(this_store.newObject(arg,init));
+		}
+	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws util.MyriaException{
-		//TODO - will assume metameta exists on get, so need to create it here!
-		return new CrossObject<T>(this_store.newObject(arg,init));
+		assert(init instanceof CausalSafe<?>);
+		return newObject_impl(arg, (CausalSafe) init);
 	}
 
+	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg) throws util.MyriaException {
+		CausalType metaname = cnm.concat(meta_name,arg);
+		synchronized(this_store){
+			this_store.newObject(generate_casual_meta(), metaname, this_store);
+			return new CrossObject<T>(this_store.newObject(arg));
+		}
+	}
+	
 	@Override
 	protected <T extends Serializable> CrossObject newObject(CausalType arg) throws util.MyriaException{
-		//TODO - will assume metameta exists on get, so need to create it here!
-		return new CrossObject<T>(this_store.newObject(arg));
+		return newObject_impl(arg);
 	}
 
 	
 
-	public class CrossObject<T extends Serializable>
+	public class CrossObject<T extends CausalSafe<T> >
 		implements RemoteObject<T, CausalType>{
 
 		final RemoteObject<T, CausalType> real;
@@ -166,43 +184,33 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		@Override
 		public CausalType name(){
 			return real.name();
-		}
-
-		
-		private Ends generate_casual_meta () {
-			Ends tstamp = new Ends();
-			for (Pair<ReplicaID, Nonce> rsp : readset){
-				Timestamp t = ends.get(rsp.first);
-				assert(t != null);
-				tstamp.put(rsp.first,t);
-			}
-			return tstamp;
-		}
+		}		
 		
 		@Override
 		public void put(final T t){
-			final CausalType ct = real.name();
-			ends.put(natural_replica, timer.currentTime());
-			CausalType metaname = cnm.concat(meta_name,ct);
-			this_store.newObject(generate_casual_meta(), metaname, this_store);
-			real.put(t);
+			synchronized(this_store){
+				final CausalType ct = real.name();
+				ends.put(natural_replica, timer.currentTime());
+				CausalType metaname = cnm.concat(meta_name,ct);
+				this_store.newObject(generate_casual_meta(), metaname, this_store);
+				real.put(t);
+			}
 		}
 
-		@SuppressWarnings("unchecked")
-		private <T> T
-			helper(Mergable<T> mp, final CausalType name) {
-			@SuppressWarnings("unchecked")
-				T m = (T) mp;
+		private <T extends Mergable<T> > T helper(T m, final CausalType name) {
 			boolean once = false;
+			assert(m != null);
 			for (final Pair<ReplicaID, Nonce> rsp : readset){
 				try{
 					if (!replica_map.access_replica(rsp.first).objectExists(name))
 						continue;
-					T r = (T)
-						replica_map.access_replica(rsp.first)
-						.existingObject(name).get();
-					if (m == null) m = r;
-					else m = (T) mp.merge(r);
+					
+					@SuppressWarnings("unchecked")
+					Class<? extends T> cls = (Class<? extends T>) m.getClass();
+					T r = cls.
+						cast(replica_map.access_replica(rsp.first)
+							 .existingObject(name).get());
+					m = m.merge(r);
 					once = true;
 				}
 				catch(MyriaException e){
@@ -210,41 +218,53 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				}
 			}
 			if (!once){
-				cassert(this_store.objectExists(name),cnm.toString(name) + " is not contained in the local replica!");
+				synchronized(this_store){
+					cassert(this_store.objectExists(name),cnm.toString(name) + " is not contained in the local replica!");
+				}
 				cassert(replica_map.access_replica(natural_replica).objectExists(name),cnm.toString(name) +
 						" is not contained in the local replica when accessed via access_replica!");
 			}
 			{
-				final boolean oncet = once;
-				cassert(oncet,"There are no elements in readset which contain " + cnm.toString(name) + "!");
 				final T mt = m;
 				cassert(mt != null,"result of merge is null!");
 			}
 			return m;
 		}
 				
-		public void doGet(CausalType ct){
-			Mergable<?> m = null;
-			to_return = helper(m, ct);
-			Ends e = null;
-			ends.fast_forward(helper(e,cnm.concat(meta_name,ct)));
+		T doGet(CausalType ct){
+			T m = real.get();
+			T to_return = helper(m, ct);
+			ends.fast_forward(helper(ends,cnm.concat(meta_name,ct)));
+			return to_return;
 		}
 		
 		@Override
 		@SuppressWarnings("unchecked")
 		public T get(){
-			doGet(real.name());
-			assert(to_return != null);
-			return (T) to_return;
+			return doGet(real.name());
 		}
 		
 	}
 
+	private Ends generate_casual_meta () {
+		Ends tstamp = new Ends();
+		for (Pair<ReplicaID, Nonce> rsp : readset){
+			final Timestamp t = ends.get(rsp.first);
+			if (t != null) tstamp.put(rsp.first,t);
+		}
+		final Timestamp t = ends.get(natural_replica);
+		if (t != null) tstamp.put(natural_replica,t);
+		return tstamp;
+	}
+
+	
 	//Dummies and passthroughs
 
 	@Override
 	protected boolean exists(CausalType ct){
-		return this_store.objectExists(ct);
+		synchronized(this_store){
+			return this_store.objectExists(ct);
+		}
 	}
 
 	@Override
@@ -253,16 +273,24 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	@Override
 	public void registerOnRead(Function<CausalType, Void> f){
 		//TODO - maybe black-hole? unimplemented?
-		this_store.registerOnRead(f);
+		synchronized(this_store){
+			this_store.registerOnRead(f);
+		}
 	}
 
 	@Override
 	public void registerOnWrite(Function<CausalType, Void> f){
-		this_store.registerOnWrite(f);
+		synchronized(this_store){
+			this_store.registerOnWrite(f);
+		}
 	}
 
 	@Override
-	public CausalType genArg(){return this_store.genArg();}
+	public CausalType genArg(){
+		synchronized(this_store){
+			return this_store.genArg();
+		}
+	}
 
 	
 		

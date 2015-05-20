@@ -7,8 +7,7 @@ private class Ends extends HashMap<CReplicaID, Timestamp>
 {
 	
 	public Ends(){
-		//TODO: initialize correctly based on local store
-		throw new UnsupportedOperationException("TODO task remains");
+		//TODO: I think empty is correct here, but I'm not sure.
 	}
 	
 	public boolean prec(Ends e){
