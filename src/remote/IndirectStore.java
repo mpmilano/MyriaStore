@@ -9,7 +9,6 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	private Store<Model, ?, S, R, ?> real;
 	
 	public IndirectStore(Store<Model, ?, S, R, ?> real) {
-		System.out.println("indirection!");
 		this.real = real;
 	}
 

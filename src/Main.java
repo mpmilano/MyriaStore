@@ -120,12 +120,10 @@ class TestCrossStore {
 				assert((cross.newObject(new SimpleCounter(),
 										SafeInteger.ofString(NonceGenerator.get()),
 										cross)).ro.get() != null);
-				System.out.println("test object created!");
 				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h =
 					cross.newObject(new SimpleCounter(),
 									SafeInteger.ofString(NonceGenerator.get()),
 									cross);
-				System.out.println("we have finished constructing a simple counter!");
 				incrfact.build(h).execute();
 				cross.tick();
 			}
