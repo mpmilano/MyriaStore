@@ -4,11 +4,14 @@ import operations.*;
 import java.util.*;
 import util.*;
 import transactions.*;
+import consistency.*;
 
 public class Main{
 	public static void main(String[] args) throws Exception{
+		Lin lin = new Lin(){};
+		Causal cause = new Causal(){};
 		FSStore fs = FSStore.inst;
-		System.out.println((new GetOp<>(fs.newObject("foofoo","/tmp/foo"))).execute());
+		System.out.println((new GetOp<>(fs.newObject("foofoo","/tmp/foo",fs))).execute());
 		for (String s : (new ListOp<>((fs.new DirFact<String>()).newObject("/")).execute())){
 			System.out.println(s);
 		}
@@ -17,7 +20,7 @@ public class Main{
 		al.add("TESTING TESTING");
 		al.add("TESTING TESTING");
 		
-		for (String s : (new ListOp<>(fs.newObject(al, "/tmp/testing")).execute())){
+		for (String s : (new ListOp<>(fs.newObject(al, "/tmp/testing",fs)).execute())){
 			System.out.println(s);
 		}
 
@@ -29,7 +32,7 @@ public class Main{
 		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
 
-		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo"))).execute();
+		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo",fs))).execute();
 		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/fooey/"))).execute();
 		
 		Handle h = null;
@@ -39,11 +42,10 @@ public class Main{
 		Gets g = null;
 
 		logstore.LogStore ls;
-		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>())))
+		(new blog.Blog<>(fs.newObject(new ArrayList<blog.BlogEntry>(), fs)))
 			.postNewEntry(fs,"This is an entry!")
 			.addComment(fs.ifact(), 3, "A COMMENT!");
-
-		vectorclockgc.Client c;
-		
 	}
+
+	CrossStore cs;
 }

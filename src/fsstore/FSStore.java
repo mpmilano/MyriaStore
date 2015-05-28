@@ -6,11 +6,13 @@ import remote.*;
 import util.*;
 import operations.*;
 import java.nio.file.*;
+import java.net.*;
 
-public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FSStore>
+public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,InetAddress, FSStore>
 	implements operations.List<FSStore.FSDir>,
 			   operations.ForEach<consistency.Lin, FSStore.FSDir<?>, FSStore>,
-			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>
+			   operations.Insert<FSStore.FSDir<?>, FSStore.FSObject<?>>,
+			   util.NameManager<String>
 {
 
 	//String manipulations!
@@ -76,6 +78,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	@Override
 	protected <T extends Serializable> FSObject<T> newObject(String name, T initialValue) throws IOException{
 		return new FSObject<T>(name, initialValue);
+	}
+
+	@Override
+	protected <T extends Serializable> FSObject<T> newObject(String name) throws IOException{
+		return new FSObject<T>(name, null);
 	}
 
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
@@ -150,7 +157,6 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 			for (util.Function<String,Void> f : onWrite){
 				f.apply(o.location.getCanonicalPath());
 			}
-
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
@@ -202,5 +208,15 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String, FS
 	@Override
 	public InsertFactory<?,?,?> ifact(){
 		return new InsertFactory<>(this);
-	}	
+	}
+
+	@Override
+	public InetAddress this_replica(){
+		try {
+			return InetAddress.getLocalHost();
+		}
+		catch (UnknownHostException e){
+			throw new RuntimeException(e);
+		}
+	}
 }

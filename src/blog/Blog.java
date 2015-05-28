@@ -17,7 +17,7 @@ class Comment implements Serializable {
 	public final String comment;
 }
 
-public class Blog<S extends Store<Lin,?,?,?> & Insert<?,?>>{
+public class Blog<S extends Store<Lin,?,?,?,SP> & Insert<?,?>, SP>{
 
 	public Handle<ArrayList<BlogEntry>, Lin, ReadWrite, ? , ?> entries;
 
