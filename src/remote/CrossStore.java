@@ -112,7 +112,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 				
 				@Override
 				public void run(){
-					Object found = null;
 					final List<Pair<ReplicaID, Nonce>> readset_new = new LinkedList<>();
 					for (Pair<ReplicaID, Nonce> rsp : readset){
 						if (!contains_tombstone(rsp.second))
@@ -282,6 +281,20 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	public void registerOnWrite(Function<CausalType, Void> f){
 		synchronized(this_store){
 			this_store.registerOnWrite(f);
+		}
+	}
+
+	@Override
+	public void registerOnTick(Runnable r){
+		synchronized(this_store){
+			this_store.registerOnTick(r);
+		}
+	}
+
+	@Override
+	public void tick(){
+		synchronized(this_store){
+			this_store.tick();
 		}
 	}
 

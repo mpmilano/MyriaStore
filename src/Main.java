@@ -127,6 +127,7 @@ class TestCrossStore {
 									cross);
 				System.out.println("we have finished constructing a simple counter!");
 				incrfact.build(h).execute();
+				cross.tick();
 			}
 		};
 	

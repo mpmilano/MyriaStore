@@ -49,5 +49,15 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	public void registerOnRead(Function<S,Void> r){
 		real.registerOnRead(r);
 	}
+
+	@Override
+	public void registerOnTick(Runnable r){
+		real.registerOnTick(r);
+	}
+
+	@Override
+	public void tick(){
+		real.tick();
+	}
 	
 }

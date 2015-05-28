@@ -25,9 +25,10 @@ private class Ends extends HashMap<CReplicaID, Timestamp>
 	}
 	
 	public Ends fast_forward(Ends future){
-		for (CReplicaID cr : future.keySet()){
-			put(cr,Timestamp.update(get(cr), future.get(cr)));
-		}
+		if (future != null)
+			for (CReplicaID cr : future.keySet()){
+				put(cr,Timestamp.update(get(cr), future.get(cr)));
+			}
 		return this;
 	}
 	

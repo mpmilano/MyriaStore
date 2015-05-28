@@ -95,7 +95,10 @@ public abstract class Store<Cons extends consistency.Top,
 	public abstract void registerOnRead(util.Function<SType,Void> r);
 
 	private Random rand = new Random();
+	private List<Runnable> rl = new LinkedList<>();
 	public void registerOnTick(Runnable r){
+		rl.add(r);
+		/*
 		final Runnable rp = r;
 		(new Thread(){
 				@Override
@@ -111,6 +114,11 @@ public abstract class Store<Cons extends consistency.Top,
 					rp.run();
 				}
 			}).start();
+		*/
+	}
+
+	public void tick(){
+		for (Runnable r : rl) r.run();
 	}
 
 	public /*ops-only*/ void beginTransaction(){
