@@ -1,3 +1,5 @@
+#define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
+
 import remote.*;
 import fsstore.*;
 import logstore.*;
@@ -112,39 +114,67 @@ class TestCrossStore {
 		}
 	}
 
+	SafeInteger name = SafeInteger.ofString(NonceGenerator.get());
+	IndirectStore<Causal, SafeInteger, Void> cross
+		= new IndirectStore<>
+		(new CrossStore<>
+		 (new SimpleCausal(), (new SimpleNameManager()),
+		  FSStore.inst, FSStore.inst));
+	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, Void>> hmaster =
+		cross.newObject(new SimpleCounter(),
+						name,
+						cross);
+
+
+	
 	Runnable r = new Runnable(){
 			SimpleNameManager snm = new SimpleNameManager();
 			IncrementFactory incrfact = new IncrementFactory();
 			
 			@Override
 			public void run(){
-				IndirectStore<Causal, SafeInteger, Void> cross
+				final IndirectStore<Causal, SafeInteger, Void> cross
 					= new IndirectStore<>
 					(new CrossStore<>
 					 (new SimpleCausal(), snm,
 					  FSStore.inst, FSStore.inst));
 
+				cross.tick();
+				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
+				cassert(cross.objectExists((SafeInteger)hmaster.ro.name()),"failure: cross tick did not receive master object by name.");
+				try{
+					synchronized(hmaster){
+						h = hmaster.getCopy(cross);
+					}
+				}
+				catch(MyriaException e){
+					h = null;
+					System.err.println("failure: cross tick did not receive master object by name.");
+					throw new RuntimeException(e);
+				}
+
 				assert((cross.newObject(new SimpleCounter(),
 										SafeInteger.ofString(NonceGenerator.get()),
 										cross)).ro.get() != null);
-				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h =
-					cross.newObject(new SimpleCounter(),
-									SafeInteger.ofString(NonceGenerator.get()),
-									cross);
+				
 				incrfact.build(h).execute();
 				cross.tick();
 				incrfact.build(h).execute();
 				(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute();
+				cross.tick();
 			}
 		};
 	
 	public TestCrossStore(){
+		cross.tick();
+		new Thread(r).start();
 		new Thread(r).start();/*
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();
-		new Thread(r).start();
 		new Thread(r).start(); //*/
+		cross.tick();
+		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
 	}
 }

@@ -23,6 +23,12 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 	}
 
 	@SuppressWarnings("unchecked")
+	public Handle<T,Cons,Access,OriginalCons,Store> getCopy(Store s) throws util.MyriaException {
+		remote.Store s2 = (remote.Store) s;
+		return new Handle<T,Cons,Access,OriginalCons,Store>((RemoteObject<T,?>)s2.existingObject(ro.name()));
+	}
+
+	@SuppressWarnings("unchecked")
 	public static <NewT extends Serializable, T extends NewT,
 					  Cons extends consistency.Top,
 								   Access extends access.Unknown,

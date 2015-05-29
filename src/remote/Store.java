@@ -24,7 +24,7 @@ public abstract class Store<Cons extends consistency.Top,
 
 	protected abstract boolean exists(SType arg);
 	
-	boolean objectExists(final SType arg) {
+	public boolean objectExists(final SType arg) {
 		cassert(arg != null, "attempt to query existing object with null name");
 		return exists(arg);
 	}
