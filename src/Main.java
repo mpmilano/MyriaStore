@@ -105,6 +105,11 @@ class TestCrossStore {
 			}
 			return sc;
 		}
+
+		@Override
+		public String toString(){
+			return get() + "";
+		}
 	}
 
 	Runnable r = new Runnable(){
