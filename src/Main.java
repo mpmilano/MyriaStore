@@ -7,6 +7,7 @@ import java.util.*;
 import util.*;
 import transactions.*;
 import consistency.*;
+import java.io.*;
 
 // -6 
 
@@ -32,12 +33,13 @@ public class Main{
 			System.out.println(s);
 		}
 
-		PrintFactory<String, consistency.Lin, Handle<String, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>> pf =
+		PrintFactory<consistency.Lin> pf =
 			new PrintFactory<>();
 
 
 		System.out.println("using ForEach");
-		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
+		OperationFactory<Void,consistency.Lin,Handle<?,consistency.Lin,access.Read,?,?> > pf1 = pf;
+		(new ForEachOp<>(pf1, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
 
 		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo",fs))).execute();
@@ -126,6 +128,8 @@ class TestCrossStore {
 									cross);
 				incrfact.build(h).execute();
 				cross.tick();
+				incrfact.build(h).execute();
+				(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute();
 			}
 		};
 	

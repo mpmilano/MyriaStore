@@ -57,5 +57,13 @@ public final class Handle<T extends Serializable, Cons extends consistency.Top, 
 		return (Handle<T, Cons, NewAccess, OriginalCons, Store>) ((Handle) h);
 	}
 
+	public static <T extends Serializable,
+							 OldAccess extends access.Read,
+					  Cons extends consistency.Top,
+								   OriginalCons extends consistency.Top, Store>
+		Handle<T, Cons, access.Read, OriginalCons, Store> readOnly(Handle<T,Cons,OldAccess,OriginalCons, Store> h){
+		return restrict(h);
+	}
+
 
 }

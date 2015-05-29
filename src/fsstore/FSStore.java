@@ -205,7 +205,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	@Override
 	//TODO: oponly
 	public <Out, T extends Serializable, A extends access.Unknown>
-		void foreach(OperationFactory<Out,T, consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin, FSStore> > of, FSDir<?> fs){
+		void foreach(OperationFactory<Out,consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin, FSStore> > of, FSDir<?> fs){
 		System.out.println("native ForEach attempt");
 		@SuppressWarnings("unchecked")
 			FSDir<T> realfs= (FSDir<T>) fs;

@@ -5,22 +5,21 @@ import consistency.*;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class ForEachOp<C extends consistency.Top, T extends Serializable, A extends access.Unknown, Sto extends ForEach<C,Obj, Sto>, Obj extends RemoteObject<? extends Collection<?>,? > > 
+public class ForEachOp<C extends consistency.Top, T extends Serializable, A extends access.Unknown> 
 	extends Operation<Void, C> {
 
-	private OperationFactory<?,T,C,Handle<T,C,A,C, Sto>> of;
-	private Handle<? extends Collection<?>,C,? extends access.Read, ?, Sto > h;
+	private OperationFactory<?,C,Handle<? extends T,C,A,?,?>> of;
+	private Handle<? extends Collection<?>,C,? extends access.Read, ?, ? > h;
 	
-	public ForEachOp(OperationFactory<?,T,C,Handle<T,C,A,C, Sto>> of, Handle<? extends Collection<?>,C,? extends access.Read, ?, Sto > h){
+	public ForEachOp(OperationFactory<?,C,Handle<? extends T,C,A,?,?>> of, Handle<? extends Collection<?>,C,? extends access.Read, ?, ? > h) {
 		this.of = of;
 		this.h = h;
 	}
-
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 		public Void execute(){
 		try {
-			((Sto) h.ro.getStore()).foreach(of, (Obj) h.ro);
+			((ForEach) h.ro.getStore()).foreach(of, h.ro);
 			return null;
 		}
 		catch (ClassCastException e){
