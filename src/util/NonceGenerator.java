@@ -8,8 +8,12 @@ public class NonceGenerator{
 	private static NonceGenerator inst = new NonceGenerator();
 	private NonceGenerator(){}
 
+
+	private static int i = 0;
+	
 	public static synchronized String get(){
-		return inst.sid.nextSessionId();
+		//return inst.sid.nextSessionId();
+		return i++ + "";
 	}
 	
 	private final class SessionIdentifierGenerator {

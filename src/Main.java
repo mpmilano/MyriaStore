@@ -69,6 +69,8 @@ public class Main{
 
 class TestCrossStore {
 
+	private static Object synchlock = "";
+	
 	private class SimpleCounter implements CausalSafe<SimpleCounter>,
 										   Incrementable
 	{
@@ -77,6 +79,12 @@ class TestCrossStore {
 		@Override
 		public void incr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),true));
+			synchronized(synchlock){
+				System.out.println("incr: " + Thread.currentThread().getName());
+				for (TwoTuple<String,Boolean> tt : i){
+					System.out.println("  " + tt.a + ": " + tt.b);
+				}
+			}
 		}
 
 		@Override
@@ -94,6 +102,7 @@ class TestCrossStore {
 
 		@Override
 		public SimpleCounter merge(SimpleCounter c){
+			//System.out.println("merge");
 			if (c != null) i.addAll(c.i);
 			return this;
 		}
@@ -101,26 +110,28 @@ class TestCrossStore {
 		@Override
 		public SimpleCounter rclone(){
 			SimpleCounter sc = new SimpleCounter();
-			for (TwoTuple<String, Boolean> i : this.i){
-				if (i.b) sc.incr();
-				else sc.decr();
-			}
+			sc.i.addAll(i);
 			return sc;
 		}
 
 		@Override
 		public String toString(){
-			return get() + "";
+			String ret =  get() + "";
+			for (TwoTuple<String,Boolean> tt : i){
+				ret += ("  " + tt.a + ": " + tt.b);
+			}
+			return ret;
 		}
 	}
 
 	SafeInteger name = SafeInteger.ofString(NonceGenerator.get());
-	IndirectStore<Causal, SafeInteger, Void> cross
+	IndirectStore<Causal, SafeInteger, SafeInteger> cross
 		= new IndirectStore<>
-		(new CrossStore<>
+		(new SimpleCausal());
+		/*(new CrossStore<>
 		 (new SimpleCausal(), (new SimpleNameManager()),
-		  FSStore.inst, FSStore.inst));
-	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, Void>> hmaster =
+		 FSStore.inst, FSStore.inst));*/
+	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> hmaster =
 		cross.newObject(new SimpleCounter(),
 						name,
 						cross);
@@ -133,12 +144,12 @@ class TestCrossStore {
 			
 			@Override
 			public void run(){
-				final IndirectStore<Causal, SafeInteger, Void> cross
+				final IndirectStore<Causal, SafeInteger, SafeInteger> cross
 					= new IndirectStore<>
-					(new CrossStore<>
+					(new SimpleCausal());
+					/*(new CrossStore<>
 					 (new SimpleCausal(), snm,
-					  FSStore.inst, FSStore.inst));
-
+					 FSStore.inst, FSStore.inst));*/
 				cross.tick();
 				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
 				cassert(cross.objectExists((SafeInteger)hmaster.ro.name()),"failure: cross tick did not receive master object by name.");
@@ -158,7 +169,6 @@ class TestCrossStore {
 										cross)).ro.get() != null);
 				
 				incrfact.build(h).execute();
-				cross.tick();
 				incrfact.build(h).execute();
 				(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute();
 				cross.tick();
@@ -166,15 +176,24 @@ class TestCrossStore {
 		};
 	
 	public TestCrossStore(){
-		cross.tick();
-		new Thread(r).start();
-		new Thread(r).start();/*
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start(); //*/
-		cross.tick();
-		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
+		try{
+			cross.tick();
+			Thread t1 = new Thread(r);
+			t1.start();
+			Thread t2 = new Thread(r);
+			new Thread(r).start();/*
+									new Thread(r).start();
+									new Thread(r).start();
+									new Thread(r).start();
+									new Thread(r).start(); //*/
+			t1.join();
+			t2.join();
+			System.out.println("threads done");
+			cross.tick();
+			(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
+		}
+		catch (Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 }
