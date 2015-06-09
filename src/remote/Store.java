@@ -3,6 +3,7 @@ package remote;
 import java.io.Serializable;
 import java.util.*;
 import consistency.*;
+import util.*;
 
 #define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 
@@ -16,12 +17,18 @@ public abstract class Store<Cons extends consistency.Top,
 		newObject(SType arg, T init) throws util.MyriaException;
 
 	//for referencing existing objects by name.  Only for use within framework.
-	synchronized RObj existingObject(final SType arg) throws util.MyriaException {
-		cassert(arg != null, "attempt to reference existing object with null name");
-		cassert(exists(arg),"attempt to build non-existing object! please check if exists first.");
-		return newObject(arg);
-	}
+	synchronized <T extends Serializable,
+							RObjT extends HasGenericForm<RObj> & ParameterizedOn<T> >
+		RObjT existingObject(final SType arg) throws util.MyriaException {
+			cassert(arg != null, "attempt to reference existing object with null name");
+			cassert(exists(arg),"attempt to build non-existing object! please check if exists first.");
 
+			//TODO: propogate this pattern everywhere
+			@SuppressWarnings("unchecked")
+			RObjT specific = (RObjT) newObject(arg);
+			return specific;
+		}
+	
 	protected abstract boolean exists(SType arg);
 	
 
@@ -30,8 +37,8 @@ public abstract class Store<Cons extends consistency.Top,
 		return exists(arg);
 	}
 	
-	protected abstract <T extends Serializable> RObj
-		newObject(SType arg) throws util.MyriaException;
+	protected abstract <T extends Serializable>
+		RObj newObject(SType arg) throws util.MyriaException;
 	
 	protected abstract SType genArg();
 

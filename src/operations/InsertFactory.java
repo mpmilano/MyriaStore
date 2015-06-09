@@ -5,6 +5,8 @@ import util.*;
 import java.util.Collection;
 import java.io.Serializable;
 
+//TODO - too much genericity; just drop the store-tracking entirely please.
+
 public class InsertFactory<Obj extends RemoteObject<?,?>,
 									   Set extends RemoteObject<? extends Collection<?>, ? >,
 												   Sto extends Insert<Set,Obj> > {
