@@ -95,6 +95,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					catch (Exception e) {throw new RuntimeException(e);}
 					@SuppressWarnings("unchecked")
 					MetaData meta = (MetaData) rmeta.get();
+					assert(meta != null);
 					if (!MD_ends(meta).prec(ends)) {
 						ends.fast_forward(MD_ends(meta));
 						if (!contains_tombstone(MD_n(meta))){
@@ -133,11 +134,12 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	//Necessary overhead to make the above work - mostly filling in abstract methods with the obvious stuff.
 
 
+	@SuppressWarnings("unchecked")
 	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg, T init) throws util.MyriaException {
 		CausalType metaname = cnm.concat(meta_name,arg);
 		synchronized(this_store){
 			this_store.newObject(generate_casual_meta(), metaname, this_store);
-			return new CrossObject<T>(this_store.newObject(arg,init));
+			return new CrossObject<T>((CausalObj)this_store.newObject(init,arg,this_store).ro);
 		}
 	}
 	
@@ -152,7 +154,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		CausalType metaname = cnm.concat(meta_name,arg);
 		synchronized(this_store){
 			this_store.newObject(generate_casual_meta(), metaname, this_store);
-			return new CrossObject<T>(this_store.newObject(arg));
+			return new CrossObject<T>(this_store.existingObject(arg));
 		}
 	}
 	

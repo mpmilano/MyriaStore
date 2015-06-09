@@ -114,7 +114,6 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
 		private FSObject<T>[] files;
-		@SuppressWarnings("unchecked")
 		private FSDir(String location) throws MyriaIOException {
 			super(location,null);
 			this.location.mkdirs();

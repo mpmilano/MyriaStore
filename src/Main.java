@@ -131,7 +131,7 @@ class TestCrossStore {
 		};
 	
 	public TestCrossStore(){
-		new Thread(r).start();/*
+		new Thread(r).run();/*
 		new Thread(r).start();
 		new Thread(r).start();
 		new Thread(r).start();

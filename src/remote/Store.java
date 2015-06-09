@@ -16,7 +16,7 @@ public abstract class Store<Cons extends consistency.Top,
 		newObject(SType arg, T init) throws util.MyriaException;
 
 	//for referencing existing objects by name.  Only for use within framework.
-	RObj existingObject(final SType arg) throws util.MyriaException {
+	synchronized RObj existingObject(final SType arg) throws util.MyriaException {
 		cassert(arg != null, "attempt to reference existing object with null name");
 		cassert(exists(arg),"attempt to build non-existing object! please check if exists first.");
 		return newObject(arg);
@@ -24,7 +24,7 @@ public abstract class Store<Cons extends consistency.Top,
 
 	protected abstract boolean exists(SType arg);
 	
-	boolean objectExists(final SType arg) {
+	synchronized boolean objectExists(final SType arg) {
 		cassert(arg != null, "attempt to query existing object with null name");
 		return exists(arg);
 	}
@@ -34,7 +34,7 @@ public abstract class Store<Cons extends consistency.Top,
 	
 	protected abstract SType genArg();
 
-	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	synchronized public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, final SType arg, Store<consistency.Lin,?,?,?,Store_p> s){
 		assert(s == this);
 		cassert(init != null, "attempt to construct lin object with null initial value");
@@ -49,7 +49,7 @@ public abstract class Store<Cons extends consistency.Top,
 		}
 	}
 
-	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	synchronized public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, final SType arg, Store<consistency.Causal,?,?,?,Store_p> s){
 		assert(s == this);
 		cassert(init != null, "attempt to construct causal object with null initial value");
@@ -64,13 +64,13 @@ public abstract class Store<Cons extends consistency.Top,
 		}
 	}	
 
-	public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	synchronized public <T extends Serializable> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, Store<consistency.Lin,?,?,?,Store_p> s){
 		cassert(init != null, "attempt to initialize lin object with null!");
 		return newObject(init,genArg(),s);
 	}
 
-	public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
+	synchronized public <T extends CausalSafe<T>> Handle<T, Cons, access.ReadWrite, Cons, Store_p>
 		newObject(final T init, Store<consistency.Causal,?,?,?,Store_p> s){
 		cassert(init != null, "attempt to initialize causal object with null!");
 		return newObject(init,genArg(),s);
@@ -95,7 +95,7 @@ public abstract class Store<Cons extends consistency.Top,
 	public abstract void registerOnRead(util.Function<SType,Void> r);
 
 	private Random rand = new Random();
-	public void registerOnTick(Runnable r){
+	synchronized public void registerOnTick(Runnable r){
 		final Runnable rp = r;
 		(new Thread(){
 				@Override
@@ -113,11 +113,11 @@ public abstract class Store<Cons extends consistency.Top,
 			}).start();
 	}
 
-	public /*ops-only*/ void beginTransaction(){
+	public 	synchronized /*ops-only*/ void beginTransaction(){
 		//TODO - make this do something.
 	}
 		
-	public /*ops-only*/ void endTransaction(){
+	public 	synchronized /*ops-only*/ void endTransaction(){
 		//TODO - make this do something.
 	}
 
