@@ -150,7 +150,6 @@ public class SimpleCausal
 				this.b = new ImmutableContainer<>(t);
 				cassert(b != null, "constructors don't work!");
 				local.put(name,b);
-				System.out.println("constructing "+ name.toString());
 			}
 			finally{
 				lock.readLock().unlock();

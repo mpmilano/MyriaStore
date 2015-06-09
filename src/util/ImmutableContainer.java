@@ -12,7 +12,8 @@ public final class ImmutableContainer<T extends RCloneable<T> > {
 	}
 
 	public T readOnlyIpromise(){
-		return t;
+		return get();
+		//return t;
 	}
 
 	public static <T extends RCloneable<T> > T readOnlyIfExists(ImmutableContainer<T> c){

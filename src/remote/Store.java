@@ -24,7 +24,8 @@ public abstract class Store<Cons extends consistency.Top,
 
 	protected abstract boolean exists(SType arg);
 	
-	synchronized boolean objectExists(final SType arg) {
+
+	public boolean objectExists(final SType arg) {
 		cassert(arg != null, "attempt to query existing object with null name");
 		return exists(arg);
 	}
@@ -95,7 +96,10 @@ public abstract class Store<Cons extends consistency.Top,
 	public abstract void registerOnRead(util.Function<SType,Void> r);
 
 	private Random rand = new Random();
-	synchronized public void registerOnTick(Runnable r){
+	private List<Runnable> rl = new LinkedList<>();
+	public void registerOnTick(Runnable r){
+		rl.add(r);
+		/*
 		final Runnable rp = r;
 		(new Thread(){
 				@Override
@@ -111,6 +115,11 @@ public abstract class Store<Cons extends consistency.Top,
 					rp.run();
 				}
 			}).start();
+		*/
+	}
+
+	public void tick(){
+		for (Runnable r : rl) r.run();
 	}
 
 	public 	synchronized /*ops-only*/ void beginTransaction(){

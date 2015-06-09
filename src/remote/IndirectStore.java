@@ -9,7 +9,6 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	private Store<Model, ?, S, R, ?> real;
 	
 	public IndirectStore(Store<Model, ?, S, R, ?> real) {
-		System.out.println("indirection!");
 		this.real = real;
 	}
 
@@ -48,6 +47,16 @@ public class IndirectStore<Model extends consistency.Top, S, R> extends Store<Mo
 	@Override
 	public void registerOnRead(Function<S,Void> r){
 		real.registerOnRead(r);
+	}
+
+	@Override
+	public void registerOnTick(Runnable r){
+		real.registerOnTick(r);
+	}
+
+	@Override
+	public void tick(){
+		real.tick();
 	}
 	
 }

@@ -1,3 +1,5 @@
+#define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
+
 import remote.*;
 import fsstore.*;
 import logstore.*;
@@ -7,6 +9,7 @@ import java.util.*;
 import util.*;
 import transactions.*;
 import consistency.*;
+import java.io.*;
 
 // -6 
 
@@ -32,12 +35,13 @@ public class Main{
 			System.out.println(s);
 		}
 
-		PrintFactory<String, consistency.Lin, Handle<String, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>> pf =
+		PrintFactory<consistency.Lin> pf =
 			new PrintFactory<>();
 
 
 		System.out.println("using ForEach");
-		(new ForEachOp<>(pf, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
+		OperationFactory<Void,consistency.Lin,Handle<?,consistency.Lin,access.Read,?,?> > pf1 = pf;
+		(new ForEachOp<>(pf1, (fs.new DirFact<String>()).newObject("/tmp/filesonly/"))).execute();
 		
 
 		((new InsertFactory<>(fs)).build((fs.new DirFact<String>()).newObject("/tmp/fooey"), fs.newObject("poopoo","/tmp/poopoo",fs))).execute();
@@ -65,6 +69,8 @@ public class Main{
 
 class TestCrossStore {
 
+	private static Object synchlock = "";
+	
 	private class SimpleCounter implements CausalSafe<SimpleCounter>,
 										   Incrementable
 	{
@@ -73,6 +79,12 @@ class TestCrossStore {
 		@Override
 		public void incr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),true));
+			synchronized(synchlock){
+				System.out.println("incr: " + Thread.currentThread().getName());
+				for (TwoTuple<String,Boolean> tt : i){
+					System.out.println("  " + tt.a + ": " + tt.b);
+				}
+			}
 		}
 
 		@Override
@@ -90,6 +102,7 @@ class TestCrossStore {
 
 		@Override
 		public SimpleCounter merge(SimpleCounter c){
+			//System.out.println("merge");
 			if (c != null) i.addAll(c.i);
 			return this;
 		}
@@ -97,46 +110,90 @@ class TestCrossStore {
 		@Override
 		public SimpleCounter rclone(){
 			SimpleCounter sc = new SimpleCounter();
-			for (TwoTuple<String, Boolean> i : this.i){
-				if (i.b) sc.incr();
-				else sc.decr();
-			}
+			sc.i.addAll(i);
 			return sc;
+		}
+
+		@Override
+		public String toString(){
+			String ret =  get() + "";
+			for (TwoTuple<String,Boolean> tt : i){
+				ret += ("  " + tt.a + ": " + tt.b);
+			}
+			return ret;
 		}
 	}
 
+	SafeInteger name = SafeInteger.ofString(NonceGenerator.get());
+	IndirectStore<Causal, SafeInteger, SafeInteger> cross
+		= new IndirectStore<>
+		(new SimpleCausal());
+		/*(new CrossStore<>
+		 (new SimpleCausal(), (new SimpleNameManager()),
+		 FSStore.inst, FSStore.inst));*/
+	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> hmaster =
+		cross.newObject(new SimpleCounter(),
+						name,
+						cross);
+
+
+	
 	Runnable r = new Runnable(){
 			SimpleNameManager snm = new SimpleNameManager();
 			IncrementFactory incrfact = new IncrementFactory();
 			
 			@Override
 			public void run(){
-				IndirectStore<Causal, SafeInteger, Void> cross
+				final IndirectStore<Causal, SafeInteger, SafeInteger> cross
 					= new IndirectStore<>
-					(new CrossStore<>
+					(new SimpleCausal());
+					/*(new CrossStore<>
 					 (new SimpleCausal(), snm,
-					  FSStore.inst, FSStore.inst));
+					 FSStore.inst, FSStore.inst));*/
+				cross.tick();
+				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
+				cassert(cross.objectExists((SafeInteger)hmaster.ro.name()),"failure: cross tick did not receive master object by name.");
+				try{
+					synchronized(hmaster){
+						h = hmaster.getCopy(cross);
+					}
+				}
+				catch(MyriaException e){
+					h = null;
+					System.err.println("failure: cross tick did not receive master object by name.");
+					throw new RuntimeException(e);
+				}
 
 				assert((cross.newObject(new SimpleCounter(),
 										SafeInteger.ofString(NonceGenerator.get()),
 										cross)).ro.get() != null);
-				System.out.println("test object created!");
-				Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h =
-					cross.newObject(new SimpleCounter(),
-									SafeInteger.ofString(NonceGenerator.get()),
-									cross);
-				System.out.println("we have finished constructing a simple counter!");
+				
 				incrfact.build(h).execute();
+				incrfact.build(h).execute();
+				(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute();
+				cross.tick();
 			}
 		};
 	
 	public TestCrossStore(){
-		new Thread(r).run();/*
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start();
-		new Thread(r).start(); //*/
+		try{
+			cross.tick();
+			Thread t1 = new Thread(r);
+			t1.start();
+			Thread t2 = new Thread(r);
+			new Thread(r).start();/*
+									new Thread(r).start();
+									new Thread(r).start();
+									new Thread(r).start();
+									new Thread(r).start(); //*/
+			t1.join();
+			t2.join();
+			System.out.println("threads done");
+			cross.tick();
+			(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
+		}
+		catch (Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 }
