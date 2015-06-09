@@ -106,7 +106,7 @@ public class SimpleCausal
 	}
 	
 	@Override
-	protected <T extends Serializable<
+	protected <T extends Serializable>
 		SimpleRemoteObject<?> newObject(SafeInteger i) {
 		return new SimpleRemoteObject(i);
 	}
