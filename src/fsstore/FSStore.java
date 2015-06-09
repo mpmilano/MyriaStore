@@ -50,7 +50,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		}
 	}
 
-	static class FSObject<T extends Serializable> implements RemoteObject<T, String> {
+	static class FSObject<T extends Serializable> extends RemoteObject<T, String> {
 		protected final File location;
 		protected final Class<?> storedclass;
 		private FSObject(String location, T initialValue) throws MyriaIOException {
@@ -112,15 +112,17 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		return new FSObject<T>(name, null);		
 	}
 
-	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>> {
-		private FSObject<T>[] files;
+	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>>
+		implements ParameterizedOn<T>, HasGenericForm<FSDir<?> >
+	{
+		private ArrayList<FSObject<T>> files;
 		private FSDir(String location) throws MyriaIOException {
 			super(location,null);
 			this.location.mkdirs();
 			if (! this.location.isDirectory()) throw new MyriaIOException(new IOException("must be a dir!"));
 			String[] fls = this.location.list();
-			files = new FSObject[fls.length];
-			for (int i = 0; i < files.length; ++i) files[i] = new FSObject<T>(location + "/" + fls[i],null);
+			files = new ArrayList<>(fls.length);
+			for (int i = 0; i < fls.length; ++i) files.set(i,new FSObject<T>(location + "/" + fls[i],null));
 			System.out.println("constructed!");
 		}
 
@@ -158,9 +160,8 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 			for (util.Function<String,Void> f : onRead){
 				f.apply(o.location.getCanonicalPath());
 			}
-			@SuppressWarnings("unchecked")
-				T t = (T) (new ObjectInputStream(new FileInputStream(o.location))).readObject();
-			return t;
+			return FileOps.readFromFS(o.location);
+			
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);
@@ -204,10 +205,10 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	@Override
 	//TODO: oponly
 	public <Out, T extends Serializable, A extends access.Unknown>
-		void foreach(OperationFactory<Out,consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin, FSStore> > of, FSDir<?> fs){
+		void foreach(OperationFactory<Out,consistency.Lin, Handle<T,consistency.Lin,A,consistency.Lin, FSStore> > of,
+					 FSDir<?> fs, RemoteObject<SerializableCollection<T>,? > fs2){
 		System.out.println("native ForEach attempt");
-		@SuppressWarnings("unchecked")
-			FSDir<T> realfs= (FSDir<T>) fs;
+		FSDir<T> realfs = RemoteObject.<T,FSDir<?>,FSDir<T> >reify(fs,fs2);
 		for (FSObject<T> f : realfs.files){
 			Handle<T, consistency.Lin, A, consistency.Lin, FSStore> h = (new FSObjFact<T,A>()).build(f);
 			System.out.println("loop...");

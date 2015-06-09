@@ -5,4 +5,4 @@ run:
 	@cd /tmp/outdir/src/; java -ea Main; cd -; 
 
 clean:
-	rm -rf /tmp/workdir; rm -rf /tmp/outdir
+	rm -rf /tmp/workdir/*; rm -rf /tmp/outdir/*

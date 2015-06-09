@@ -129,7 +129,7 @@ public class SimpleCausal
 		<T extends Serializable &
 				   Mergable<T> &
 				   RCloneable<T>> 
-		implements RemoteObject<T, SafeInteger>{
+		extends RemoteObject<T, SafeInteger>{
 
 		public SafeInteger a;
 		public ImmutableContainer<T> b;

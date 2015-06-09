@@ -19,7 +19,7 @@ public class ForEachOp<C extends consistency.Top, T extends Serializable, A exte
 	@SuppressWarnings("unchecked")
 		public Void execute(){
 		try {
-			((ForEach) h.ro.getStore()).foreach(of, h.ro);
+			((ForEach) h.ro.getStore()).foreach(of, h.ro, h.ro);
 			return null;
 		}
 		catch (ClassCastException e){
