@@ -38,16 +38,17 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 		static Map<String, Object> cache = new HashMap<>();
 		
 		private T t;
+		private final Class<T> cls;
 		private String name;
 
 		@Override
 		public String name(){return name;}
 
-		private LogObject(String name, T t) throws MyriaIOException
+		private LogObject(String name, Class<T> cls, T t) throws MyriaIOException
 		{
+			this.cls = cls;
 			if (t == null){
-				@SuppressWarnings("unchecked")
-				T t_ = (T) cache.get(name);
+				T t_ = cls.cast(cache.get(name));
 				t = t_;
 				if (t == null) throw new MyriaIOException(new IOException("Can't find this name!"));
 			}
@@ -96,12 +97,14 @@ public class LogStore extends Store<Causal, LogStore.LogObject<?>, String, LogSt
 
 	@Override
 	protected <T extends Serializable> LogObject<?> newObject(String uuid, T initial) throws MyriaIOException{
-		return new LogObject<>(uuid,new MakeMerge<>(initial));
+		MakeMerge<T> mm = new MakeMerge<>(initial);
+		return new LogObject<>(uuid,TypeUtils.getClass(mm),mm);
 	}
 
 	@Override
 	protected <T extends Serializable> LogObject<?> newObject(String uuid) throws MyriaIOException{
-		return new LogObject<>(uuid,new MakeMerge<T>(null));
+		MakeMerge<T> mm = new MakeMerge<>(null);
+		return new LogObject<>(uuid,TypeUtils.getClass(mm),mm);
 	}
 
 	@Override
