@@ -94,8 +94,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					try {rmeta = l.existingObject(meta_name);}
 					catch (Exception e) {throw new RuntimeException(e);}
 					@SuppressWarnings("unchecked")
-					MetaData meta = (MetaData) rmeta.get();
-					assert(meta != null);
+					final MetaData meta = (MetaData) rmeta.get();
+					cassert(meta != null,"meta is null!");
 					if (!MD_ends(meta).prec(ends)) {
 						ends.fast_forward(MD_ends(meta));
 						if (!contains_tombstone(MD_n(meta))){

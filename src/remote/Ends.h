@@ -24,8 +24,8 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 		return true;
 	}
 	
-	public synchronized Ends fast_forward(Ends future){
-		assert(future != null);
+	public synchronized Ends fast_forward(final Ends future){
+		cassert(future != null, "future is null!");
 		Ends stable = future.clone();
 		for (CReplicaID cr : stable.keySet()){
 			put(cr,Timestamp.update(get(cr), stable.get(cr)));
