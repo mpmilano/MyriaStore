@@ -106,23 +106,6 @@ public abstract class Store<Cons extends consistency.Top,
 	private List<Runnable> rl = new LinkedList<>();
 	public void registerOnTick(Runnable r){
 		rl.add(r);
-		/*
-		final Runnable rp = r;
-		(new Thread(){
-				@Override
-				public void run(){
-					try{
-						int i = 0;
-						synchronized(rand){
-							i = rand.nextInt((10 - 0) + 1);
-						}
-						Thread.sleep(i + 0); 
-					}
-					catch(InterruptedException e){}
-					rp.run();
-				}
-			}).start();
-		*/
 	}
 
 	public void tick(){
