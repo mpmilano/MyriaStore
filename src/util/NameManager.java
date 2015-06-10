@@ -11,4 +11,6 @@ public interface NameManager<SType> {
 
 	public abstract String toString(SType a);
 
+	public abstract boolean taggedWith(SType base, SType tag);
+
 }

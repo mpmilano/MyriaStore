@@ -56,30 +56,32 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		tombstone_word = cnm.ofString("tombstone-");
 		meta_name = cnm.ofString("metameta-");
 		natural_replica = this_store.this_replica();
-		metadata_suffix = lnm.ofString("metadata");
+		metadata_suffix = lnm.ofString("-metadata");
 
 		l.registerOnWrite(new Function<LinType,Void>(){
 				@Override
 				public Void apply(LinType name){
-					Nonce n = NonceGenerator.get();
-					{
-						LinType meta_name =
-							lnm.concat(name,metadata_suffix);
-						TreeSet<Pair<ReplicaID, Nonce>> rscopy =
-							new TreeSet<>();
-						rscopy.addAll(readset);
-						rscopy.add(new Pair<ReplicaID, Nonce>(natural_replica, n));
-						//annotate with metadata
-						l.newObject(new MetaData
-									(rscopy, n, natural_replica, ends),
-									meta_name, l);
-					}
-					//write tombstone
-					try {
-						Tombstone t = new Tombstone(n);
-						newObject(t.name, t);
-					} catch(MyriaException e){
-						throw new RuntimeException(e);
+					if (!is_metadata(name)){
+						Nonce n = NonceGenerator.get();
+						{
+							LinType meta_name =
+								lnm.concat(name,metadata_suffix);
+							TreeSet<Pair<ReplicaID, Nonce>> rscopy =
+								new TreeSet<>();
+							rscopy.addAll(readset);
+							rscopy.add(new Pair<ReplicaID, Nonce>(natural_replica, n));
+							//annotate with metadata
+							l.newObject(new MetaData
+										(rscopy, n, natural_replica, ends),
+										meta_name, l);
+						}
+						//write tombstone
+						try {
+							Tombstone t = new Tombstone(n);
+							newObject(t.name, t);
+						} catch(MyriaException e){
+							throw new RuntimeException(e);
+						}
 					}
 					return null;
 				}
@@ -88,20 +90,22 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		l.registerOnRead(new Function<LinType,Void>(){
 				@Override
 				public Void apply(LinType name){
-					LinType meta_name =
-						lnm.concat(name,metadata_suffix);
-					LinObj rmeta;
-					try {rmeta = l.existingObject(meta_name);}
-					catch (Exception e) {throw new RuntimeException(e);}
-					@SuppressWarnings("unchecked")
-					final MetaData meta = (MetaData) rmeta.get();
-					cassert(meta != null,"meta is null!");
-					if (!MD_ends(meta).prec(ends)) {
-						ends.fast_forward(MD_ends(meta));
-						if (!contains_tombstone(MD_n(meta))){
-							readset.addAll(MD_readfrom(meta));
-							c.sync_req(MD_natural_replica(meta),
-									   natural_replica);
+					if (!is_metadata(name)){
+						LinType meta_name =
+							lnm.concat(name,metadata_suffix);
+						LinObj rmeta;
+						try {rmeta = l.existingObject(meta_name);}
+						catch (Exception e) {throw new RuntimeException(e);}
+						@SuppressWarnings("unchecked")
+							final MetaData meta = (MetaData) rmeta.get();
+						cassert(meta != null,"meta is null!");
+						if (!MD_ends(meta).prec(ends)) {
+							ends.fast_forward(MD_ends(meta));
+							if (!contains_tombstone(MD_n(meta))){
+								readset.addAll(MD_readfrom(meta));
+								c.sync_req(MD_natural_replica(meta),
+										   natural_replica);
+							}
 						}
 					}
 					return null;
@@ -122,6 +126,10 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					readset.addAll(readset_new);
 				}
 			});
+	}
+
+	private boolean is_metadata(LinType lt){
+		return lnm.taggedWith(lt,metadata_suffix);
 	}
 	
 	private boolean contains_tombstone(Nonce n){

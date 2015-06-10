@@ -61,9 +61,14 @@ public class SafeInteger implements consistency.CausalSafe<SafeInteger>, Compara
 		else return i + "";
 	}
 
-public SafeInteger concat(SafeInteger b){
-	return wrap(i + b.i);
-}
+	public SafeInteger concat(SafeInteger b){
+		return wrap(i + b.i);
+	}
+
+	public boolean taggedWith(SafeInteger b){
+		return i.endsWith(b.i);
+	}
+
 
 	private static ConcurrentHashMap<Integer, String> pretty = new ConcurrentHashMap<>();
 	public static SafeInteger ofString(String s){
@@ -75,3 +80,4 @@ public SafeInteger concat(SafeInteger b){
 		return wrap(s);
 	}
 }
+

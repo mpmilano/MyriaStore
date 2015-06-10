@@ -22,4 +22,9 @@ public class SimpleNameManager implements NameManager<SafeInteger> {
 	public String toString(SafeInteger a){
 		return a.toString();
 	}
+
+	@Override
+	public boolean taggedWith(SafeInteger a, SafeInteger b){
+		return a.taggedWith(b);
+	}
 }

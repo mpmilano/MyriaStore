@@ -23,6 +23,11 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	public String concat(String a, String b){return a + b;}
 
 	public String toString(String s){return s;}
+
+	@Override
+	public boolean taggedWith(String base, String tag){
+		return base.endsWith(tag);
+	}
 	
 	
 	private FSStore(){}
@@ -42,7 +47,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	@Override
 	protected boolean exists(String s){
 		try{
-			new FSObject<>(s, null);
+			new FSObject<>(s, null,onWrite);
 			return true;
 		}
 		catch (MyriaIOException ex){
@@ -53,7 +58,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	static class FSObject<T extends Serializable> extends RemoteObject<T, String> {
 		protected final File location;
 		protected final Class<?> storedclass;
-		private FSObject(String location, T initialValue) throws MyriaIOException {
+		private FSObject(String location, T initialValue, Collection<Function<String, Void>> onWrite) throws MyriaIOException {
 			Class<?> class1 = (initialValue == null ? Void.class : initialValue.getClass());
 			this.storedclass = class1;
 			this.location = new File(location);
@@ -81,6 +86,9 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 				}
 			}
+			for (Function<String, Void> f : onWrite){
+				f.apply(location);
+			}
 		}
 		@Override
 		public String name(){
@@ -104,25 +112,25 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	@Override
 	protected <T extends Serializable> FSObject<T> newObject(String name, T initialValue) throws MyriaIOException{
-		return new FSObject<T>(name, initialValue);
+		return new FSObject<T>(name, initialValue, onWrite);
 	}
 
 	@Override
 	protected <T extends Serializable> FSObject<T> newObject(String name) throws MyriaIOException{
-		return new FSObject<T>(name, null);		
+		return new FSObject<T>(name, null, onWrite);		
 	}
 
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>>
 		implements ParameterizedOn<T>, HasGenericForm<FSDir<?> >
 	{
 		private ArrayList<FSObject<T>> files;
-		private FSDir(String location) throws MyriaIOException {
-			super(location,null);
+		private FSDir(String location, Collection<Function<String,Void>> onWrite) throws MyriaIOException {
+			super(location,null,onWrite);
 			this.location.mkdirs();
 			if (! this.location.isDirectory()) throw new MyriaIOException(new IOException("must be a dir!"));
 			String[] fls = this.location.list();
 			files = new ArrayList<>(fls.length);
-			for (int i = 0; i < fls.length; ++i) files.set(i,new FSObject<T>(location + "/" + fls[i],null));
+			for (int i = 0; i < fls.length; ++i) files.set(i,new FSObject<T>(location + "/" + fls[i],null,onWrite));
 			System.out.println("constructed!");
 		}
 
@@ -140,7 +148,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	public class DirFact<T extends Serializable> extends AltObjFact<SerializableCollection<T>, access.ReadWrite, FSDir<T> > {
 		public Handle<SerializableCollection<T>, consistency.Lin, access.ReadWrite, consistency.Lin, FSStore>
 			newObject(String name) throws MyriaIOException{
-			return buildHandle(new FSDir<T>(name));
+			return buildHandle(new FSDir<T>(name,onWrite));
 		}
 	}
 
@@ -164,6 +172,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 			
 		}
 		catch (IOException e){
+			System.err.println(o.location.getPath());
 			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

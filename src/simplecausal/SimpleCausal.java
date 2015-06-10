@@ -15,6 +15,8 @@ import util.*;
 
 #define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 
+//TODO TODO TODO - CREATION IS A KIND OF WRITE, DUMBASS.  FIX THIS EVERYWHERE.  RIGHT NOW CROSS-STORE IS TAKING CARE OF THINS FOR YOU, BUT ONCE YOU FIX THAT YOU NEED TO FIX IT HERE TOO.
+
 public class SimpleCausal
 	extends Store<Causal,
 					  SimpleCausal.SimpleRemoteObject<?>,

@@ -56,6 +56,16 @@ class ClientSimulator {
 			});
 
 		statements.add(thunk(incrfact.build(h).execute()));
+		statements.add(new Runnable(){
+				@Override
+				public void run(){
+					incrfact.build(FSStore.inst.newObject
+						(new SimpleCounter(),
+						 "/tmp/fsstore/" + NonceGenerator.get(),
+						 FSStore.inst)).execute();
+				}
+			});
+
 		statements.add(thunk(incrfact.build(h).execute()));
 		statements.add(thunk(System.out.print("Context " + clientID + ": client at " + h.ro.name().toString() + ": " );
 							 (new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
