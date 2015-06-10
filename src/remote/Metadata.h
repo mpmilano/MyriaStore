@@ -1,5 +1,5 @@
 	#define MetaData FourTuple<TreeSet<Pair<ReplicaID,Nonce>>, \
-	Nonce, ReplicaID, Ends>
+	Nonce, ReplicaID, Ends<CReplicaID>>
 	#define MD_readfrom(x) x.a
 	#define MD_n(x) x.b
 	#define MD_natural_replica(x) x.c

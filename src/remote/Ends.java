@@ -1,5 +1,15 @@
-private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
-	implements CausalSafe<Ends>,
+#define cassert(x,s) assert((new Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
+
+package remote;
+import consistency.*;
+import util.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+
+class Ends<CReplicaID extends CausalSafe<CReplicaID> & Comparable<CReplicaID>> extends ConcurrentSkipListMap<CReplicaID, Timestamp>
+	implements CausalSafe<Ends<CReplicaID>>,
 			   IsSerializable<Timestamp>,
 			   IsAlsoSerializable<CReplicaID>,
 			   ISRCloneable<CReplicaID>,
@@ -10,7 +20,7 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 		//TODO: I think empty is correct here, but I'm not sure.
 	}
 	
-	public synchronized boolean prec(Ends e){
+	public synchronized boolean prec(Ends<CReplicaID> e){
 		
 		Set<CReplicaID> crs = new TreeSet<>();
 		crs.addAll(keySet());
@@ -24,9 +34,9 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 		return true;
 	}
 	
-	public synchronized Ends fast_forward(final Ends future){
+	public synchronized Ends<CReplicaID> fast_forward(final Ends<CReplicaID> future){
 		cassert(future != null, "future is null!");
-		Ends stable = future.clone();
+		Ends<CReplicaID> stable = future.clone();
 		for (CReplicaID cr : stable.keySet()){
 			put(cr,Timestamp.update(get(cr), stable.get(cr)));
 		}
@@ -34,14 +44,14 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 	}
 	
 	@Override
-	public synchronized Ends merge(Ends e){
+	public synchronized Ends<CReplicaID> merge(Ends<CReplicaID> e){
 		if (e == null) return this;
 		else return this.fast_forward(e);
 	}
 	
 	@Override
-	public synchronized Ends rclone(){
-		Ends ret = new Ends();
+	public synchronized Ends<CReplicaID> rclone(){
+		Ends<CReplicaID> ret = new Ends<>();
 		for (Map.Entry<CReplicaID, Timestamp> e : entrySet()){
 			ret.put(e.getKey().rclone(), e.getValue().rclone());
 		}
@@ -49,7 +59,7 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 	}
 	
 	@Override
-	public synchronized Ends clone(){
+	public synchronized Ends<CReplicaID> clone(){
 		return rclone();
 	}
 }

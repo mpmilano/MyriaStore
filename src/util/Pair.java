@@ -16,4 +16,9 @@ public class Pair<T extends Serializable & Comparable<T>,
 		if (r1 == 0) return second.compareTo(t.second);
 		else return r1;
 	}
+
+	@Override
+	public String toString(){
+		return "< " + first.getClass().toString() + " : " + first.toString() + " | " + second.getClass().toString() + " : " + second.toString() + " >";
+	}
 }

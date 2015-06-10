@@ -22,11 +22,10 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 	#include "Metadata.h"
 	#include "Tombstone.h"
-	#include "Ends.h"
 
 	//cross-store tracking
 	private final Set<Pair<ReplicaID, Nonce>> readset = new ConcurrentSkipListSet<>();
-	private final Ends ends = new Ends();
+	private final Ends<CReplicaID> ends = new Ends<CReplicaID>();
 
 	//where to find metadata
 	private final CausalType meta_name;
@@ -255,8 +254,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		
 	}
 
-	private Ends generate_casual_meta () {
-		Ends tstamp = new Ends();
+	private Ends<CReplicaID> generate_casual_meta () {
+		Ends<CReplicaID> tstamp = new Ends<CReplicaID>();
 		for (Pair<ReplicaID, Nonce> rsp : readset){
 			final Timestamp t = ends.get(rsp.first);
 			if (t != null) tstamp.put(rsp.first,t);

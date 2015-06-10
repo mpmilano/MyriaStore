@@ -15,4 +15,9 @@ public class FourTuple<A extends Serializable,
 	public FourTuple(A a, B b, C c, D d){
 		this.a = a; this.b = b; this.c = c; this.d = d;
 	}
+
+	@Override
+	public String toString(){
+		return "< " + a.getClass().toString() + " : " + a.toString() + " | " + b.getClass().toString() + " : " + b.toString() + " | " + c.getClass().toString() + " : " + c.toString() + " | " + d.getClass().toString() + " : " + d.toString() + " >";
+	}
 }
