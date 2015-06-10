@@ -35,7 +35,8 @@ private class Ends extends ConcurrentSkipListMap<CReplicaID, Timestamp>
 	
 	@Override
 	public synchronized Ends merge(Ends e){
-		return this.fast_forward(e);
+		if (e == null) return this;
+		else return this.fast_forward(e);
 	}
 	
 	@Override
