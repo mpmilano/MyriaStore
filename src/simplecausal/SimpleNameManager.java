@@ -6,6 +6,8 @@ public class SimpleNameManager implements NameManager<SafeInteger> {
 	public static final SimpleNameManager inst =
 		new SimpleNameManager();
 
+	private SimpleNameManager(){}
+
 	@Override
 	public SafeInteger ofString(final String s){
 		return SafeInteger.ofString(s);

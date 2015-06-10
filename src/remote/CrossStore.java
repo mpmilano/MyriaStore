@@ -153,7 +153,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		CausalType metaname = cnm.concat(meta_name,arg);
 		synchronized(this_store){
 			this_store.newObject(generate_casual_meta(), metaname, this_store);
-			return new CrossObject<T>(this_store.existingObject(arg));
+			return new CrossObject<T>(this_store.existingObject2(arg));
 		}
 	}
 	
@@ -165,7 +165,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	
 
 	public class CrossObject<T extends CausalSafe<T> >
-		implements RemoteObject<T, CausalType>{
+		extends RemoteObject<T, CausalType>{
 
 		final RemoteObject<T, CausalType> real;
 
@@ -210,7 +210,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					Class<? extends T> cls = (Class<? extends T>) m.getClass();
 					T r = cls.
 						cast(replica_map.access_replica(rsp.first)
-							 .existingObject(name).get());
+							 .existingObject2(name).get());
 					m = m.merge(r);
 					once = true;
 				}
