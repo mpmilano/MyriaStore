@@ -21,10 +21,8 @@ class SimpleCounter implements CausalSafe<SimpleCounter>,
 		@Override
 		public void incr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),true));
-			synchronized(synchlock){
-				for (TwoTuple<String,Boolean> tt : i){
-					System.out.println("  " + tt.a + ": " + tt.b);
-				}
+			for (TwoTuple<String,Boolean> tt : i){
+				System.out.println("  " + tt.a + ": " + tt.b);
 			}
 		}
 
@@ -42,21 +40,21 @@ class SimpleCounter implements CausalSafe<SimpleCounter>,
 		}
 
 		@Override
-		public SimpleCounter merge(SimpleCounter c){
+		public SimpleCounter merge(final SimpleCounter c){
 			//System.out.println("merge");
 			final int curr = get();
 			if (c != null) i.addAll(c.i);
-			cassert(c == this ? curr == get() : true, "Merge is not idempotent!");
-			cassert(c == null || (this.get() >= c.get()), "Merge failed to actually incorporate c");
-			cassert((get() == c.get()) || ((c.merge(this)).get() == this.get()),"Merge fails to make counts equal");
+			cassert(c == SimpleCounter.this ? curr == get() : true, "Merge is not idempotent!");
+			cassert(c == null || (get() >= c.get()), "Merge failed to actually incorporate c");
+			cassert((get() == c.get()) || ((c.merge(SimpleCounter.this)).get() == get()),"Merge fails to make counts equal");
 			return this;
 		}
 
 		@Override
 		public SimpleCounter rclone(){
-			SimpleCounter sc = new SimpleCounter();
+			final SimpleCounter sc = new SimpleCounter();
 			sc.i.addAll(i);
-			cassert(this.get() == sc.get(), "Clone failed to create a clone!");
+			cassert(get() == sc.get(), "Clone failed to create a clone!");
 			return sc;
 		}
 

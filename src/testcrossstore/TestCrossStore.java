@@ -34,16 +34,16 @@ public class TestCrossStore {
 
 	Random rand = new Random();
 	
-	public TestCrossStore(){
+	public TestCrossStore() {
 		try{
 
 			//need this to initially seed the "master" replica
 			cross.tick();
-			ClientSimulator t1 = new ClientSimulator();
+			ClientSimulator t1 = new ClientSimulator(hmaster);
 			t1.tick();
-			ClientSimulator t2 = new ClientSimulator();
+			ClientSimulator t2 = new ClientSimulator(hmaster);
 			t2.tick();
-			while (!(t1.done && t2.done)){
+			while (!(t1.done() && t2.done())){
 				if (rand.nextBoolean()){
 					t1.tick();
 					t2.tick();

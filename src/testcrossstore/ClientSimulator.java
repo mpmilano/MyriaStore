@@ -1,5 +1,7 @@
 #define cassert(x,s) assert((new util.Function<Void,Boolean>(){@Override public Boolean apply(Void v){ if (!(x)) throw new RuntimeException(s); return true; }}).apply(null));
 
+#define thunk(x) (new Runnable(){ @Override public void run(){ x; }})
+
 package testcrossstore;
 
 import remote.*;
@@ -14,40 +16,61 @@ import consistency.*;
 import java.io.*;
 
 class ClientSimulator {
-	SimpleNameManager snm = new SimpleNameManager();
-	IncrementFactory incrfact = new IncrementFactory();
+	final SimpleNameManager snm = new SimpleNameManager();
+	final IncrementFactory incrfact = new IncrementFactory();
+	final IndirectStore<Causal, SafeInteger, SafeInteger> cross
+		= new IndirectStore<>
+		(new SimpleCausal());
+	final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
 
+	public LinkedList<Runnable> statements = new LinkedList<>();
 	
+	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1){
+		cross.tick();
+		cassert(cross.objectExists((SafeInteger)h1.ro.name()),"failure: cross tick did not receive master object by name.");
+		Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> htmp = null;
+		try{
+			htmp = h1.getCopy(cross);
+		}
+		catch(MyriaException e){
+			System.err.println("failure: cross tick did not receive master object by name.");
+			throw new RuntimeException(e);
+		}
+		finally {
+			this.h = htmp;
+		}
+
+		statements.add(new Runnable(){
+				@Override
+				public void run(){
+					cassert((cross.newObject
+							 (new SimpleCounter(),
+							  SafeInteger.ofString(NonceGenerator.get()),
+							  cross)).ro.get() != null, "Cross fails to retrieve newly-created object");
+				}
+			});
+
+		statements.add(thunk(incrfact.build(h).execute()));
+		statements.add(thunk(incrfact.build(h).execute()));
+		statements.add(thunk((new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
+		statements.add(new Runnable(){
+				@Override
+				public void run(){
+				}
+			});
+	}
 	
-	public void run(){
-		final IndirectStore<Causal, SafeInteger, SafeInteger> cross
-			= new IndirectStore<>
-			(new SimpleCausal());
+	public void tick(){
 		/*(new CrossStore<>
 		  (new SimpleCausal(), snm,
 		  FSStore.inst, FSStore.inst));*/
 		cross.tick();
-		Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
-		cassert(cross.objectExists((SafeInteger)hmaster.ro.name()),"failure: cross tick did not receive master object by name.");
-		try{
-			synchronized(hmaster){
-				h = hmaster.getCopy(cross);
-			}
-		}
-		catch(MyriaException e){
-			h = null;
-			System.err.println("failure: cross tick did not receive master object by name.");
-			throw new RuntimeException(e);
-		}
-		
-		assert((cross.newObject(new SimpleCounter(),
-								SafeInteger.ofString(NonceGenerator.get()),
-								cross)).ro.get() != null);
-		
-		incrfact.build(h).execute();
-		incrfact.build(h).execute();
-		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute();
+		statements.remove().run();
 		cross.tick();
+	}
+
+	public boolean done(){
+		return statements.isEmpty();
 	}
 	
 }
