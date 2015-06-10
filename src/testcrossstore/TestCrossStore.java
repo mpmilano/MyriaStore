@@ -35,30 +35,29 @@ public class TestCrossStore {
 	Random rand = new Random();
 	
 	public TestCrossStore() {
-		try{
-
-			//need this to initially seed the "master" replica
-			cross.tick();
-			ClientSimulator t1 = new ClientSimulator(hmaster);
-			t1.tick();
-			ClientSimulator t2 = new ClientSimulator(hmaster);
-			t2.tick();
-			while (!(t1.done() && t2.done())){
-				if (rand.nextBoolean()){
-					t1.tick();
-					t2.tick();
-				}
-				else {
-					t2.tick();
-					t1.tick();
-				}
+		//need this to initially seed the "master" replica
+		cross.tick();
+		ClientSimulator t1 = new ClientSimulator(hmaster, 2);
+		t1.tick();
+		ClientSimulator t2 = new ClientSimulator(hmaster, 1);
+		t2.tick();
+		while (!(t1.done() && t2.done())){
+			if (rand.nextBoolean()){
+				t1.tick();
+				t2.tick();
 			}
-			System.out.println("threads done");
-			cross.tick();
-			(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
+			else {
+				t2.tick();
+				t1.tick();
+			}
+			if (rand.nextBoolean()) t1.sync();
+			if (rand.nextBoolean()) t2.sync();
 		}
-		catch (Exception e){
-			throw new RuntimeException(e);
-		}
+		System.out.println("threads done");
+		t1.sync();
+		t2.sync();
+		cross.tick();
+		System.out.print("Observer at " + hmaster.ro.name().toString() + ": ");
+		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
 	}
 }

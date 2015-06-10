@@ -31,7 +31,7 @@ public class SimpleCausal
 	private static ConcurrentNavigableMap<SafeInteger, SimpleCausal> replicas =
 		new ConcurrentSkipListMap<>();
 
-	private ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local =
+	private final ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local =
 		new ConcurrentSkipListMap<>();
 	private final SafeInteger myID =
 		SafeInteger.ofString(NonceGenerator.get());
@@ -48,25 +48,30 @@ public class SimpleCausal
 		try{
 			lock.writeLock().lock();
 			synchronized(master){
-				for (final Map.Entry<SafeInteger, ImmutableContainer<?>> e :
-						 local.entrySet()){
-					cassert(e != null, "null entry found in local store!");
-					cassert(e.getValue() != null, "null entry found in local store value!");
-					cassert(e.getKey() != null,"null key found in local store!");
+				for (final Map.Entry<SafeInteger, ImmutableContainer<?>> e : local.entrySet()){
+					{
+						cassert(e != null, "null entry found in local store!");
+						cassert(e.getValue() != null, "null entry found in local store value!");
+						cassert(e.getKey() != null,"null key found in local store!");
+					}
 					@SuppressWarnings("unchecked")
 						final Mergable<RCloneable<?>> elem
 						= (Mergable<RCloneable<?>>) e.getValue().get();
-					cassert(elem != null, "ImmutableContainer contains null in local cache!");
+					{
+						cassert(elem != null, "ImmutableContainer contains null in local cache!");
+					}
 					SafeInteger key = e.getKey();
-					cassert(master != null, "no master cache!");
+					{
+						cassert(master != null, "no master cache!");
+					}
 					RCloneable<?> merged =
 						elem.merge(ImmutableContainer.readOnlyIfExists
 								   (master.get(key)));
 					
 					@SuppressWarnings("unchecked")
-						ImmutableContainer<?> formaster =
+						ImmutableContainer<?> boxed_merged =
 						new ImmutableContainer(merged);
-					master.put(key, formaster);
+					master.put(key, boxed_merged);
 				}
 				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e :
 						 master.entrySet()){
@@ -77,6 +82,14 @@ public class SimpleCausal
 		finally{
 			lock.writeLock().unlock();
 		}
+		/*
+		for (Map.Entry<SafeInteger,ImmutableContainer<?> > pair : master.entrySet()){
+			if (local.containsKey(pair.getKey())){
+				System.out.println("Master At position " + pair.getKey().toString() + ": " + pair.getValue().readOnlyIpromise().toString());
+				System.out.println("Local At position " + pair.getKey().toString() + ": " + local.get(pair.getKey()).readOnlyIpromise().toString());
+			}
+			}//*/
+
 	}
 
 	@Override
@@ -133,13 +146,9 @@ public class SimpleCausal
 	{
 
 		public SafeInteger a;
-		public ImmutableContainer<T> b;
 
-		public SimpleRemoteObject(SafeInteger name){
-			@SuppressWarnings("unchecked")
-			ImmutableContainer<T> t = (ImmutableContainer<T>) local.get(name);
-			b = t;
-			cassert(b != null,"Null found upon get for valid name!");
+		public SimpleRemoteObject(final SafeInteger name){
+			cassert(local.get(name) != null,"Null found upon get for valid name!");
 			a = name;
 		}
 		
@@ -148,9 +157,7 @@ public class SimpleCausal
 				lock.readLock().lock();
 				cassert(t != null, "SimpleRemote constructed with null object!");
 				this.a = name;
-				this.b = new ImmutableContainer<>(t);
-				cassert(b != null, "constructors don't work!");
-				local.put(name,b);
+				local.put(name,new ImmutableContainer<>(t));
 			}
 			finally{
 				lock.readLock().unlock();
@@ -170,11 +177,9 @@ public class SimpleCausal
 		public void put(T t){
 			for (Function<SafeInteger, Void> f : onWrite)
 				f.apply(a);
-			cassert(b != null,"SimpleObject contains null!");
-			b = new ImmutableContainer<>(t);
 			try{
 				lock.readLock().lock();
-				local.put(a,b);
+				local.put(a,new ImmutableContainer<>(t));
 			}
 			finally{
 				lock.readLock().unlock();
@@ -186,8 +191,10 @@ public class SimpleCausal
 			for (Function<SafeInteger, Void> f : onRead){
 				f.apply(a);
 			}
-			cassert(b.get() != null, "we point to null!");
-			return b.get();
+			//sorry, me
+			@SuppressWarnings("unchecked")
+			T t = (T) local.get(a).get();
+			return t;
 		}
 		
 	}

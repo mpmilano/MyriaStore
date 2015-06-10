@@ -24,8 +24,10 @@ class ClientSimulator {
 	final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
 
 	public LinkedList<Runnable> statements = new LinkedList<>();
+	final private int clientID;
 	
-	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1){
+	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1, final int clientID){
+		this.clientID = clientID;
 		cross.tick();
 		cassert(cross.objectExists((SafeInteger)h1.ro.name()),"failure: cross tick did not receive master object by name.");
 		Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> htmp = null;
@@ -52,7 +54,8 @@ class ClientSimulator {
 
 		statements.add(thunk(incrfact.build(h).execute()));
 		statements.add(thunk(incrfact.build(h).execute()));
-		statements.add(thunk((new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
+		statements.add(thunk(System.out.print("Context " + clientID + ": client at " + h.ro.name().toString() + ": " );
+							 (new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
 		statements.add(new Runnable(){
 				@Override
 				public void run(){
@@ -61,11 +64,10 @@ class ClientSimulator {
 	}
 	
 	public void tick(){
-		/*(new CrossStore<>
-		  (new SimpleCausal(), snm,
-		  FSStore.inst, FSStore.inst));*/
-		cross.tick();
 		statements.remove().run();
+	}
+
+	public void sync(){
 		cross.tick();
 	}
 

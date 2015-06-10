@@ -21,9 +21,6 @@ class SimpleCounter implements CausalSafe<SimpleCounter>,
 		@Override
 		public void incr() {
 			i.add(new TwoTuple<>(NonceGenerator.get(),true));
-			for (TwoTuple<String,Boolean> tt : i){
-				System.out.println("  " + tt.a + ": " + tt.b);
-			}
 		}
 
 		@Override
@@ -40,13 +37,20 @@ class SimpleCounter implements CausalSafe<SimpleCounter>,
 		}
 
 		@Override
+		public boolean equals(Object o){
+			if (o instanceof SimpleCounter){
+				return toString() == o.toString();
+			}
+			else return false;
+		}
+
+		@Override
 		public SimpleCounter merge(final SimpleCounter c){
-			//System.out.println("merge");
 			final int curr = get();
 			if (c != null) i.addAll(c.i);
 			cassert(c == SimpleCounter.this ? curr == get() : true, "Merge is not idempotent!");
 			cassert(c == null || (get() >= c.get()), "Merge failed to actually incorporate c");
-			cassert((get() == c.get()) || ((c.merge(SimpleCounter.this)).get() == get()),"Merge fails to make counts equal");
+			cassert(c == null || (get() == c.get()) || ((c.merge(SimpleCounter.this)).get() == get()),"Merge fails to make counts equal");
 			return this;
 		}
 
