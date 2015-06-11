@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 #define LinStore Store<Lin, LinObj, LinType, LinReplica, LinP>
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
-public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID extends CausalSafe<CReplicaID> & Comparable<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+public class CrossStore<CausalObj extends RemoteObject, CausalType extends Serializable & Comparable<CausalType> & Mergable<CausalType> & RCloneable<CausalType>, CReplicaID extends CausalSafe<CReplicaID> & Comparable<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
 	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStoreT> {
 	//private CausalStore causal;
 	//private LinStore lin;
@@ -20,8 +20,15 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	#define ReplicaID CReplicaID
 	#define Nonce String
 
-	#include "Metadata.h"
-	#include "Tombstone.h"
+	#include "Metadata.h"		
+
+	private final CausalType tombstone_word;
+	private final CausalType tombstone_name(String s){
+		return cnm.concat(tombstone_word,
+						  cnm.ofString(s));
+	}
+
+	#define Tombstone CausalSafeStringPair
 
 	//cross-store tracking
 	private final Set<Pair<ReplicaID, Nonce>> readset = new ConcurrentSkipListSet<>();
@@ -52,7 +59,6 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 		timer = c;
 		this.cnm = cnm;
 		this.lnm = lnm;
-		tombstone_word = cnm.ofString("tombstone-");
 		meta_name = cnm.ofString("metameta-");
 		natural_replica = this_store.this_replica();
 		metadata_suffix = lnm.ofString("-metadata");
@@ -75,11 +81,12 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 										meta_name, l);
 						}
 						//write tombstone
+						final Tombstone<CausalType> t = new Tombstone<>(n, tombstone_name(n));
 						try {
-							Tombstone t = new Tombstone(n);
-							newObject(t.name, t);
-						} catch(MyriaException e){
-							throw new RuntimeException(e);
+							CrossStore.this.newObject(t.second, t);
+						} catch(final MyriaCompatException e){
+							cassert(e.check(t),"Tombstone<CausalType> is not compatible! What?!");
+							throw new RuntimeException("compat error thrown, but class is compatible!");
 						}
 					}
 					return null;
@@ -125,6 +132,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 					readset.addAll(readset_new);
 				}
 			});
+		tombstone_word = cnm.ofString("tombstone-");
 	}
 
 	private boolean is_metadata(LinType lt){
@@ -141,7 +149,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 
 
 	@SuppressWarnings("unchecked")
-	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg, T init) throws util.MyriaException {
+	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg, T init) {
 		CausalType metaname = cnm.concat(meta_name,arg);
 		synchronized(this_store){
 			this_store.newObject(generate_casual_meta(), metaname, this_store);
@@ -151,12 +159,13 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T extends Serializable> CrossObject newObject(CausalType arg, T init) throws util.MyriaException{
-		assert(init instanceof CausalSafe<?>);
+	protected <T extends Serializable> CrossObject newObject(CausalType arg, final T init) throws util.MyriaCompatException{
+		if (! (init instanceof CausalSafe<?>))
+			throw new MyriaCompatException("Attempt to construct a new object which is not causal safe!",CausalSafe.class);
 		return newObject_impl(arg, (CausalSafe) init);
 	}
 
-	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg) throws util.MyriaException {
+	private <T extends CausalSafe<T>> CrossObject newObject_impl(CausalType arg){
 		CausalType metaname = cnm.concat(meta_name,arg);
 		synchronized(this_store){
 			this_store.newObject(generate_casual_meta(), metaname, this_store);
@@ -165,7 +174,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 	}
 	
 	@Override
-	protected <T extends Serializable> CrossObject newObject(CausalType arg) throws util.MyriaException{
+	protected <T extends Serializable> CrossObject newObject(CausalType arg){
 		return newObject_impl(arg);
 	}
 
@@ -209,21 +218,16 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType, CReplicaID e
 			boolean once = false;
 			assert(m != null);
 			for (final Pair<ReplicaID, Nonce> rsp : readset){
-				try{
-					if (!replica_map.access_replica(rsp.first).objectExists(name))
-						continue;
-					
-					@SuppressWarnings("unchecked")
+				if (!replica_map.access_replica(rsp.first).objectExists(name))
+					continue;
+				
+				@SuppressWarnings("unchecked")
 					Class<? extends T> cls = (Class<? extends T>) m.getClass();
-					T r = cls.
-						cast(replica_map.access_replica(rsp.first)
-							 .existingObject2(name).get());
-					m = m.merge(r);
-					once = true;
-				}
-				catch(MyriaException e){
-					throw new RuntimeException(e);
-				}
+				T r = cls.
+					cast(replica_map.access_replica(rsp.first)
+						 .existingObject2(name).get());
+				m = m.merge(r);
+				once = true;
 			}
 			if (!once){
 				synchronized(this_store){
