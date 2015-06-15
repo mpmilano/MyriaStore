@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 #define CrossStoreT CrossStore<CausalObj, CausalType, CReplicaID, CausalP, LinObj, LinType, LinReplica, LinP>
 	
 public class CrossStore<CausalObj extends RemoteObject, CausalType extends Serializable & Comparable<CausalType> & Mergable<CausalType> & RCloneable<CausalType>, CReplicaID extends CausalSafe<CReplicaID> & Comparable<CReplicaID>, CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
-	extends Store<Causal, CrossStore.CrossObject, CausalType, Void, CrossStoreT> {
+	extends Store<Causal, CrossStore.CrossObject, CausalType, CReplicaID, CrossStoreT> {
 	//private CausalStore causal;
 	//private LinStore lin;
 
@@ -280,7 +280,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 	}
 
 	@Override
-	public Void this_replica() { return null; }
+	public CReplicaID this_replica() { return this_store.this_replica(); }
 
 	@Override
 	public void registerOnRead(Function<CausalType, Void> f){

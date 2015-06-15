@@ -17,8 +17,8 @@ import java.io.*;
 
 class ClientSimulator {
 	final SimpleNameManager snm = SimpleNameManager.inst;
-	final IncrementFactory incrfact = new IncrementFactory();
-	final IndirectStore<Causal, SafeInteger, Void> cross
+	final IncrementFactory incrfact = IncrementFactory.inst;
+	final IndirectStore<Causal, SafeInteger, SafeInteger> cross
 		= new IndirectStore<>
 		(new CrossStore<>
 		 (new SimpleCausal(), snm,
@@ -29,8 +29,9 @@ class ClientSimulator {
 	public LinkedList<Runnable> statements = new LinkedList<>();
 	final private int clientID;
 	
-	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, Void>> h1, final int clientID){
-		this.clientID = clientID;
+	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1,
+						   final Handle<SimpleCounter,consistency.Lin,access.ReadWrite,consistency.Lin,FSStore> linhandle){
+		this.clientID = cross.this_replica().toInt();
 		cross.tick();
 		cassert(cross.objectExists((SafeInteger)h1.ro.name()),"failure: cross tick did not receive master object by name.");
 		Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> htmp = null;
@@ -56,24 +57,17 @@ class ClientSimulator {
 			});
 
 		statements.add(thunk(incrfact.build(h).execute()));
-		statements.add(new Runnable(){
-				@Override
-				public void run(){
-					incrfact.build(FSStore.inst.newObject
-						(new SimpleCounter(),
-						 "/tmp/fsstore/" + NonceGenerator.get(),
-						 FSStore.inst)).execute();
-				}
-			});
 
 		statements.add(thunk(incrfact.build(h).execute()));
 		statements.add(thunk(System.out.print("Context " + clientID + ": client at " + h.ro.name().toString() + ": " );
 							 (new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
-		statements.add(new Runnable(){
+		statements.add(thunk(incrfact.build(linhandle).execute()));
+		
+		/*statements.add(new Runnable(){
 				@Override
 				public void run(){
 				}
-			});
+				}); */
 	}
 	
 	public void tick(){

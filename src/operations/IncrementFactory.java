@@ -6,6 +6,10 @@ import java.io.Serializable;
 import util.*;
 
 public class IncrementFactory {
+
+	private IncrementFactory(){}
+
+	public static IncrementFactory inst = new IncrementFactory();
 	
 	public <T extends Serializable & Incrementable, C extends consistency.Top>
 		Operation<Void,C> build(final Handle<T,C,? extends access.Read, ?, ?> elem){
