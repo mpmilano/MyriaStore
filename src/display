@@ -1,13 +1,15 @@
 #!/bin/bash
-if cd /tmp/outdir/src/
+if [[ -e /tmp/outdir/src/Display.class ]]
 then
-	if [[ -e /tmp/outdir/src/Display.class ]]
-	then
-		java Display $*
-	else
-		cp ~/andrew/MyriaStore/src/Display.java ./
-		javac Display.java
-		java Display $*
-	fi
-	cd -
-fi 
+	cd /tmp/outdir/src/
+	java Display $*
+else
+	make
+	mkdir -p /tmp/outdir/src/
+	cd /tmp/outdir/src/
+	cp ~/andrew/MyriaStore/src/Display.java ./
+	javac Display.java
+	java Display $*
+fi
+cd -
+
