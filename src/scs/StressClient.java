@@ -43,8 +43,8 @@ public class StressClient{
 	int tick_count = 0;
 	public void tick(){
 		ContextSwitcher.setContext(cross.this_replica());
-		sync();
-		syncAll.apply(null);
+		//sync();
+		//syncAll.apply(null);
 		System.out.print("switched to " +  id + "; time since sync: " + tick_count++ + ": ");
 		int next = r.nextInt(100);
 		if (next > 70){
