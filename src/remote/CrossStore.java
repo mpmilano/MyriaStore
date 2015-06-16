@@ -250,7 +250,8 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 		private int readset_reps(Set<Pair<ReplicaID, Nonce>> rs){
 			TreeSet<ReplicaID> effective_size = new TreeSet<>();
 			for (Pair<ReplicaID, Nonce> p : rs){
-				effective_size.add(p.first);
+				if (p.first.compareTo(natural_replica) != 0)
+					effective_size.add(p.first);
 			}
 			return effective_size.size();
 		}
