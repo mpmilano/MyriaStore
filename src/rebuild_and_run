@@ -1,0 +1,1 @@
+rm  -rf /tmp/simple_causal_obs/*; rm /tmp/fsstore/*; make clean && make && make run
