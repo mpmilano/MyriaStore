@@ -18,10 +18,10 @@ import java.io.*;
 class ClientSimulator {
 	final SimpleNameManager snm = SimpleNameManager.inst;
 	final IncrementFactory incrfact = IncrementFactory.inst;
-	final IndirectStore<Causal, SafeInteger, SafeInteger> cross
-		= new IndirectStore<>
+	final CrossStore<SimpleCausal.SimpleRemoteObject<?>, SafeInteger, SafeInteger, SimpleCausal, FSStore.FSObject, String, java.net.InetAddress, FSStore> cross
+		= 
 		(new CrossStore<>
-		 (new SimpleCausal(), snm,
+		 (new SimpleCausal(), SimpleNameManager.inst,
 		  FSStore.inst, FSStore.inst));
 
 	final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> h;
@@ -30,7 +30,7 @@ class ClientSimulator {
 	final private int clientID;
 	final private SafeInteger orig_clientID;
 	
-	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1,
+	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,CrossStore<SimpleCausal.SimpleRemoteObject<?>, SafeInteger, SafeInteger, SimpleCausal, FSStore.FSObject, String, java.net.InetAddress, FSStore>> h1,
 						   final Handle<SimpleCounter,consistency.Lin,access.ReadWrite,consistency.Lin,FSStore> linhandle){
 		this.orig_clientID = cross.this_replica();
 		this.clientID = this.orig_clientID.toInt();

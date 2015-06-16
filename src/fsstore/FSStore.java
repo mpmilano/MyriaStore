@@ -49,7 +49,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 		return FileOps.exists(s);
 	}
 
-	static class FSObject<T extends Serializable> extends RemoteObject<T, String> {
+	public static class FSObject<T extends Serializable> extends RemoteObject<T, String> {
 		protected final File location;
 		protected final Class<?> storedclass;
 		private FSObject(String location, T initialValue, Collection<Function<String, Void>> onWrite) throws MyriaIOException {

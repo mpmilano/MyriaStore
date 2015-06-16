@@ -26,8 +26,15 @@ public class TestCrossStore {
 
 	//the "manager" interface - none of the testing operations are done here,
 	//but we can use it to observe the state outside of the simulation class.
-	final IndirectStore<Causal, SafeInteger, SafeInteger> cross
-		= new IndirectStore<>
+
+	/*
+	<CausalP, LinObj extends RemoteObject, LinType, LinReplica, LinP>
+	
+					<Causal,
+					  SimpleCausal.SimpleRemoteObject<?>,
+					  , , SimpleCausal>														*/
+	final CrossStore<SimpleCausal.SimpleRemoteObject<?>, SafeInteger, SafeInteger, SimpleCausal, FSStore.FSObject, String, java.net.InetAddress, FSStore> cross
+						  = 
 		(new CrossStore<>
 		 (new SimpleCausal(), SimpleNameManager.inst,
 		  FSStore.inst, FSStore.inst));
@@ -36,7 +43,7 @@ public class TestCrossStore {
 		/*(new CrossStore<>
 		 (new SimpleCausal(), (new SimpleNameManager()),
 		 FSStore.inst, FSStore.inst));*/
-	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> hmaster =
+	Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,CrossStore<SimpleCausal.SimpleRemoteObject<?>,SafeInteger,SafeInteger,SimpleCausal,FSStore.FSObject,String,java.net.InetAddress,FSStore>> hmaster =
 		cross.newObject(new SimpleCounter(),
 						name,
 						cross);
