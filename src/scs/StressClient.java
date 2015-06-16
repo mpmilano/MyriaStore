@@ -26,8 +26,12 @@ public class StressClient{
 
 	Random r = new Random();
 
-	public StressClient(Handle<SimpleCounter, consistency.Lin, access.ReadWrite, ?,?> linObj){
+	final private Function<Void,Void> syncAll;
+
+	public StressClient(Handle<SimpleCounter, consistency.Lin, access.ReadWrite, ?,?> linObj,
+						Function<Void,Void> syncAll){
 		this.linObj = linObj;
+		this.syncAll = syncAll;
 
 		causal1 = cross.newObject(new SimpleCounter(), cross.genArg(), cross);
 		causal2 = cross.newObject(new SimpleCounter(), cross.genArg(), cross);
@@ -36,9 +40,12 @@ public class StressClient{
 	}
 
 
+	int tick_count = 0;
 	public void tick(){
 		ContextSwitcher.setContext(cross.this_replica());
-		System.out.print("switched to " +  id + ":  ");
+		sync();
+		syncAll.apply(null);
+		System.out.print("switched to " +  id + "; time since sync: " + tick_count++ + ": ");
 		int next = r.nextInt(100);
 		if (next > 70){
 			IncrementFactory.inst.build(causal1).execute();
@@ -58,6 +65,7 @@ public class StressClient{
 
 	public void sync(){
 		cross.tick();
+		tick_count = 0;
 	}
 
 }

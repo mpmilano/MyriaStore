@@ -15,15 +15,24 @@ public class StressCrossStore {
 	public StressCrossStore() {
 		Handle<SimpleCounter, consistency.Lin, access.ReadWrite, ?,?> h =
 			FSStore.inst.newObject(new SimpleCounter(), "/tmp/fsstore/shared-lin-obj",FSStore.inst);
+		Function<Void,Void> syncAll = new Function<Void,Void>(){
+				@Override
+				public Void apply(Void v){
+					for (StressClient stc : sc){
+						stc.sync();
+					}
+					return v;
+				}
+			};
 		
 		for (int i = 0; i < sc.length; ++i){
-			sc[i] = new StressClient(h);
+			sc[i] = new StressClient(h,syncAll);
 		}
 
 		for (int i = 0; i < 100000; ++i){
 			for (StressClient stc : sc){
 				stc.tick();
-				if ((i - stc.id) % 40 == 0) stc.sync();
+				if ((i - stc.id) % 4 == 0) stc.sync();
 			}
 		}
 	}
