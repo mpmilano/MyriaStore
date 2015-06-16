@@ -92,5 +92,9 @@ public class TestCrossStore {
 		(new PrintFactory<consistency.Lin>().build(Handle.readOnly(linhandle))).execute();
 		System.out.print("Observer (context "+ cross.this_replica().toString() +") at " + hmaster.ro.name().toString() + ": ");
 		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
+		t1.sync();
+		t2.sync();
+		cross.tick();
+		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();
 	}
 }
