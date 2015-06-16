@@ -252,6 +252,11 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 			T to_return = helper(m, ct);
 			ends.fast_forward(helper(ends,cnm.concat(meta_name,ct)));
 			System.out.println("Readset size: " + readset.size());
+			System.out.println("Readset contents: ");
+			for (Object o : readset ){
+				System.out.println(o.toString());
+			}
+				
 			return to_return;
 		}
 		

@@ -56,28 +56,13 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 			Class<?> class1 = (initialValue == null ? Void.class : initialValue.getClass());
 			this.storedclass = class1;
 			this.location = new File(location);
-			if (initialValue != null){
-				FileOutputStream fos = null;
-				ObjectOutputStream oos = null;
+			if (initialValue != null){				
 				try {
 					this.location.createNewFile();
-					fos = new FileOutputStream(this.location);
-					oos = new ObjectOutputStream(fos);
-					oos.writeObject(initialValue);
+					FileOps.writeToFS(initialValue, this.location);
 				}
 				catch (IOException ex){
 					throw new MyriaIOException(ex);
-				}
-				finally {
-					try{
-						if (oos != null) oos.close();
-						if (fos != null) fos.close();
-						
-					}
-					catch (IOException e){
-						throw new MyriaIOException(e);
-					}
-
 				}
 			}
 			for (Function<String, Void> f : onWrite){
@@ -182,7 +167,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 	
 	private <T extends Serializable> void putObj(FSObject<T> o, T t){
 		try {
-			(new ObjectOutputStream(new FileOutputStream(o.location))).writeObject(t);
+			FileOps.writeToFS(t,o.location);
 			for (util.Function<String,Void> f : onWrite){
 				f.apply(o.location.getCanonicalPath());
 			}

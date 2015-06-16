@@ -38,6 +38,7 @@ public class StressClient{
 
 	public void tick(){
 		ContextSwitcher.setContext(cross.this_replica());
+		System.out.print("switched to " +  id + ":  ");
 		int next = r.nextInt(100);
 		if (next > 70){
 			IncrementFactory.inst.build(causal1).execute();
@@ -51,6 +52,8 @@ public class StressClient{
 		else {
 			IncrementFactory.inst.build(linObj).execute();
 		}
+
+		System.out.println();
 	}
 
 	public void sync(){

@@ -12,7 +12,7 @@ public class IncrementFactory {
 	public static IncrementFactory inst = new IncrementFactory();
 	
 	public <T extends Serializable & Incrementable, C extends consistency.Top>
-		Operation<Void,C> build(final Handle<T,C,? extends access.Read, ?, ?> elem){
+		Operation<Void,C> build(final Handle<T,C,? extends access.Write, ?, ?> elem){
 		return new Operation<Void,C>() {
 			
 			@Override

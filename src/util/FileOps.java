@@ -6,12 +6,24 @@ public class FileOps{
 
 	@SuppressWarnings("unchecked")
 	public static <T extends Serializable> T readFromFS(File where) throws ClassNotFoundException, FileNotFoundException, IOException{
-		return (T) (new ObjectInputStream(new FileInputStream(where))).readObject();
+		FileInputStream fis = (new FileInputStream(where));
+		ObjectInputStream ois = (new ObjectInputStream(fis));
+		try{
+			return (T) ois.readObject();
+		}
+		finally {
+			ois.close();
+			fis.close();
+		}
 	}
 
 	public static void writeToFS(Serializable s, File where) {
 		try {
-			(new ObjectOutputStream(new FileOutputStream(where))).writeObject(s);
+			FileOutputStream fos = (new FileOutputStream(where));
+			ObjectOutputStream oos = (new ObjectOutputStream(fos));
+			oos.writeObject(s);
+			oos.close();
+			fos.close();
 		}
 		catch (IOException e){
 			throw new RuntimeException(e);

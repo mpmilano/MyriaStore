@@ -62,7 +62,9 @@ public class Main{
 	}
 
 	public static void main(String[] args){
-		TestCrossStore tcs = new TestCrossStore();
+		//TestCrossStore tcs = new TestCrossStore();
+
+		scs.StressCrossStore scs = new scs.StressCrossStore();
 	}
 
 }
