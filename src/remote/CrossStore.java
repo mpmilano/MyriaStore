@@ -66,6 +66,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 		l.registerOnWrite(new Function<LinType,Void>(){
 				@Override
 				public Void apply(LinType name){
+					if (ContextSwitcher.testContext(this_replica())){
 					if (!is_metadata(name)){
 						Nonce n = NonceGenerator.get();
 						{
@@ -89,6 +90,7 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 							throw new RuntimeException("compat error thrown, but class is compatible!");
 						}
 					}
+					}
 					return null;
 				}
 			});
@@ -96,22 +98,24 @@ public class CrossStore<CausalObj extends RemoteObject, CausalType extends Seria
 		l.registerOnRead(new Function<LinType,Void>(){
 				@Override
 				public Void apply(LinType name){
-					if (!is_metadata(name)){
-						LinType meta_name =
-							lnm.concat(name,metadata_suffix);
-						LinObj rmeta;
-						try {rmeta = l.existingObject(meta_name);}
-						catch (Exception e) {throw new RuntimeException(e);}
-						@SuppressWarnings("unchecked")
-							final MetaData meta = (MetaData) rmeta.get();
-						cassert(meta != null,"meta is null!");
-						if (!MD_ends(meta).prec(ends)) {
-							ends.fast_forward(MD_ends(meta));
-							if (!contains_tombstone(MD_n(meta))){
-								readset.addAll(MD_readfrom(meta));
-								c.sync_req(MD_natural_replica(meta),
-										   natural_replica);
-							}
+					if (ContextSwitcher.testContext(this_replica())){
+						if (!is_metadata(name)){
+							LinType meta_name =
+								lnm.concat(name,metadata_suffix);
+							@SuppressWarnings("unchecked")
+								MetaData meta = (l.objectExists(meta_name) ?
+												 (MetaData) l.<MetaData>existingObject(meta_name).get() :
+												 null);
+							
+							if(meta != null)
+								if (!MD_ends(meta).prec(ends)) {
+									ends.fast_forward(MD_ends(meta));
+									if (!contains_tombstone(MD_n(meta))){
+										readset.addAll(MD_readfrom(meta));
+										c.sync_req(MD_natural_replica(meta),
+												   natural_replica);
+									}
+								}
 						}
 					}
 					return null;

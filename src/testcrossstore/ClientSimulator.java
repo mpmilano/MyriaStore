@@ -28,10 +28,13 @@ class ClientSimulator {
 
 	public LinkedList<Runnable> statements = new LinkedList<>();
 	final private int clientID;
+	final private SafeInteger orig_clientID;
 	
 	public ClientSimulator(final Handle<SimpleCounter,consistency.Causal,access.ReadWrite,consistency.Causal,IndirectStore<Causal, SafeInteger, SafeInteger>> h1,
 						   final Handle<SimpleCounter,consistency.Lin,access.ReadWrite,consistency.Lin,FSStore> linhandle){
-		this.clientID = cross.this_replica().toInt();
+		this.orig_clientID = cross.this_replica();
+		this.clientID = this.orig_clientID.toInt();
+		ContextSwitcher.setContext(cross.this_replica());
 		cross.tick();
 		cassert(cross.objectExists((SafeInteger)h1.ro.name()),"failure: cross tick did not receive master object by name.");
 		Handle<SimpleCounter,consistency.Causal,access.ReadWrite,?,?> htmp = null;
@@ -61,6 +64,7 @@ class ClientSimulator {
 		statements.add(thunk(incrfact.build(h).execute()));
 		statements.add(thunk(System.out.print("Context " + clientID + ": client at " + h.ro.name().toString() + ": " );
 							 (new PrintFactory<consistency.Causal>()).build(Handle.readOnly(h)).execute()));
+		statements.add(thunk(assert(clientID == cross.this_replica().toInt())));
 		statements.add(thunk(incrfact.build(linhandle).execute()));
 		
 		/*statements.add(new Runnable(){
@@ -71,7 +75,10 @@ class ClientSimulator {
 	}
 	
 	public void tick(){
+		ContextSwitcher.setContext(orig_clientID);
+		System.out.print(clientID + ": ");
 		statements.remove().run();
+		System.out.println("");
 	}
 
 	public void sync(){

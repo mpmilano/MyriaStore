@@ -35,6 +35,19 @@ public class SimpleCausal
 
 	private final ConcurrentSkipListMap<SafeInteger, ImmutableContainer<?>> local =
 		new ConcurrentSkipListMap<>();
+
+	private void put_local(SafeInteger i, ImmutableContainer<?> b){
+		(new File("/tmp/simple_causal_obs/" + myID.toString())).mkdirs();
+		FileOps.writeToFS((Serializable) ImmutableContainer.readOnlyIfExists(b),new File("/tmp/simple_causal_obs/" + myID.toString() + "/" + i.toString()));
+		local.put(i,b);
+	}
+
+	private void put_master(SafeInteger i, ImmutableContainer<?> b){
+		(new File("/tmp/simple_causal_obs/global")).mkdirs();
+		FileOps.writeToFS((Serializable) ImmutableContainer.readOnlyIfExists(b),new File("/tmp/simple_causal_obs/global/" + i.toString()));
+		master.put(i,b);
+	}
+		
 	private final SafeInteger myID =
 		SafeInteger.ofString(NonceGenerator.get());
 
@@ -73,11 +86,11 @@ public class SimpleCausal
 					@SuppressWarnings("unchecked")
 						ImmutableContainer<?> boxed_merged =
 						new ImmutableContainer(merged);
-					master.put(key, boxed_merged);
+					put_master(key, boxed_merged);
 				}
 				for (Map.Entry<SafeInteger, ImmutableContainer<?>> e :
 						 master.entrySet()){
-					local.put(e.getKey(),e.getValue());
+					put_local(e.getKey(),e.getValue());
 				}
 			}
 		}
@@ -159,7 +172,7 @@ public class SimpleCausal
 				lock.readLock().lock();
 				cassert(t != null, "SimpleRemote constructed with null object!");
 				this.a = name;
-				local.put(name,new ImmutableContainer<>(t));
+				put_local(name,new ImmutableContainer<>(t));
 			}
 			finally{
 				lock.readLock().unlock();
@@ -181,7 +194,7 @@ public class SimpleCausal
 				f.apply(a);
 			try{
 				lock.readLock().lock();
-				local.put(a,new ImmutableContainer<>(t));
+				put_local(a,new ImmutableContainer<>(t));
 			}
 			finally{
 				lock.readLock().unlock();

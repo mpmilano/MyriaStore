@@ -15,11 +15,14 @@ import java.io.*;
 
 public class TestCrossStore {
 
+	String othername = "/tmp/fsstore/lin-test-obj";
+	final Handle<SimpleCounter,consistency.Lin,access.ReadWrite,consistency.Lin,FSStore> linhandle =
+		FSStore.inst.newObject(new SimpleCounter(),othername,FSStore.inst);
+
 	private static Object synchlock = "";
 
 	SafeInteger name = SafeInteger.ofString(NonceGenerator.get());
 
-	String othername = "lin-test-object";
 
 	//the "manager" interface - none of the testing operations are done here,
 	//but we can use it to observe the state outside of the simulation class.
@@ -38,10 +41,12 @@ public class TestCrossStore {
 						name,
 						cross);
 
-	final Handle<SimpleCounter,consistency.Lin,access.ReadWrite,consistency.Lin,FSStore> linhandle =
-		FSStore.inst.newObject(new SimpleCounter(),othername,FSStore.inst);
-
 	Random rand = new Random();
+
+	private void waitForEnter(){
+		Scanner scan = new Scanner(System.in);
+		scan.nextLine();
+	}
 	
 	public TestCrossStore() {
 		//need this to initially seed the "master" replica
@@ -50,27 +55,33 @@ public class TestCrossStore {
 		ClientSimulator t2 = new ClientSimulator(hmaster, linhandle);
 		
 		//the observer is slaved to this one.
-		new ClientSimulator(hmaster, linhandle);
+		//new ClientSimulator(hmaster, linhandle);
 
 		t1.tick();
 		t2.tick();
+
+		waitForEnter();
 		
 		while (!(t1.done() && t2.done())){
-			if (rand.nextBoolean()){
+			if (true/*rand.nextBoolean()*/){
 				t1.tick();
+				waitForEnter();
 				t2.tick();
 			}
 			else {
 				t2.tick();
 				t1.tick();
 			}
+			waitForEnter();
 
 			//if (rand.nextBoolean()) t1.sync();
 			//if (rand.nextBoolean()) t2.sync();
 		}
 
 		System.out.println("threads done");
+		ContextSwitcher.setContext(cross.this_replica());
 		IncrementFactory.inst.build(linhandle).execute();
+		System.out.print("Lin object: ");
 		(new PrintFactory<consistency.Lin>().build(Handle.readOnly(linhandle))).execute();
 		System.out.print("Observer (context "+ cross.this_replica().toString() +") at " + hmaster.ro.name().toString() + ": ");
 		(new PrintFactory<consistency.Causal>()).build(Handle.readOnly(hmaster)).execute();

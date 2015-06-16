@@ -73,6 +73,11 @@ public class SafeInteger implements consistency.CausalSafe<SafeInteger>, Compara
 		return i.endsWith(b.i);
 	}
 
+	@Override
+	public boolean equals(Object o){
+		return (o instanceof SafeInteger) && ((SafeInteger) o ).i.equals(i);
+	}
+
 
 
 	private static ConcurrentHashMap<Integer, String> pretty = new ConcurrentHashMap<>();

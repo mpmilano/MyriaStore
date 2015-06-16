@@ -46,13 +46,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	@Override
 	protected boolean exists(String s){
-		try{
-			new FSObject<>(s, null,onWrite);
-			return true;
-		}
-		catch (MyriaIOException ex){
-			return false;
-		}
+		return FileOps.exists(s);
 	}
 
 	static class FSObject<T extends Serializable> extends RemoteObject<T, String> {
@@ -117,7 +111,7 @@ public class FSStore extends Store<consistency.Lin, FSStore.FSObject, String,Ine
 
 	@Override
 	protected <T extends Serializable> FSObject<T> newObject(String name) throws MyriaIOException{
-		return new FSObject<T>(name, null, onWrite);		
+		return new FSObject<T>(name, null, onWrite);
 	}
 
 	static class FSDir<T extends Serializable> extends FSObject<SerializableCollection<T>>

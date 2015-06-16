@@ -17,16 +17,15 @@ public abstract class Store<Cons extends consistency.Top,
 		newObject(SType arg, T init) throws util.MyriaException;
 
 	//for referencing existing objects by name.  Only for use within framework.
-	synchronized <T extends Serializable,
-							RObjT extends RemoteObject<T, SType> & HasGenericForm<RObj> & ParameterizedOn<T> >
-		RObjT existingObject(final SType arg) {
+	synchronized <T extends Serializable>
+		RObj existingObject(final SType arg) {
 			cassert(arg != null, "attempt to reference existing object with null name");
 			cassert(exists(arg),"attempt to build non-existing object! please check if exists first.");
 
 			//TODO: propogate this pattern everywhere
 			try{
 				@SuppressWarnings("unchecked")
-					RObjT specific = (RObjT) newObject(arg);
+					RObj specific = newObject(arg);
 				return specific;
 			}
 			catch(util.MyriaException e) {
